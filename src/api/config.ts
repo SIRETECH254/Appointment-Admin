@@ -1,4 +1,5 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4500';
 
@@ -36,8 +37,8 @@ api.interceptors.request.use(
 
 // Response interceptor to handle token refresh
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  (response: AxiosResponse) => response,
+  async (error: AxiosError & { config: InternalAxiosRequestConfig & { _retry?: boolean } }) => {
     const originalRequest = error.config;
 
     // Check if error is 401 and we haven't already retried
