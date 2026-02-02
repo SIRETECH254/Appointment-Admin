@@ -80,27 +80,28 @@ const Login = () => {
   const bannerMessage = inlineError || error
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
+    <div className="auth-page">
+   
+      <div className="auth-container">
+        <div className="">
           {/* Header */}
-          <div className="text-center">
-            <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
+          <div className="auth-header">
+            <p className="auth-kicker">
               Appointment Admin
             </p>
-            <h1 className="mt-3 text-3xl font-semibold text-slate-900">
+            <h1 className="auth-title">
               Welcome back
             </h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="auth-subtitle">
               Sign in to manage appointments and staff schedules.
             </p>
           </div>
 
           {/* Form */}
-          <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+          <form className="auth-form" onSubmit={onSubmit}>
             {/* Email field */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
+            <div className="auth-field">
+              <label className="form-label">
                 Email
               </label>
               <input
@@ -112,13 +113,13 @@ const Login = () => {
                 autoComplete="email"
                 type="email"
                 placeholder="admin@example.com"
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20"
+                className="form-input"
               />
             </div>
 
             {/* Password field */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
+            <div className="auth-field">
+              <label className="form-label">
                 Password
               </label>
               <div className="relative">
@@ -130,7 +131,7 @@ const Login = () => {
                   autoComplete="current-password"
                   type={isPasswordVisible ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 pr-12 text-sm text-slate-900 outline-none transition focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20"
+                  className="form-input-password"
                 />
                 {/* Toggle password visibility */}
                 <button
@@ -141,7 +142,7 @@ const Login = () => {
                   aria-label={
                     isPasswordVisible ? 'Hide password' : 'Show password'
                   }
-                  className="absolute right-3 top-3 text-slate-400 transition hover:text-slate-600"
+                  className="form-toggle-icon"
                 >
                   {isPasswordVisible ? (
                     <MdVisibilityOff size={20} />
@@ -153,8 +154,8 @@ const Login = () => {
             </div>
 
             {/* Remember me + forgot password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-slate-600">
+            <div className="auth-actions">
+              <label className="auth-remember">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -166,13 +167,13 @@ const Login = () => {
                       clearError()
                     }
                   }}
-                  className="h-4 w-4 accent-[#D4AF37]"
+                  className="auth-checkbox"
                 />
                 Remember me
               </label>
               <Link
                 to="/forgot-password"
-                className="font-semibold text-[#C5A028] transition hover:text-[#B08C22]"
+                className="auth-link"
               >
                 Forgot password?
               </Link>
@@ -180,7 +181,7 @@ const Login = () => {
 
             {/* Error banner */}
             {bannerMessage ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="auth-inline-message-error">
                 {bannerMessage}
               </div>
             ) : null}
@@ -189,22 +190,23 @@ const Login = () => {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full rounded-xl bg-[#D4AF37] py-3 text-sm font-semibold text-white transition hover:bg-[#C5A028] disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="auth-button"
             >
               {isSubmitting || isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
           {/* Footer copy */}
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="auth-footer">
             Need access?{' '}
-            <span className="font-semibold text-slate-700">
+            <span className="auth-footer-strong">
               Contact your administrator
             </span>
             .
           </p>
         </div>
       </div>
+    
     </div>
   )
 }

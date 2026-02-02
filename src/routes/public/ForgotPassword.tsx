@@ -81,27 +81,27 @@ const ForgotPassword = () => {
   )
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-card">
           {/* Header */}
-          <div className="text-center">
-            <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
+          <div className="auth-header">
+            <p className="auth-kicker">
               Appointment Admin
             </p>
-            <h1 className="mt-3 text-3xl font-semibold text-slate-900">
+            <h1 className="auth-title">
               Forgot password?
             </h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="auth-subtitle">
               Enter your email address and we will send reset instructions.
             </p>
           </div>
 
           {/* Form */}
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          <form className="auth-form" onSubmit={handleSubmit}>
             {/* Email field */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
+            <div className="auth-field">
+              <label className="form-label">
                 Email
               </label>
               <input
@@ -113,18 +113,18 @@ const ForgotPassword = () => {
                 autoComplete="email"
                 type="email"
                 placeholder="admin@example.com"
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20"
+                className="form-input"
               />
             </div>
 
             {/* Inline feedback */}
             {inlineMessage ? (
               <div
-                className={`rounded-xl px-4 py-3 text-sm ${
+                className={
                   inlineMessage.type === 'success'
-                    ? 'border border-emerald-200 bg-emerald-50 text-emerald-700'
-                    : 'border border-red-200 bg-red-50 text-red-700'
-                }`}
+                    ? 'auth-inline-message-success'
+                    : 'auth-inline-message-error'
+                }
               >
                 {inlineMessage.text}
               </div>
@@ -134,18 +134,18 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full rounded-xl bg-[#D4AF37] py-3 text-sm font-semibold text-white transition hover:bg-[#C5A028] disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="auth-button"
             >
               {isSubmitting ? 'Sending...' : 'Send reset link'}
             </button>
           </form>
 
           {/* Footer */}
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="auth-footer">
             Remembered your password?{' '}
             <Link
               to="/login"
-              className="font-semibold text-[#C5A028] transition hover:text-[#B08C22]"
+              className="auth-link"
             >
               Back to sign in
             </Link>
