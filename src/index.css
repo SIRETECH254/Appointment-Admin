@@ -38,6 +38,16 @@
   --radius-2xl: 1rem;
 }
 
+@layer base {
+  body {
+    @apply bg-white text-slate-900 font-inter;
+  }
+
+  #root {
+    @apply min-h-screen bg-white;
+  }
+}
+
 @layer components {
   .form-label {
     @apply font-inter text-sm font-semibold text-gray-700;
