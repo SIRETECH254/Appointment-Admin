@@ -61,22 +61,31 @@ import type {
 // Auth API
 // ============================================
 export const authAPI = {
+  // Register a new user account.
   register: (userData: RegisterPayload) => api.post('/api/auth/register', userData),
 
+  // Verify a one-time password (OTP) for authentication.
   verifyOTP: (otpData: VerifyOTPPayload) => api.post('/api/auth/verify-otp', otpData),
 
+  // Request a new OTP for verification.
   resendOTP: (emailData: ResendOTPPayload) => api.post('/api/auth/resend-otp', emailData),
 
+  // Login with credentials and receive tokens.
   login: (credentials: LoginPayload) => api.post('/api/auth/login', credentials),
 
+  // Logout the current session.
   logout: () => api.post('/api/auth/logout'),
 
+  // Request a password reset email.
   forgotPassword: (data: ForgotPasswordPayload) => api.post('/api/auth/forgot-password', data),
 
+  // Reset password using a token link.
   resetPassword: (token: string, data: ResetPasswordPayload) => api.post(`/api/auth/reset-password/${token}`, data),
 
+  // Refresh access token using a refresh token.
   refreshToken: (data: RefreshTokenPayload) => api.post('/api/auth/refresh-token', data),
 
+  // Fetch the current authenticated user profile.
   getMe: () => api.get('/api/auth/me'),
 };
 

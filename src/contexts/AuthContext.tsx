@@ -67,13 +67,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isLoading = useAppSelector((state) => state.auth.isLoading);
   const error = useAppSelector((state) => state.auth.error);
 
+  // Rehydrate auth state from localStorage and refresh the user profile in the background.
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const token = localStorage.getItem('accessToken');
         const storedUserString = localStorage.getItem('user');
 
-        // 1) Rehydrate immediately from localStorage so state survives reloads
+        // 1) Rehydrate immediately from localStorage so state survives reloads.
         if (token && storedUserString) {
           try {
             const storedUser = JSON.parse(storedUserString);
@@ -92,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         dispatch(setLoading(false));
 
-        // 2) Background refresh of user profile; do NOT clear tokens on failure
+        // 2) Background refresh of user profile; do NOT clear tokens on failure.
         const refreshUserInBackground = async () => {
           if (!token) return;
           try {
@@ -117,6 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
   }, [dispatch]);
 
+  // Login flow: exchange credentials for tokens and user, then persist to localStorage.
   const login = async (credentials: LoginPayload): Promise<AuthResult> => {
     dispatch(loginStart());
     dispatch(setAuthLoading(true));
@@ -147,6 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Registration flow: create a new account (no token storage yet).
   const register = async (userData: RegisterPayload): Promise<AuthResult> => {
     dispatch(registerStart());
 
@@ -163,6 +166,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // OTP verification: complete login and persist tokens + user.
   const verifyOTP = async (otpData: VerifyOTPPayload): Promise<AuthResult> => {
     dispatch(loginStart());
 
@@ -192,6 +196,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Resend OTP: stateless retry for verification flow.
   const resendOTP = async (emailData: ResendOTPPayload): Promise<AuthResult> => {
     try {
       await authAPI.resendOTP(emailData);
@@ -203,6 +208,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Forgot password: request a reset email.
   const forgotPassword = async (email: string): Promise<AuthResult> => {
     try {
       await authAPI.forgotPassword({ email });
@@ -214,6 +220,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Reset password: submit new password using the token.
   const resetPassword = async (token: string, newPassword: string): Promise<AuthResult> => {
     try {
       await authAPI.resetPassword(token, { newPassword });
@@ -225,6 +232,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Profile update: persist the updated user record.
   const updateProfile = async (
     profileData: UpdateProfilePayload | FormData,
   ): Promise<AuthResult> => {
@@ -246,6 +254,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Change password: authenticated user flow.
   const changePassword = async (passwordData: ChangePasswordPayload): Promise<AuthResult> => {
     try {
       await userAPI.changePassword(passwordData);
@@ -257,6 +266,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Logout: clear storage, reset Redux auth state, and redirect to login.
   const logout = async (): Promise<void> => {
     try {
       await authAPI.logout();
@@ -274,11 +284,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Clear only error state for inline resets in the UI.
   const clearErrorHandler = () => {
     dispatch(clearError());
     dispatch(setAuthFailure(null));
   };
 
+  // Expose auth state and actions via context.
   const value: AuthContextValue = {
     user,
     isAuthenticated,

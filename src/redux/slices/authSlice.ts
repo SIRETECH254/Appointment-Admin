@@ -14,7 +14,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // Login actions
+    // Login actions: drive sign-in lifecycle and token storage.
     loginStart: (state) => {
       state.isLoading = true;
       state.error = null;
@@ -43,7 +43,7 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Register actions
+    // Register actions: basic lifecycle for sign-up.
     registerStart: (state) => {
       state.isLoading = true;
       state.error = null;
@@ -57,7 +57,7 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Logout action
+    // Logout action: wipe all auth state.
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
@@ -66,12 +66,12 @@ const authSlice = createSlice({
       state.error = null;
     },
 
-    // Update user action
+    // Update user action: keep profile data in sync.
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
     },
 
-    // Set tokens action
+    // Set tokens action: support refresh/token updates.
     setTokens: (
       state,
       action: PayloadAction<{
@@ -85,17 +85,17 @@ const authSlice = createSlice({
       }
     },
 
-    // Clear error action
+    // Clear error action: used by UI to reset inline error states.
     clearError: (state) => {
       state.error = null;
     },
 
-    // Set loading action
+    // Set loading action: manual loading flag for init flows.
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
 
-    // Convenience actions
+    // Convenience actions: common auth lifecycle helpers.
     setAuthLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
       state.error = null;
