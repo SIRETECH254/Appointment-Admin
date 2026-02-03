@@ -101,7 +101,7 @@ const Login = () => {
           <form className="auth-form" onSubmit={onSubmit}>
             {/* Email field */}
             <div className="auth-field">
-              <label className="form-label">
+              <label className="label">
                 Email
               </label>
               <input
@@ -113,13 +113,13 @@ const Login = () => {
                 autoComplete="email"
                 type="email"
                 placeholder="admin@example.com"
-                className="form-input"
+                className="input"
               />
             </div>
 
             {/* Password field */}
             <div className="auth-field">
-              <label className="form-label">
+              <label className="label">
                 Password
               </label>
               <div className="relative">
@@ -131,7 +131,7 @@ const Login = () => {
                   autoComplete="current-password"
                   type={isPasswordVisible ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="form-input-password"
+                  className="input-password"
                 />
                 {/* Toggle password visibility */}
                 <button
@@ -142,7 +142,7 @@ const Login = () => {
                   aria-label={
                     isPasswordVisible ? 'Hide password' : 'Show password'
                   }
-                  className="form-toggle-icon"
+                  className="input-toggle-icon"
                 >
                   {isPasswordVisible ? (
                     <MdVisibilityOff size={20} />

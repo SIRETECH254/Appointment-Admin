@@ -21,8 +21,9 @@ import NotificationSettings from './routes/protected/notifications/NotificationS
 import PaymentAdd from './routes/protected/payments/PaymentAdd'
 import PaymentDetails from './routes/protected/payments/PaymentDetails'
 import PaymentList from './routes/protected/payments/PaymentList'
-import Profile from './routes/protected/Profile'
-import ProfileChangePassword from './routes/protected/ProfileChangePassword'
+import Profile from './routes/protected/profile/Profile'
+import ProfileEdit from './routes/protected/profile/ProfileEdit'
+import ProfileChangePassword from './routes/protected/payments/ProfileChangePassword'
 import RoleAdd from './routes/protected/roles/RoleAdd'
 import RoleDetails from './routes/protected/roles/RoleDetails'
 import RoleEdit from './routes/protected/roles/RoleEdit'
@@ -65,6 +66,7 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/edit" element={<ProfileEdit />} />
         <Route
           path="/profile/change-password"
           element={<ProfileChangePassword />}

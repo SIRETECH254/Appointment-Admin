@@ -33,7 +33,7 @@ const Layout = () => {
       />
       <div className="flex">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        <main className="flex-1 bg-white px-6 py-6">
+        <main className="flex-1 bg-white py-6 page-container">
           <Outlet />
         </main>
       </div>

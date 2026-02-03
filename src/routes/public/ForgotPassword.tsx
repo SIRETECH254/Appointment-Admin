@@ -83,7 +83,7 @@ const ForgotPassword = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <div className="auth-card">
+        <div className="">
           {/* Header */}
           <div className="auth-header">
             <p className="auth-kicker">
@@ -101,7 +101,7 @@ const ForgotPassword = () => {
           <form className="auth-form" onSubmit={handleSubmit}>
             {/* Email field */}
             <div className="auth-field">
-              <label className="form-label">
+              <label className="label">
                 Email
               </label>
               <input
@@ -113,7 +113,7 @@ const ForgotPassword = () => {
                 autoComplete="email"
                 type="email"
                 placeholder="admin@example.com"
-                className="form-input"
+                className="input"
               />
             </div>
 

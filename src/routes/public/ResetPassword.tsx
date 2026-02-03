@@ -145,7 +145,7 @@ const ResetPassword = () => {
           <form className="auth-form" onSubmit={handleSubmit}>
             {/* New password field */}
             <div className="auth-field">
-              <label className="form-label">
+              <label className="label">
                 New password
               </label>
               <div className="relative">
@@ -157,7 +157,7 @@ const ResetPassword = () => {
                   autoComplete="new-password"
                   type={isPasswordVisible ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="form-input-password"
+                  className="input-password"
                 />
                 {/* Toggle password visibility */}
                 <button
@@ -168,7 +168,7 @@ const ResetPassword = () => {
                   aria-label={
                     isPasswordVisible ? 'Hide password' : 'Show password'
                   }
-                  className="form-toggle-icon"
+                  className="input-toggle-icon"
                 >
                   {isPasswordVisible ? (
                     <MdVisibilityOff size={20} />
@@ -181,7 +181,7 @@ const ResetPassword = () => {
 
             {/* Confirm password field */}
             <div className="auth-field">
-              <label className="form-label">
+              <label className="label">
                 Confirm password
               </label>
               <div className="relative">
@@ -193,7 +193,7 @@ const ResetPassword = () => {
                   autoComplete="new-password"
                   type={isConfirmPasswordVisible ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="form-input-password"
+                  className="input-password"
                 />
                 {/* Toggle confirm password visibility */}
                 <button
@@ -206,7 +206,7 @@ const ResetPassword = () => {
                       ? 'Hide confirm password'
                       : 'Show confirm password'
                   }
-                  className="form-toggle-icon"
+                  className="input-toggle-icon"
                 >
                   {isConfirmPasswordVisible ? (
                     <MdVisibilityOff size={20} />
