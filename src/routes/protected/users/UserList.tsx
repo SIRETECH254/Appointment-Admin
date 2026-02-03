@@ -254,58 +254,58 @@ const UserList = () => {
       </div>
 
       {/* Users table */}
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[800px]">
+      <div className="table-container">
+        <table className="table">
           {/* Table header */}
-          <thead className="border-b border-gray-200 bg-gray-50">
+          <thead className="table-header">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+              <th className="table-header-cell">
                 User
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+              <th className="table-header-cell">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+              <th className="table-header-cell">
                 Role
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+              <th className="table-header-cell">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+              <th className="table-header-cell">
                 Created
               </th>
-              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">
+              <th className="table-header-cell-right">
                 Actions
               </th>
             </tr>
           </thead>
 
           {/* Table body */}
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="table-body">
             {/* Loading state: skeleton rows */}
             {isLoading && (
               <>
                 {[...Array(5)].map((_, index) => (
                   <tr key={`skeleton-${index}`}>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
+                    <td className="table-cell">
+                      <div className="table-cell-content">
                         <div className="h-10 w-10 animate-pulse rounded-full bg-gray-300" />
                         <div className="h-4 w-32 animate-pulse rounded bg-gray-300" />
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="table-cell">
                       <div className="h-4 w-40 animate-pulse rounded bg-gray-300" />
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="table-cell">
                       <div className="h-6 w-20 animate-pulse rounded-full bg-gray-300" />
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="table-cell">
                       <div className="h-6 w-16 animate-pulse rounded-full bg-gray-300" />
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="table-cell">
                       <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
                     </td>
-                    <td className="px-6 py-4" />
+                    <td className="table-cell" />
                   </tr>
                 ))}
               </>
@@ -314,7 +314,7 @@ const UserList = () => {
             {/* Error state */}
             {isError && !isLoading && (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center">
+                <td colSpan={6} className="table-cell-center">
                   <div className="alert-error mx-auto max-w-md">{errorMessage}</div>
                 </td>
               </tr>
@@ -323,7 +323,7 @@ const UserList = () => {
             {/* Empty state */}
             {!isLoading && !isError && users.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center">
+                <td colSpan={6} className="table-cell-center">
                   <p className="text-gray-500">No users found.</p>
                   {debouncedSearch || filterRole !== 'all' || filterStatus !== 'all' ? (
                     <p className="mt-2 text-sm text-gray-400">
@@ -340,19 +340,19 @@ const UserList = () => {
               users.map((user: IUser) => (
                 <tr
                   key={user._id}
-                  className="transition hover:bg-gray-50"
+                  className="table-row"
                 >
                   {/* Avatar and name */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
+                  <td className="table-cell">
+                    <div className="table-cell-content">
                       {user.avatar ? (
                         <img
                           src={user.avatar}
                           alt={`${user.firstName} ${user.lastName}`}
-                          className="h-10 w-10 rounded-full object-cover"
+                          className="table-avatar"
                         />
                       ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-sm font-semibold text-white">
+                        <div className="table-avatar-initials">
                           {getUserInitials(user)}
                         </div>
                       )}
@@ -363,17 +363,17 @@ const UserList = () => {
                   </td>
 
                   {/* Email */}
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="table-cell-text">
                     {user.email}
                   </td>
 
                   {/* Role */}
-                  <td className="px-6 py-4">
+                  <td className="table-cell">
                     <span className="badge badge-soft">{getRoleDisplayName(user)}</span>
                   </td>
 
                   {/* Status */}
-                  <td className="px-6 py-4">
+                  <td className="table-cell">
                     <span
                       className={
                         user.isActive
@@ -386,12 +386,12 @@ const UserList = () => {
                   </td>
 
                   {/* Created date */}
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="table-cell-text">
                     {formatDateTime(user.createdAt)}
                   </td>
 
                   {/* Actions */}
-                  <td className="px-6 py-4">
+                  <td className="table-cell">
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         to={`/users/${user._id}`}
