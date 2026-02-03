@@ -22,7 +22,7 @@ const StoreConfigEdit = () => {
   const storeConfig = (data as any)?.storeConfiguration ?? data
 
   // Form field state
-  const [appointmentFeeType, setAppointmentFeeType] = useState<'FIXED' | 'PERCENTAGE'>('FIXED')
+  const [appointmentFeeType, setAppointmentFeeType] = useState<'fixed' | 'percentage'>('fixed')
   const [appointmentFeeValue, setAppointmentFeeValue] = useState<number>(0)
   const [currency, setCurrency] = useState<string>('KES')
   const [minBookingNotice, setMinBookingNotice] = useState<number>(0)
@@ -47,7 +47,9 @@ const StoreConfigEdit = () => {
     if (!storeConfig) return
 
     if (storeConfig.appointmentFeeType !== undefined) {
-      setAppointmentFeeType(storeConfig.appointmentFeeType)
+      // Convert to lowercase to match TypeScript type
+      const feeType = storeConfig.appointmentFeeType.toLowerCase() as 'fixed' | 'percentage'
+      setAppointmentFeeType(feeType)
     }
     if (storeConfig.appointmentFeeValue !== undefined) {
       setAppointmentFeeValue(storeConfig.appointmentFeeValue)
@@ -146,7 +148,8 @@ const StoreConfigEdit = () => {
       setIsSubmitting(true)
 
       try {
-        const payload = {
+        // Create payload matching API structure (TypeScript types may differ from actual API)
+        const payload: any = {
           appointmentFeeType,
           appointmentFeeValue,
           currency,
@@ -154,7 +157,9 @@ const StoreConfigEdit = () => {
           lateGracePeriod,
           allowWalkIns,
           notificationSettings: {
-            ...notificationSettings,
+            sendSMS: notificationSettings.sendSMS,
+            sendEmail: notificationSettings.sendEmail,
+            sendPush: notificationSettings.sendPush,
             reminderTimes,
           },
           businessHoursTimezone,
@@ -229,12 +234,12 @@ const StoreConfigEdit = () => {
               <select
                 value={appointmentFeeType}
                 onChange={(event) =>
-                  setAppointmentFeeType(event.target.value as 'FIXED' | 'PERCENTAGE')
+                  setAppointmentFeeType(event.target.value as 'fixed' | 'percentage')
                 }
                 className="input"
               >
-                <option value="FIXED">FIXED</option>
-                <option value="PERCENTAGE">PERCENTAGE</option>
+                <option value="fixed">FIXED</option>
+                <option value="percentage">PERCENTAGE</option>
               </select>
             </div>
             <div className="auth-field">

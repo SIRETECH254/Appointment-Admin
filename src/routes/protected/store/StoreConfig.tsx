@@ -79,7 +79,9 @@ const StoreConfig = () => {
             <div>
               <p className="text-xs uppercase text-gray-400">Appointment Fee Type</p>
               <p className="text-sm text-gray-700">
-                {storeConfig.appointmentFeeType || '—'}
+                {storeConfig.appointmentFeeType
+                  ? storeConfig.appointmentFeeType.toUpperCase()
+                  : '—'}
               </p>
             </div>
             <div>
