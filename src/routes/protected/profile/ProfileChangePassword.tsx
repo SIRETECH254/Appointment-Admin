@@ -106,25 +106,18 @@ const ProfileChangePassword = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        {/* Page wrapper: vertical spacing between header and form. */}
-        <div className="w-full max-w-2xl space-y-6">
-          {/* Header card: title + short helper text */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            {/* Page title */}
-            <h1 className="text-xl font-semibold text-gray-900">
-              Change password
-            </h1>
-            {/* Supporting copy to clarify the action */}
-            <p className="mt-1 text-sm text-gray-500">
+        <div className="">
+          {/* Header */}
+          <div className="auth-header">
+            <p className="auth-kicker">Appointment Admin</p>
+            <h1 className="auth-title">Change password</h1>
+            <p className="auth-subtitle">
               Update your password to keep your account secure.
             </p>
           </div>
 
           {/* Change password form */}
-          <form
-            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-            onSubmit={handleSubmit}
-          >
+          <form className="auth-form" onSubmit={handleSubmit}>
             {/* Stack the three password inputs */}
             <div className="space-y-4">
               {/* Current password */}
@@ -232,8 +225,8 @@ const ProfileChangePassword = () => {
               <div
                 className={
                   inlineMessage.type === 'success'
-                    ? 'alert-success mt-4'
-                    : 'alert-error mt-4'
+                    ? 'auth-inline-message-success'
+                    : 'auth-inline-message-error'
                 }
               >
                 {inlineMessage.text}
@@ -241,17 +234,15 @@ const ProfileChangePassword = () => {
             ) : null}
 
             {/* Submit action */}
-            <div className="mt-6">
-              <button
-                type="submit"
-                disabled={!canSubmit || changePassword.isPending}
-                className="btn-primary"
-              >
-                {isSubmitting || changePassword.isPending
-                  ? 'Updating...'
-                  : 'Update password'}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={!canSubmit || changePassword.isPending}
+              className="auth-button"
+            >
+              {isSubmitting || changePassword.isPending
+                ? 'Updating...'
+                : 'Update password'}
+            </button>
           </form>
         </div>
       </div>
