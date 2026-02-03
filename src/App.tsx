@@ -64,41 +64,62 @@ function App() {
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route element={<Layout />}>
+        {/* Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Profile */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/edit" element={<ProfileEdit />} />
         <Route
           path="/profile/change-password"
           element={<ProfileChangePassword />}
         />
+
+        {/* Users */}
         <Route path="/users" element={<UserList />} />
         <Route path="/users/new" element={<UserAdd />} />
         <Route path="/users/:id" element={<UserDetails />} />
         <Route path="/users/:id/edit" element={<UserEdit />} />
+
+        {/* Store Configuration */}
         <Route path="/store" element={<StoreConfigList />} />
         <Route path="/store/edit" element={<StoreConfigEdit />} />
+
+        {/* Breaks */}
         <Route path="/breaks" element={<BreakList />} />
         <Route path="/breaks/new" element={<BreakAdd />} />
         <Route path="/breaks/:id" element={<BreakDetails />} />
         <Route path="/breaks/:id/edit" element={<BreakEdit />} />
+
+        {/* Appointments */}
         <Route path="/appointments" element={<AppointmentList />} />
         <Route path="/appointments/new" element={<AppointmentAdd />} />
         <Route path="/appointments/:id" element={<AppointmentDetails />} />
         <Route path="/appointments/:id/edit" element={<AppointmentEdit />} />
+
+        {/* Payments */}
         <Route path="/payments" element={<PaymentList />} />
         <Route path="/payments/new" element={<PaymentAdd />} />
         <Route path="/payments/:id" element={<PaymentDetails />} />
+
+        {/* Roles */}
         <Route path="/roles" element={<RoleList />} />
         <Route path="/roles/new" element={<RoleAdd />} />
         <Route path="/roles/:id" element={<RoleDetails />} />
         <Route path="/roles/:id/edit" element={<RoleEdit />} />
+
+        {/* Services */}
         <Route path="/services" element={<ServiceList />} />
         <Route path="/services/new" element={<ServiceAdd />} />
         <Route path="/services/:id" element={<ServiceDetails />} />
         <Route path="/services/:id/edit" element={<ServiceEdit />} />
+
+        {/* Contact */}
         <Route path="/contact" element={<ContactList />} />
         <Route path="/contact/:id" element={<ContactDetails />} />
         <Route path="/contact/:id/reply" element={<ContactReply />} />
+
+        {/* Notifications */}
         <Route path="/notifications" element={<NotificationList />} />
         <Route
           path="/notifications/settings"
@@ -108,11 +129,15 @@ function App() {
           path="/notifications/:id"
           element={<NotificationDetails />}
         />
+
+        {/* Staff */}
         <Route path="/staff" element={<StaffList />} />
         <Route path="/staff/new" element={<StaffAdd />} />
         <Route path="/staff/:id" element={<StaffDetails />} />
         <Route path="/staff/:id/edit" element={<StaffEdit />} />
         <Route path="/staff/:id/schedule" element={<StaffSchedule />} />
+
+        {/* Availability */}
         <Route path="/availability" element={<AvailabilityView />} />
       </Route>
       <Route path="*" element={<NotFound />} />
