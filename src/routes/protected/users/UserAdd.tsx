@@ -142,8 +142,12 @@ const UserAdd = () => {
           lastName: trimmedLastName,
           email: trimmedEmail,
           password: trimmedPassword,
-          phone: trimmedPhone || undefined,
         };
+
+        // Add phone if provided
+        if (trimmedPhone) {
+          userData.phone = trimmedPhone;
+        }
 
         // Call create mutation
         const result = await createUser.mutateAsync(userData);

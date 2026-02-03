@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { MdVisibility, MdVisibilityOff } from 'react-icons/md'
-import { useChangePassword } from '../../tanstack/useUsers'
+import { useChangePassword } from '../../../tanstack/useUsers'
 
 type InlineMessage = {
   type: 'success' | 'error'

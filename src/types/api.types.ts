@@ -141,7 +141,7 @@ export interface AdminCreateUserPayload {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phone?: string;
   password: string;
 }
 
@@ -171,6 +171,7 @@ export interface IRole {
   displayName: string;
   description?: string;
   permissions: string[];
+  isActive: boolean;
   isSystemRole: boolean;
   createdAt: string;
   updatedAt: string;
@@ -181,6 +182,7 @@ export interface CreateRolePayload {
   displayName: string;
   description?: string;
   permissions: string[];
+  isActive?: boolean;
 }
 
 export interface UpdateRolePayload {
@@ -188,6 +190,7 @@ export interface UpdateRolePayload {
   displayName?: string;
   description?: string;
   permissions?: string[];
+  isActive?: boolean;
 }
 
 // ============================================

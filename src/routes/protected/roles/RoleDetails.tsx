@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useGetRoleById } from '../../../tanstack/useRoles';
-import { formatDateTimeWithTime, getRoleInitials, formatPermissions } from '../../../utils/roleUtils';
+import { formatDateTimeWithTime, getRoleInitials } from '../../../utils/roleUtils';
 import type { IRole } from '../../../types/api.types';
 
 /**
@@ -32,12 +32,6 @@ const RoleDetails = () => {
   const initials = useMemo(() => {
     if (!role) return 'R';
     return getRoleInitials(role);
-  }, [role]);
-
-  // Format permissions for display
-  const permissionsDisplay = useMemo(() => {
-    if (!role) return 'No permissions';
-    return formatPermissions(role.permissions);
   }, [role]);
 
   // Get error message from API response
@@ -163,7 +157,7 @@ const RoleDetails = () => {
                   <span className="badge badge-soft">* (All Permissions)</span>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {role.permissions.map((permission, index) => (
+                    {role.permissions.map((permission: string, index: number) => (
                       <span key={index} className="badge badge-soft">
                         {permission}
                       </span>
