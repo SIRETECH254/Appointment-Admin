@@ -37,8 +37,8 @@ import StaffDetails from './routes/protected/staff/StaffDetails'
 import StaffEdit from './routes/protected/staff/StaffEdit'
 import StaffList from './routes/protected/staff/StaffList'
 import StaffSchedule from './routes/protected/staff/StaffSchedule'
+import StoreConfig from './routes/protected/store/StoreConfig'
 import StoreConfigEdit from './routes/protected/store/StoreConfigEdit'
-import StoreConfigList from './routes/protected/store/StoreConfigList'
 import UserAdd from './routes/protected/users/UserAdd'
 import UserDetails from './routes/protected/users/UserDetails'
 import UserEdit from './routes/protected/users/UserEdit'
@@ -82,7 +82,7 @@ function App() {
         <Route path="/users/:id/edit" element={<UserEdit />} />
 
         {/* Store Configuration */}
-        <Route path="/store" element={<StoreConfigList />} />
+        <Route path="/store" element={<StoreConfig />} />
         <Route path="/store/edit" element={<StoreConfigEdit />} />
 
         {/* Breaks */}
