@@ -270,7 +270,11 @@ export const contactAPI = {
 
   updateStatus: (contactId: string, statusData: UpdateContactStatusPayload) => api.patch(`/api/contact/${contactId}/status`, statusData),
 
-  replyToMessage: (contactId: string, replyData: ReplyToContactPayload) => api.post(`/api/contact/${contactId}/reply`, replyData),
+  replyToMessage: (contactId: string, replyData: ReplyToContactPayload) => {
+    // Backend expects 'message' but frontend type uses 'reply'
+    const payload = { message: replyData.reply };
+    return api.post(`/api/contact/${contactId}/reply`, payload);
+  },
 };
 
 // ============================================
