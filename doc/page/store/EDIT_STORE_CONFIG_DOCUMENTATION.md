@@ -218,3 +218,4 @@ import { useGetStoreConfiguration, useUpdateStoreConfiguration } from '@/tanstac
 - Add preview of how changes affect existing appointments.
 - Support bulk configuration updates.
 - Add configuration templates/presets.
+

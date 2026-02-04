@@ -216,6 +216,7 @@ export interface CreateServicePayload {
   duration: number;
   fullPrice: number;
   depositAmount?: number;
+  sortOrder?: number;
   isActive?: boolean;
 }
 
@@ -225,6 +226,7 @@ export interface UpdateServicePayload {
   duration?: number;
   fullPrice?: number;
   depositAmount?: number;
+  sortOrder?: number;
   isActive?: boolean;
 }
 

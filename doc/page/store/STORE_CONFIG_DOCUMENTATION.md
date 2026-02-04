@@ -130,3 +130,4 @@ import { useGetStoreConfiguration } from '@/tanstack/useStoreConfig';
 - Add configuration history/audit log.
 - Display configuration change notifications.
 - Add preview of how settings affect appointment booking flow.
+
