@@ -161,6 +161,11 @@ export interface GetCustomersParams extends PaginationParams {
   status?: 'active' | 'inactive';
 }
 
+export interface GetUsersParams extends PaginationParams {
+  role?: string;
+  status?: 'active' | 'inactive';
+}
+
 // ============================================
 // Role Types
 // ============================================
@@ -377,6 +382,7 @@ export interface CreateBreakPayload {
 }
 
 export interface UpdateBreakPayload {
+  staffId?: string;
   startTime?: string;
   endTime?: string;
   reason?: string;

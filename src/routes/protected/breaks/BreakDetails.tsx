@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useGetBreakById } from '../../../tanstack/useBreaks';
 import { formatBreakDateTime, formatBreakTimeRange, getStaffName, getStaffInitials } from '../../../utils/breakUtils';
-import type { IBreak, IUser } from '../../../types/api.types';
+import type { IBreak } from '../../../types/api.types';
 
 /**
  * BreakDetails Component

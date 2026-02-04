@@ -17,6 +17,7 @@ import type {
   SetUserAdminPayload,
   AssignRolePayload,
   GetCustomersParams,
+  GetUsersParams,
   // Role types
   CreateRolePayload,
   UpdateRolePayload,
@@ -110,7 +111,7 @@ export const userAPI = {
 
   getCustomers: (params?: GetCustomersParams) => api.get('/api/users/customers', { params }),
 
-  getAllUsers: (params?: PaginationParams) => api.get('/api/users', { params }),
+  getAllUsers: (params?: GetUsersParams) => api.get('/api/users', { params }),
 
   getUserById: (userId: string) => api.get(`/api/users/${userId}`),
 

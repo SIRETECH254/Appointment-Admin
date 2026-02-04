@@ -5,7 +5,7 @@ import type {
   AssignRolePayload,
   ChangePasswordPayload,
   GetCustomersParams,
-  PaginationParams,
+  GetUsersParams,
   SetUserAdminPayload,
   UpdateNotificationPreferencesPayload,
   UpdateProfilePayload,
@@ -102,7 +102,7 @@ export const useUpdateNotificationPreferences = () => {
 };
 
 // Get all users (admin)
-export const useGetAllUsers = (params: PaginationParams = {}) => {
+export const useGetAllUsers = (params: GetUsersParams = {}) => {
   return useQuery({
     queryKey: ['users', params],
     queryFn: async () => {
