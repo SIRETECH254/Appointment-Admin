@@ -46,6 +46,7 @@ import type {
   GetPaymentsParams,
   // Notification types
   SendNotificationPayload,
+  SendBulkNotificationPayload,
   GetNotificationsParams,
   // Contact types
   SubmitContactPayload,
@@ -240,9 +241,11 @@ export const notificationAPI = {
 
   getNotifications: (params?: GetNotificationsParams) => api.get('/api/notifications', { params }),
 
+  getNotification: (notificationId: string) => api.get(`/api/notifications/${notificationId}`),
+
   getUnreadCount: () => api.get('/api/notifications/unread-count'),
 
-  getUnreadNotifications: () => api.get('/api/notifications/unread'),
+  getUnreadNotifications: (params?: { limit?: number }) => api.get('/api/notifications/unread', { params }),
 
   getNotificationsByCategory: (category: string) => api.get(`/api/notifications/category/${category}`),
 
@@ -251,6 +254,8 @@ export const notificationAPI = {
   markAllAsRead: () => api.patch('/api/notifications/read-all'),
 
   deleteNotification: (notificationId: string) => api.delete(`/api/notifications/${notificationId}`),
+
+  sendBulkNotification: (bulkData: SendBulkNotificationPayload) => api.post('/api/notifications/bulk', bulkData),
 };
 
 // ============================================

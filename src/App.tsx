@@ -15,6 +15,7 @@ import BreakList from './routes/protected/breaks/BreakList'
 import ContactDetails from './routes/protected/contact/ContactDetails'
 import ContactList from './routes/protected/contact/ContactList'
 import ContactReply from './routes/protected/contact/ContactReply'
+import NotificationAdd from './routes/protected/notifications/NotificationAdd'
 import NotificationDetails from './routes/protected/notifications/NotificationDetails'
 import NotificationList from './routes/protected/notifications/NotificationList'
 import NotificationSettings from './routes/protected/notifications/NotificationSettings'
@@ -121,6 +122,7 @@ function App() {
 
         {/* Notifications */}
         <Route path="/notifications" element={<NotificationList />} />
+        <Route path="/notifications/new" element={<NotificationAdd />} />
         <Route
           path="/notifications/settings"
           element={<NotificationSettings />}

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notificationAPI } from '../api';
-import type { GetNotificationsParams, SendNotificationPayload } from '../types/api.types';
+import type { GetNotificationsParams, SendNotificationPayload, SendBulkNotificationPayload } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
@@ -13,6 +13,20 @@ export const useGetNotifications = (params: GetNotificationsParams = {}) => {
       const response = await notificationAPI.getNotifications(params);
       return response.data.data;
     },
+    staleTime: DEFAULT_STALE_TIME,
+    gcTime: DEFAULT_GC_TIME,
+  });
+};
+
+// Get single notification
+export const useGetNotification = (notificationId: string) => {
+  return useQuery({
+    queryKey: ['notifications', notificationId],
+    queryFn: async () => {
+      const response = await notificationAPI.getNotification(notificationId);
+      return response.data.data;
+    },
+    enabled: !!notificationId,
     staleTime: DEFAULT_STALE_TIME,
     gcTime: DEFAULT_GC_TIME,
   });
@@ -32,11 +46,11 @@ export const useGetUnreadNotificationCount = () => {
 };
 
 // Get unread notifications
-export const useGetUnreadNotifications = () => {
+export const useGetUnreadNotifications = (params?: { limit?: number }) => {
   return useQuery({
-    queryKey: ['notifications', 'unread'],
+    queryKey: ['notifications', 'unread', params],
     queryFn: async () => {
-      const response = await notificationAPI.getUnreadNotifications();
+      const response = await notificationAPI.getUnreadNotifications(params);
       return response.data.data;
     },
     staleTime: DEFAULT_STALE_TIME,
@@ -143,6 +157,29 @@ export const useDeleteNotification = () => {
     onError: (error: any) => {
       console.error('Delete notification error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to delete notification';
+      console.error('Error:', errorMessage);
+    },
+  });
+};
+
+// Send bulk notification
+export const useSendBulkNotification = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (bulkData: SendBulkNotificationPayload) => {
+      const response = await notificationAPI.sendBulkNotification(bulkData);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      console.log('Bulk notification sent successfully');
+    },
+    onError: (error: any) => {
+      console.error('Send bulk notification error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to send bulk notification';
       console.error('Error:', errorMessage);
     },
   });

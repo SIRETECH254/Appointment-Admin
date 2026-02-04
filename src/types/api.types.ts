@@ -458,51 +458,94 @@ export interface GetPaymentsParams extends PaginationParams {
 // Notification Types
 // ============================================
 
-export type NotificationType = 'email' | 'sms' | 'push' | 'in_app';
-export type NotificationCategory = 'appointment' | 'payment' | 'system' | 'promotional';
+export type NotificationType = 'email' | 'sms' | 'in_app';
+export type NotificationCategory = 'general' | 'appointment' | 'payment';
+export type NotificationStatus = 'pending' | 'sent' | 'failed';
 
 export interface INotificationAction {
+  id: string;
   label: string;
-  type: 'link' | 'action';
-  value: string;
+  type: 'api' | 'navigate' | 'modal' | 'confirm';
+  endpoint?: string;
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  payload?: Record<string, any>;
+  route?: string;
+  modal?: string;
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  requiresConfirmation?: boolean;
+  confirmationMessage?: string;
 }
 
 export interface INotificationContext {
-  appointmentId?: string;
-  paymentId?: string;
-  [key: string]: string | undefined;
+  resourceId: string;
+  resourceType: string;
+  additionalData?: Record<string, any>;
 }
 
 export interface INotification {
   _id: string;
   recipient: string | IUser;
+  recipientModel?: 'User';
   type: NotificationType;
   category: NotificationCategory;
   subject: string;
   message: string;
-  isRead: boolean;
+  status: NotificationStatus;
+  sentAt?: string;
   readAt?: string;
+  metadata?: Record<string, any>;
   actions?: INotificationAction[];
   context?: INotificationContext;
+  expiresAt?: string;
   createdAt: string;
   updatedAt: string;
+  // Computed virtual field from backend
+  isUnread?: boolean;
 }
 
 export interface SendNotificationPayload {
-  recipientId: string;
+  recipient: string; // recipient ID
   type: NotificationType;
   category: NotificationCategory;
   subject: string;
   message: string;
+  metadata?: Record<string, any>;
   actions?: INotificationAction[];
   context?: INotificationContext;
+  expiresAt?: string;
+}
+
+export interface SendBulkNotificationPayload {
+  recipients: string[]; // array of recipient IDs
+  type: NotificationType;
+  category: NotificationCategory;
+  subject: string;
+  message: string;
 }
 
 export interface GetNotificationsParams extends PaginationParams {
-  isRead?: boolean;
+  category?: NotificationCategory;
+  type?: NotificationType;
+  status?: NotificationStatus | 'read' | 'unread';
+}
+
+export interface NotificationPaginationResponse {
+  notifications: INotification[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalNotifications: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 export interface UnreadCountResponse {
+  unreadCount: number;
+}
+
+export interface UnreadNotificationsResponse {
+  notifications: INotification[];
   count: number;
 }
 

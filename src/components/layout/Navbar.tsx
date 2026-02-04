@@ -10,6 +10,7 @@ import {
 } from 'react-icons/md'
 import { useAuth } from '../../contexts/AuthContext'
 import { NAV_ITEMS } from '../../constants/navigation'
+import { useGetUnreadNotificationCount } from '../../tanstack/useNotifications'
 
 type NavbarProps = {
   isSidebarOpen: boolean
@@ -21,6 +22,10 @@ const Navbar = ({ isSidebarOpen, onToggleSidebar }: NavbarProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  // Fetch unread notification count
+  const { data: unreadData } = useGetUnreadNotificationCount()
+  const unreadCount = (unreadData as any)?.unreadCount || 0
 
   // Resolve the active page label from the current route.
   const activeLabel = useMemo(() => {
@@ -85,13 +90,16 @@ const Navbar = ({ isSidebarOpen, onToggleSidebar }: NavbarProps) => {
           {/* Notifications icon + unread badge */}
           <button
             type="button"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700"
+            onClick={() => navigate('/notifications')}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
             aria-label="Notifications"
           >
             <MdNotificationsNone size={22} />
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
-              3
-            </span>
+            {unreadCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </button>
 
           {/* Profile dropdown trigger + menu */}
