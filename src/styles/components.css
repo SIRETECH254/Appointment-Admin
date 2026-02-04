@@ -202,11 +202,11 @@
   }
 
   .table-header-cell {
-    @apply px-6 py-3 text-left text-sm font-semibold text-gray-700;
+    @apply whitespace-nowrap px-6 py-3 text-left text-sm font-semibold text-gray-700;
   }
 
   .table-header-cell-right {
-    @apply px-6 py-3 text-right text-sm font-semibold text-gray-700;
+    @apply whitespace-nowrap px-6 py-3 text-right text-sm font-semibold text-gray-700;
   }
 
   .table-body {
@@ -222,7 +222,7 @@
   }
 
   .table-cell-text {
-    @apply px-6 py-4 text-sm text-gray-600;
+    @apply whitespace-nowrap px-6 py-4 text-sm text-gray-600;
   }
 
   .table-cell-center {
