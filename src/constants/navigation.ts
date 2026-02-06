@@ -24,9 +24,7 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: MdDashboard, end: true },
-  { label: 'Profile', path: '/profile', icon: MdAccountCircle, end: true },
   { label: 'Users', path: '/users', icon: MdGroup, end: true },
-  { label: 'Store', path: '/store', icon: MdStorefront, end: true },
   { label: 'Breaks', path: '/breaks', icon: MdAccessTime, end: true },
   {
     label: 'Appointments',
@@ -44,11 +42,6 @@ export const NAV_ITEMS: NavItem[] = [
     icon: MdNotificationsNone,
     end: true,
   },
-  { label: 'Staff', path: '/staff', icon: MdPeopleAlt, end: true },
-  {
-    label: 'Availability',
-    path: '/availability',
-    icon: MdEventNote,
-    end: true,
-  },
+  { label: 'Profile', path: '/profile', icon: MdAccountCircle, end: true },
+  { label: 'Store', path: '/store', icon: MdStorefront, end: true },
 ]

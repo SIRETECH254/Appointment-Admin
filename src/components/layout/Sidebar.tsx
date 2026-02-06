@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { MdLogout } from 'react-icons/md'
+import { MdClose, MdLogout } from 'react-icons/md'
 import { NAV_ITEMS } from '../../constants/navigation'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -13,19 +13,18 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   // Shared sidebar content for desktop + mobile drawer.
   const content = (
-    <div className="flex h-full flex-col bg-white px-4 pb-6 pt-6">
-      {/* Logo + app name */}
-      {/* <div className="mb-6 flex items-center gap-3 px-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-white">
-          <span className="text-sm font-semibold">AA</span>
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-gray-900">
-            Appointment Admin
-          </p>
-          <p className="text-xs text-gray-500">Navigation</p>
-        </div>
-      </div> */}
+    <div className="relative flex h-full flex-col bg-white px-4 pb-6 pt-6">
+
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-4 top-4 rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden"
+        aria-label="Close sidebar"
+      >
+        <MdClose size={24} />
+      </button>
+
 
       {/* Primary navigation links */}
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
