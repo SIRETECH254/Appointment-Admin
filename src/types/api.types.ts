@@ -240,7 +240,7 @@ export interface AssignServicesToStaffPayload {
 }
 
 export interface GetServicesParams extends PaginationParams {
-  isActive?: boolean;
+  status?: 'active' | 'inactive';
 }
 
 // ============================================
@@ -248,55 +248,62 @@ export interface GetServicesParams extends PaginationParams {
 // ============================================
 
 export type AppointmentStatus =
-  | 'pending'
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'NO_SHOW'
+  | 'pending' // Legacy support
   | 'confirmed'
   | 'checked_in'
   | 'completed'
   | 'cancelled'
   | 'no_show';
 
+// Service object when populated from appointment.services array
 export interface IAppointmentService {
-  serviceId: string;
+  _id: string;
   name: string;
   duration: number;
-  price: number;
+  fullPrice: number;
 }
 
 export interface IAppointment {
   _id: string;
   customerId: string | IUser;
   staffId: string | IUser;
-  services: IAppointmentService[];
-  startTime: string;
-  endTime: string;
+  services: string[] | IAppointmentService[]; // Array of service IDs or populated service objects
+  startTime: string | Date;
+  endTime: string | Date;
   status: AppointmentStatus;
   bookingFeeAmount: number;
   remainingAmount: number;
-  totalAmount: number;
+  checkedInAt?: string | Date;
+  actualEndTime?: string | Date;
   notes?: string;
   cancellationReason?: string;
-  cancelledAt?: string;
-  checkedInAt?: string;
-  completedAt?: string;
-  createdAt: string;
-  updatedAt: string;
+  cancelledAt?: string | Date;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 export interface CreateAppointmentPayload {
   staffId: string;
-  services: string[];
-  startTime: string;
+  services: string[]; // Array of service IDs
+  startTime: string; // ISO 8601 format
+  endTime: string; // ISO 8601 format
   notes?: string;
 }
 
 export interface ConfirmAppointmentPayload {
-  paymentMethod: 'mpesa' | 'paystack';
-  phoneNumber?: string;
+  method: 'MPESA' | 'CARD';
+  phone?: string; // Required for MPESA
+  email?: string;  // Required for CARD
 }
 
 export interface RescheduleAppointmentPayload {
-  newStartTime: string;
-  staffId?: string;
+  startTime: string;
+  endTime: string;
 }
 
 export interface CancelAppointmentPayload {
@@ -328,7 +335,7 @@ export interface ITimeSlot {
 
 export interface GetSlotsParams {
   staffId: string;
-  serviceId: string;
+  serviceId: string | string[]; // Support single or multiple serviceIds
   date: string; // YYYY-MM-DD
 }
 
@@ -401,11 +408,19 @@ export interface GetBreaksParams extends PaginationParams {
 // Payment Types
 // ============================================
 
-export type PaymentMethod = 'mpesa' | 'paystack';
-export type PaymentType = 'booking_fee' | 'service_payment';
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type PaymentMethod = 'MPESA' | 'CARD' | 'CASH';
+export type PaymentType = 'BOOKING_FEE' | 'FULL_PAYMENT';
+export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
 export interface IProcessorRefs {
+  daraja?: {
+    merchantRequestId?: string;
+    checkoutRequestId?: string;
+  };
+  paystack?: {
+    reference?: string;
+  };
+  // Legacy fields for backward compatibility
   mpesaReceiptNumber?: string;
   mpesaCheckoutRequestId?: string;
   paystackReference?: string;
@@ -414,12 +429,15 @@ export interface IProcessorRefs {
 
 export interface IPayment {
   _id: string;
-  appointmentId: string | IAppointment;
-  customerId: string | IUser;
+  paymentNumber?: string;
+  appointmentId?: string | IAppointment; // Optional - can be null for service-only payments
+  customerId?: string | IUser;
   amount: number;
+  currency?: string; // Default: 'KES'
   method: PaymentMethod;
   type: PaymentType;
   status: PaymentStatus;
+  transactionRef?: string;
   processorRefs?: IProcessorRefs;
   paidAt?: string;
   createdAt: string;
@@ -427,23 +445,28 @@ export interface IPayment {
 }
 
 export interface InitiatePaymentPayload {
-  appointmentId: string;
-  paymentMethod: PaymentMethod;
-  phoneNumber?: string;
+  services: string[]; // Array of service IDs (required, min 1)
+  method: PaymentMethod;
+  phone?: string; // Required for MPESA
+  email?: string; // Required for CARD
 }
 
 export interface InitiatePaymentResponse {
-  paymentId: string;
-  checkoutRequestId?: string;
-  authorizationUrl?: string;
-  status: PaymentStatus;
+  payment: IPayment;
+  gateway: {
+    checkoutRequestId?: string;
+    merchantRequestId?: string;
+    authorizationUrl?: string;
+    reference?: string;
+  };
 }
 
 export interface ServicePaymentPayload {
   appointmentId: string;
-  paymentMethod: PaymentMethod;
-  phoneNumber?: string;
-  amount: number;
+  method: PaymentMethod;
+  phone?: string; // Required for MPESA
+  email?: string; // Required for CARD
+  // Note: amount is automatically set to appointment.remainingAmount by backend
 }
 
 export interface GetPaymentsParams extends PaginationParams {
@@ -452,6 +475,20 @@ export interface GetPaymentsParams extends PaginationParams {
   type?: PaymentType;
   startDate?: string;
   endDate?: string;
+}
+
+// M-Pesa Status Query Types
+export interface QueryMpesaStatusParams {
+  checkoutRequestId: string;
+}
+
+export interface QueryMpesaStatusResponse {
+  ok: boolean;
+  resultCode?: number | string;
+  resultDesc?: string;
+  raw?: any;
+  error?: string;
+  details?: string;
 }
 
 // ============================================

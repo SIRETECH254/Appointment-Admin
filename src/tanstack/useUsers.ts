@@ -308,3 +308,31 @@ export const useRemoveRole = () => {
     },
   });
 };
+
+// Get staff members who provide a specific service
+export const useGetStaffByService = (serviceId: string) => {
+  return useQuery({
+    queryKey: ['users', 'staff', 'service', serviceId],
+    queryFn: async () => {
+      // Get all staff users
+      const response = await userAPI.getAllUsers({ role: 'staff', status: 'active' });
+      const allStaff = response.data.data.users || [];
+      
+      // Filter staff where their services array includes the serviceId
+      const staffWithService = allStaff.filter((staff: any) => {
+        if (!staff.services || staff.services.length === 0) return false;
+        
+        // Handle both populated services and service IDs
+        return staff.services.some((s: any) => {
+          const id = typeof s === 'string' ? s : s._id || s;
+          return id === serviceId;
+        });
+      });
+
+      return { users: staffWithService };
+    },
+    enabled: !!serviceId,
+    staleTime: DEFAULT_STALE_TIME,
+    gcTime: DEFAULT_GC_TIME,
+  });
+};

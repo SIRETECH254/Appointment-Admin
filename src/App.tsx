@@ -7,6 +7,9 @@ import AppointmentAdd from './routes/protected/appointments/AppointmentAdd'
 import AppointmentDetails from './routes/protected/appointments/AppointmentDetails'
 import AppointmentEdit from './routes/protected/appointments/AppointmentEdit'
 import AppointmentList from './routes/protected/appointments/AppointmentList'
+import ConfirmAppointment from './routes/protected/appointments/ConfirmAppointment'
+import RescheduleAppointment from './routes/protected/appointments/RescheduleAppointment'
+import FinishPayment from './routes/protected/appointments/FinishPayment'
 import AvailabilityView from './routes/protected/availability/AvailabilityView'
 import BreakAdd from './routes/protected/breaks/BreakAdd'
 import BreakDetails from './routes/protected/breaks/BreakDetails'
@@ -22,6 +25,8 @@ import NotificationSettings from './routes/protected/notifications/NotificationS
 import PaymentAdd from './routes/protected/payments/PaymentAdd'
 import PaymentDetails from './routes/protected/payments/PaymentDetails'
 import PaymentList from './routes/protected/payments/PaymentList'
+import PaymentStatus from './routes/protected/payments/PaymentStatus'
+import ServicePayment from './routes/protected/payments/ServicePayment'
 import Profile from './routes/protected/profile/Profile'
 import ProfileEdit from './routes/protected/profile/ProfileEdit'
 import ProfileChangePassword from './routes/protected/payments/ProfileChangePassword'
@@ -97,11 +102,16 @@ function App() {
         <Route path="/appointments/new" element={<AppointmentAdd />} />
         <Route path="/appointments/:id" element={<AppointmentDetails />} />
         <Route path="/appointments/:id/edit" element={<AppointmentEdit />} />
+        <Route path="/appointments/:id/confirm" element={<ConfirmAppointment />} />
+        <Route path="/appointments/:id/reschedule" element={<RescheduleAppointment />} />
+        <Route path="/appointments/:id/finish-payment" element={<FinishPayment />} />
 
         {/* Payments */}
         <Route path="/payments" element={<PaymentList />} />
         <Route path="/payments/new" element={<PaymentAdd />} />
         <Route path="/payments/:id" element={<PaymentDetails />} />
+        <Route path="/payments/service" element={<ServicePayment />} />
+        <Route path="/payments/status" element={<PaymentStatus />} />
 
         {/* Roles */}
         <Route path="/roles" element={<RoleList />} />

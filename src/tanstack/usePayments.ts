@@ -64,6 +64,7 @@ export const useServicePayment = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
       console.log('Service payment completed successfully');
     },
     onError: (error: any) => {
@@ -71,5 +72,22 @@ export const useServicePayment = () => {
       const errorMessage = error.response?.data?.message || 'Failed to complete service payment';
       console.error('Error:', errorMessage);
     },
+  });
+};
+
+// Query M-Pesa payment status (for fallback query)
+// Backend endpoint: GET /api/payments/status/:checkoutRequestId
+// Returns: { success: true, data: { payment: {...}, status: { ok, resultCode, resultDesc, error, details } } }
+export const useQueryMpesaStatus = (checkoutRequestId: string, options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: ['payment', 'mpesa-status', checkoutRequestId],
+    queryFn: async () => {
+      const response = await paymentAPI.queryMpesaStatus(checkoutRequestId);
+      // Backend returns: { success: true, data: { payment: {...}, status: {...} } }
+      return response.data.data || response.data;
+    },
+    enabled: (options?.enabled ?? false) && !!checkoutRequestId,
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 1000 * 60 * 5, // 5 minutes
   });
 };

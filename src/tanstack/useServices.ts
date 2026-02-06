@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { serviceAPI } from '../api';
-import type { AssignServicesToStaffPayload, CreateServicePayload, GetServicesParams, UpdateServicePayload } from '../types/api.types';
+import { serviceAPI, userAPI } from '../api';
+import type { AssignServicesToStaffPayload, CreateServicePayload, GetServicesParams, UpdateServicePayload, IService } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
@@ -13,6 +13,40 @@ export const useGetAllServices = (params: GetServicesParams = {}) => {
       const response = await serviceAPI.getAllServices(params);
       return response.data.data;
     },
+    staleTime: DEFAULT_STALE_TIME,
+    gcTime: DEFAULT_GC_TIME,
+  });
+};
+
+// Get services by staff member
+export const useGetServicesByStaff = (staffId: string) => {
+  return useQuery({
+    queryKey: ['services', 'staff', staffId],
+    queryFn: async () => {
+      // First, get the staff user to get their services array
+      const userResponse = await userAPI.getUserById(staffId);
+      const user = userResponse.data.data.user;
+      
+      if (!user || !user.services || user.services.length === 0) {
+        return { services: [] };
+      }
+
+      // Get service IDs from user.services (could be populated or just IDs)
+      const serviceIds = user.services.map((s: any) => 
+        typeof s === 'string' ? s : s._id || s
+      );
+
+      // Fetch all services and filter to only those assigned to this staff
+      const allServicesResponse = await serviceAPI.getAllServices({ status: 'active' });
+      const allServices = allServicesResponse.data.data.services || [];
+      
+      const staffServices = allServices.filter((service: IService) => 
+        serviceIds.includes(service._id)
+      );
+
+      return { services: staffServices };
+    },
+    enabled: !!staffId,
     staleTime: DEFAULT_STALE_TIME,
     gcTime: DEFAULT_GC_TIME,
   });

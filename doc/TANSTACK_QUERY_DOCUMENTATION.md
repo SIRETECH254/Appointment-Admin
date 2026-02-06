@@ -629,6 +629,127 @@ export const useGetAppointment = (appointmentId: string) => {
 
 ---
 
+## Service Hooks
+
+### useGetAllServices
+
+Fetches all services with optional filtering.
+
+```typescript
+import { useGetAllServices } from '../tanstack/useServices';
+
+// Get all active services
+const { data, isLoading } = useGetAllServices({ status: 'active' });
+
+// Get all services (admin)
+const { data } = useGetAllServices({ status: 'inactive' });
+```
+
+**Parameters:**
+- `params.status?: 'active' | 'inactive'` - Filter by service status (replaces deprecated `isActive` boolean)
+
+**Note:** The API expects `status` query parameter, not `isActive`. Use `status: 'active'` to get active services.
+
+### useGetServicesByStaff
+
+Fetches services assigned to a specific staff member (for staff-first appointment flow).
+
+```typescript
+import { useGetServicesByStaff } from '../tanstack/useServices';
+
+function ServiceSelector({ staffId }: { staffId: string }) {
+  const { data, isLoading } = useGetServicesByStaff(staffId);
+  const services = data?.services || [];
+  
+  return (
+    <div>
+      {services.map(service => (
+        <div key={service._id}>{service.name}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+**Parameters:**
+- `staffId: string` - The staff member's user ID
+
+**Returns:**
+- `{ services: IService[] }` - Array of services assigned to the staff member
+
+**Note:** This hook is automatically disabled if `staffId` is empty.
+
+---
+
+## User Hooks
+
+### useGetStaffByService
+
+Fetches staff members who provide a specific service (for service-first appointment flow).
+
+```typescript
+import { useGetStaffByService } from '../tanstack/useUsers';
+
+function StaffSelector({ serviceId }: { serviceId: string }) {
+  const { data, isLoading } = useGetStaffByService(serviceId);
+  const staff = data?.users || [];
+  
+  return (
+    <div>
+      {staff.map(member => (
+        <div key={member._id}>{member.firstName} {member.lastName}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+**Parameters:**
+- `serviceId: string` - The service ID
+
+**Returns:**
+- `{ users: IUser[] }` - Array of staff members who provide the service
+
+**Note:** This hook is automatically disabled if `serviceId` is empty. Only works with single service selection.
+
+---
+
+## Availability Hooks
+
+### useGetSlots
+
+Fetches available time slots for a staff member, service(s), and date.
+
+```typescript
+import { useGetSlots } from '../tanstack/useAvailability';
+
+// Single service
+const { data, isLoading } = useGetSlots({
+  staffId: 'staff123',
+  serviceId: 'service456',
+  date: '2025-01-30'
+});
+
+// Multiple services
+const { data } = useGetSlots({
+  staffId: 'staff123',
+  serviceId: ['service456', 'service789'], // Array for multiple services
+  date: '2025-01-30'
+});
+```
+
+**Parameters:**
+- `params.staffId: string` - Staff member ID (required)
+- `params.serviceId: string | string[]` - Single service ID or array of service IDs (required)
+- `params.date: string` - Date in YYYY-MM-DD format (required)
+
+**Returns:**
+- `{ slots: ITimeSlot[] }` - Array of available time slots
+
+**Note:** When multiple services are provided, the API sums their durations to calculate the total appointment duration for slot generation.
+
+---
+
 **Last Updated:** February 2026  
 **Version:** 1.0.0
 

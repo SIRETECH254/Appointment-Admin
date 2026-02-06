@@ -330,7 +330,8 @@ The system uses a unified user model with roles:
   - `page` - Page number
   - `limit` - Items per page
   - `search` - Search by name/description
-  - `isActive` - Filter by status (admin only)
+  - `status` - Filter by status: `'active'` or `'inactive'` (admin only)
+  - **Note:** Use `status` parameter instead of `isActive`. `status=active` filters for active services.
 
 #### Get Service by ID
 - **Endpoint:** `GET /services/:serviceId`
@@ -508,6 +509,11 @@ The system uses a unified user model with roles:
 #### Get Available Slots
 - **Endpoint:** `GET /availability/slots`
 - **Description:** Get available time slots for booking
+- **Query Parameters:**
+  - `staffId` - Staff member ID (required)
+  - `serviceId` - Service ID (required, can be repeated for multiple services)
+  - `date` - Date in YYYY-MM-DD format (required)
+- **Note:** For multiple services, include `serviceId` parameter multiple times: `?serviceId=id1&serviceId=id2`. The API sums the durations of all services to calculate total duration for slot generation.
 - **Auth Required:** No
 - **Query Parameters:**
   - `staffId` - Staff member ID (required)
@@ -962,10 +968,17 @@ const response = await authAPI.login({
   password: 'password123'
 });
 
-// Get available slots
+// Get available slots (single service)
 const slots = await availabilityAPI.getSlots({
   staffId: 'staffId',
   serviceId: 'serviceId',
+  date: '2025-01-30'
+});
+
+// Get available slots (multiple services)
+const slotsMultiple = await availabilityAPI.getSlots({
+  staffId: 'staffId',
+  serviceId: ['serviceId1', 'serviceId2'], // Array for multiple services
   date: '2025-01-30'
 });
 

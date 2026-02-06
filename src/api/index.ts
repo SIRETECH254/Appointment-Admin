@@ -200,7 +200,29 @@ export const appointmentAPI = {
 // Availability API
 // ============================================
 export const availabilityAPI = {
-  getSlots: (params: GetSlotsParams) => api.get('/api/availability/slots', { params }),
+  getSlots: (params: GetSlotsParams) => {
+    // Handle multiple serviceIds - axios needs special handling for repeated query params
+    const queryParams: any = {
+      staffId: params.staffId,
+      date: params.date,
+    };
+    
+    // If serviceId is an array, we need to use paramsSerializer to format it correctly
+    // The API expects: ?serviceId=id1&serviceId=id2 (not serviceId[]=id1&serviceId[]=id2)
+    if (Array.isArray(params.serviceId)) {
+      // Build URL manually for multiple serviceIds
+      const baseUrl = '/api/availability/slots';
+      const queryString = [
+        `staffId=${encodeURIComponent(params.staffId)}`,
+        ...params.serviceId.map(id => `serviceId=${encodeURIComponent(id)}`),
+        `date=${encodeURIComponent(params.date)}`,
+      ].join('&');
+      return api.get(`${baseUrl}?${queryString}`);
+    } else {
+      queryParams.serviceId = params.serviceId;
+      return api.get('/api/availability/slots', { params: queryParams });
+    }
+  },
 
   getDayAvailability: (params: GetDayAvailabilityParams) => api.get('/api/availability/day', { params }),
 };
@@ -231,6 +253,8 @@ export const paymentAPI = {
   getAllPayments: (params?: GetPaymentsParams) => api.get('/api/payments', { params }),
 
   getPayment: (paymentId: string) => api.get(`/api/payments/${paymentId}`),
+
+  queryMpesaStatus: (checkoutRequestId: string) => api.get(`/api/payments/status/${checkoutRequestId}`),
 };
 
 // ============================================
