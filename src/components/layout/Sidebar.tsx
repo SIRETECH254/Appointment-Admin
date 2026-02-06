@@ -69,7 +69,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden h-[calc(100vh-64px)] w-1/4 border-r border-gray-200 bg-white lg:block">
+      <aside className="hidden h-full w-1/4 border-r border-gray-200 bg-white lg:block">
         {content}
       </aside>
       {/* Mobile backdrop */}

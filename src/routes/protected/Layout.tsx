@@ -26,14 +26,14 @@ const Layout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen h-screen flex flex-col bg-white text-slate-900">
       <Navbar
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
       />
-      <div className="flex">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        <main className="flex-1 bg-white py-6 page-container">
+        <main className="flex-1 h-full overflow-y-auto bg-white page-container">
           <Outlet />
         </main>
       </div>
