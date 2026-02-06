@@ -331,7 +331,7 @@ const Dashboard = () => {
     const { overview, recentActivity } = dashboardData.data;
 
     return (
-      <div className="page-container section">
+      <div className="">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-gray-900">My Dashboard</h1>
