@@ -15,7 +15,7 @@ import { formatCurrency } from '../../../utils/paymentUtils';
  */
 const ServicePayment = () => {
   const navigate = useNavigate();
-  const { data: servicesData } = useGetAllServices({ isActive: true });
+  const { data: servicesData } = useGetAllServices({ status: 'active' });
   const initiatePayment = useInitiatePayment();
 
   const allServices = (servicesData as any)?.services || (servicesData as any)?.data?.services || [];
