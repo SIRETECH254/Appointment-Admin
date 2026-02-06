@@ -29,3 +29,6 @@ export * from './useContact';
 
 // Store configuration hooks
 export * from './useStoreConfig';
+
+// Dashboard hooks
+export * from './useDashboard';

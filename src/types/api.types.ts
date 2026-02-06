@@ -698,22 +698,172 @@ export interface UpdateStoreConfigurationPayload {
 }
 
 // ============================================
-// Dashboard Types (Optional - for future use)
+// Dashboard Types
 // ============================================
 
-export interface IDashboardStats {
-  totalAppointments: number;
-  todayAppointments: number;
-  pendingAppointments: number;
-  completedAppointments: number;
-  totalRevenue: number;
-  todayRevenue: number;
-  totalCustomers: number;
-  newCustomersThisMonth: number;
+// Request parameter types
+export interface GetRevenueStatsParams {
+  period?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  startDate?: string; // ISO format
+  endDate?: string; // ISO format
 }
 
-export interface IRevenueStats {
-  period: string;
-  revenue: number;
-  appointmentCount: number;
+export interface GetStaffActivityStatsParams {
+  period?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
+
+// Admin Dashboard Response
+export interface AdminDashboardResponse {
+  overview: {
+    appointments: {
+      total: number;
+      byStatus: {
+        pending: number;
+        confirmed: number;
+        completed: number;
+        cancelled: number;
+        no_show: number;
+      };
+    };
+    payments: {
+      total: number;
+      totalAmount: number;
+      byStatus: {
+        pending: number;
+        success: number;
+        failed: number;
+      };
+      byMethod: {
+        mpesa: number;
+        card: number;
+        cash: number;
+      };
+    };
+    users: {
+      total: number;
+      active: number;
+      verified: number;
+      byRole: {
+        customers: number;
+        staff: number;
+        admins: number;
+      };
+    };
+    services: {
+      total: number;
+      active: number;
+    };
+    revenue: {
+      total: number;
+      outstanding: number;
+    };
+  };
+  recentActivity: {
+    appointments: IAppointment[];
+    payments: IPayment[];
+    users: IUser[];
+  };
+}
+
+// Client Dashboard Response
+export interface ClientDashboardResponse {
+  overview: {
+    appointments: {
+      total: number;
+      byStatus: {
+        pending: number;
+        confirmed: number;
+        completed: number;
+        cancelled: number;
+        no_show: number;
+      };
+    };
+    payments: {
+      total: number;
+      totalAmount: number;
+    };
+    financial: {
+      totalSpent: number;
+      outstandingBalance: number;
+    };
+  };
+  recentActivity: {
+    appointments: IAppointment[];
+    payments: IPayment[];
+  };
+}
+
+// Revenue Stats Response
+export interface RevenueStatsResponse {
+  period: {
+    start: string;
+    end: string;
+    type: string;
+  };
+  revenue: {
+    total: number;
+    outstanding: number;
+    byMethod: {
+      mpesa: number;
+      card: number;
+      cash: number;
+    };
+  };
+  topCustomers: Array<{
+    customer: IUser | null;
+    total: number;
+  }>;
+  paymentCount: number;
+}
+
+// Appointment Stats Response
+export interface AppointmentStatsResponse {
+  overview: {
+    total: number;
+    byStatus: {
+      pending: number;
+      confirmed: number;
+      completed: number;
+      cancelled: number;
+      no_show: number;
+    };
+  };
+  performance: {
+    completionRate: number;
+    cancellationRate: number;
+    noShowRate: number;
+    averageDuration: number;
+    averageActualDuration: number;
+    completed: number;
+  };
+}
+
+// Service Demand Stats Response
+export interface ServiceDemandStatsResponse {
+  totalServices: number;
+  serviceDemand: Array<{
+    service: IService;
+    count: number;
+    totalRevenue: number;
+  }>;
+  serviceRevenue: Record<string, number>;
+}
+
+// Staff Activity Stats Response
+export interface StaffActivityStatsResponse {
+  overview: {
+    total: number;
+    active: number;
+    activeInPeriod: number;
+  };
+  period: {
+    start: string;
+    end: string;
+    type: string;
+  };
+  topStaff: Array<{
+    staff: IUser | null;
+    appointmentCount: number;
+    completedCount: number;
+  }>;
 }

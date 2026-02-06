@@ -55,6 +55,9 @@ import type {
   GetContactsParams,
   // Store configuration types
   UpdateStoreConfigurationPayload,
+  // Dashboard types
+  GetRevenueStatsParams,
+  GetStaffActivityStatsParams,
   // Common types
   PaginationParams,
 } from '../types/api.types';
@@ -308,6 +311,29 @@ export const storeConfigurationAPI = {
   getConfiguration: () => api.get('/api/store-configuration'),
 
   updateConfiguration: (configData: UpdateStoreConfigurationPayload) => api.put('/api/store-configuration', configData),
+};
+
+// ============================================
+// Dashboard API
+// ============================================
+export const dashboardAPI = {
+  // Get admin dashboard statistics
+  getAdminDashboard: () => api.get('/api/dashboard/admin'),
+
+  // Get client dashboard statistics
+  getClientDashboard: () => api.get('/api/dashboard/client'),
+
+  // Get revenue analytics
+  getRevenueStats: (params?: GetRevenueStatsParams) => api.get('/api/dashboard/revenue', { params }),
+
+  // Get appointment statistics
+  getAppointmentStats: () => api.get('/api/dashboard/appointments'),
+
+  // Get service demand analytics
+  getServiceDemandStats: () => api.get('/api/dashboard/service-demand'),
+
+  // Get staff activity statistics
+  getStaffActivityStats: (params?: GetStaffActivityStatsParams) => api.get('/api/dashboard/staff-activity', { params }),
 };
 
 // Export the api instance for custom requests
