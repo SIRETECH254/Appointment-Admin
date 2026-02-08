@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 const NotFound = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6 text-slate-900">
-      <div className="max-w-md text-center">
+      <div className="w-full text-center ">
         <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
           Appointment Admin
         </p>

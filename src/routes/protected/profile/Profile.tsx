@@ -1,5 +1,14 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  MdAdminPanelSettings,
+  MdCalendarMonth,
+  MdCancel,
+  MdCheckCircle,
+  MdMailOutline,
+  MdPhone,
+  MdUpdate,
+} from 'react-icons/md'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useGetProfile } from '../../../tanstack/useUsers'
 
@@ -61,7 +70,7 @@ const Profile = () => {
         {/* Layout: stack on mobile, align items side-by-side on desktop */}
         <div className="flex flex-col  gap-6 items-center justify-center">
           {/* Identity block: avatar + name + metadata */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-4">
             {profile?.avatar ? (
               // Server-hosted avatar image when available.
               <img
@@ -85,23 +94,36 @@ const Profile = () => {
               {/* Role + status pills */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 {/* Role pill shows first available role */}
-                <span className="badge badge-soft">{roleLabel}</span>
+                <span className="badge badge-soft inline-flex items-center gap-1">
+                  <MdAdminPanelSettings size={14} />
+                  {roleLabel}
+                </span>
                 {/* Status pill driven by isActive flag */}
                 <span
                   className={
                     profile?.isActive
-                      ? 'badge badge-success'
-                      : 'badge badge-error'
+                      ? 'badge badge-success inline-flex items-center gap-1'
+                      : 'badge badge-error inline-flex items-center gap-1'
                   }
                 >
-                  {profile?.isActive ? 'Active' : 'Inactive'}
+                  {profile?.isActive ? (
+                    <>
+                      <MdCheckCircle size={14} />
+                      Active
+                    </>
+                  ) : (
+                    <>
+                      <MdCancel size={14} />
+                      Inactive
+                    </>
+                  )}
                 </span>
               </div>
             </div>
           </div>
 
           {/* CTA block: edit and change password actions */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             {/* Primary CTA: navigate to edit form */}
             <Link to="/profile/edit" className="btn-primary">
               Edit Profile
@@ -132,28 +154,40 @@ const Profile = () => {
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
             {/* Phone label + value */}
-            <p className="text-xs uppercase text-gray-400">Phone</p>
+            <p className="flex items-center gap-2 text-xs uppercase text-gray-400">
+              <MdPhone size={14} />
+              Phone
+            </p>
             <p className="text-sm text-gray-700">
               {profile?.phone || '—'}
             </p>
           </div>
           <div>
             {/* Email label + value */}
-            <p className="text-xs uppercase text-gray-400">Email</p>
+            <p className="flex items-center gap-2 text-xs uppercase text-gray-400">
+              <MdMailOutline size={14} />
+              Email
+            </p>
             <p className="text-sm text-gray-700">
               {profile?.email || '—'}
             </p>
           </div>
           <div>
             {/* Account creation timestamp */}
-            <p className="text-xs uppercase text-gray-400">Created</p>
+            <p className="flex items-center gap-2 text-xs uppercase text-gray-400">
+              <MdCalendarMonth size={14} />
+              Created
+            </p>
             <p className="text-sm text-gray-700">
               {formatDateTime(profile?.createdAt)}
             </p>
           </div>
           <div>
             {/* Last update timestamp */}
-            <p className="text-xs uppercase text-gray-400">Last updated</p>
+            <p className="flex items-center gap-2 text-xs uppercase text-gray-400">
+              <MdUpdate size={14} />
+              Last updated
+            </p>
             <p className="text-sm text-gray-700">
               {formatDateTime(profile?.updatedAt)}
             </p>

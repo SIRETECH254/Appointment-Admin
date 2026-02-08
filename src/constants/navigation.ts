@@ -5,12 +5,10 @@ import {
   MdAssignment,
   MdCalendarMonth,
   MdDashboard,
-  MdEventNote,
   MdGroup,
   MdLocalAtm,
   MdMailOutline,
   MdNotificationsNone,
-  MdPeopleAlt,
   MdRoomService,
   MdStorefront,
 } from 'react-icons/md'

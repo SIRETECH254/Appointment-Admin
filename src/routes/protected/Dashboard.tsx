@@ -1,12 +1,30 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  MdEvent,
+  MdAccountBalanceWallet,
+  MdAttachMoney,
+  MdPeople,
+  MdBuild,
+  MdTrendingUp,
+  MdPayment,
+} from 'react-icons/md';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   useGetAdminDashboard,
   useGetClientDashboard,
 } from '../../tanstack/useDashboard';
-import { formatCurrency } from '../../utils/paymentUtils';
-import { formatAppointmentDateTime, formatAppointmentStatus, getAppointmentStatusVariant } from '../../utils/appointmentUtils';
+import { StatCard } from '../../components/ui/StatCard';
+import { ActivitySection } from '../../components/ui/ActivitySection';
+import { formatCurrency, formatPaymentMethod, formatPaymentStatus } from '../../utils/paymentUtils';
+import {
+  formatAppointmentDateTime,
+  formatAppointmentStatus,
+  getAppointmentStatusVariant,
+  getAppointmentCustomerName,
+  getAppointmentStaffName,
+  getAppointmentServicesDisplay,
+} from '../../utils/appointmentUtils';
 import { formatDateTime } from '../../utils/userUtils';
 import type { IAppointment, IPayment, IUser } from '../../types/api.types';
 
@@ -19,13 +37,14 @@ import type { IAppointment, IPayment, IUser } from '../../types/api.types';
  * 
  * Features:
  * - Role-based rendering (admin vs client)
- * - Overview statistics cards
+ * - Overview statistics cards with icons
  * - Recent activity sections
+ * - Skeleton loading states
  * - Loading and error states
  * - Responsive design using Tailwind CSS classes
  */
 const Dashboard = () => {
-  // Get authenticated user from auth context
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   /**
@@ -36,6 +55,8 @@ const Dashboard = () => {
     if (!user?.roles || user.roles.length === 0) return false;
     return user.roles.some((role) => role.name?.toLowerCase() === 'admin');
   }, [user]);
+
+
 
   // Fetch dashboard data based on user role
   const {
@@ -56,16 +77,50 @@ const Dashboard = () => {
   const dashboardData = isAdmin ? adminData : clientData;
 
   /**
-   * Render loading state
+   * Render skeleton loading state
    */
   if (isLoading) {
     return (
       <div className="page-container section">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-primary border-r-transparent"></div>
-            <p className="mt-4 text-sm text-gray-600">Loading dashboard...</p>
-          </div>
+        {/* Page Header Skeleton */}
+        <div className="mb-8">
+          <div className="h-8 w-48 animate-pulse rounded bg-gray-300" />
+          <div className="mt-2 h-4 w-64 animate-pulse rounded bg-gray-300" />
+        </div>
+
+        {/* Stat Cards Skeleton */}
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(isAdmin ? 6 : 3)].map((_, index) => (
+            <div key={index} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="mb-2 flex items-center gap-3">
+                <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
+              </div>
+              <div className="mb-2 h-8 w-32 animate-pulse rounded bg-gray-300" />
+              <div className="h-3 w-40 animate-pulse rounded bg-gray-300" />
+            </div>
+          ))}
+        </div>
+
+        {/* Activity Sections Skeleton */}
+        <div className={`mb-8 grid grid-cols-1 gap-6 ${isAdmin ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+          {[...Array(isAdmin ? 3 : 2)].map((_, sectionIndex) => (
+            <div key={sectionIndex} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="h-6 w-32 animate-pulse rounded bg-gray-300" />
+                <div className="h-4 w-16 animate-pulse rounded bg-gray-300" />
+              </div>
+              <div className="space-y-3">
+                {[...Array(5)].map((_, itemIndex) => (
+                  <div key={itemIndex} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <div className="mb-2 h-4 w-40 animate-pulse rounded bg-gray-300" />
+                    <div className="mb-2 h-3 w-32 animate-pulse rounded bg-gray-300" />
+                    <div className="h-6 w-20 animate-pulse rounded-full bg-gray-300" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -91,220 +146,224 @@ const Dashboard = () => {
   if (isAdmin && dashboardData?.data) {
     const { overview, recentActivity } = dashboardData.data;
 
+
+
     return (
-      <div className="page-container section">
+      <div className="">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-600">System-wide statistics and analytics</p>
+          <h1 className="font-poppins text-3xl font-semibold text-gray-900">Admin Dashboard</h1>
+          {user && (
+            <p className="mt-2 font-inter text-sm text-gray-600">
+              Welcome, {user.firstName} {user.lastName}!
+            </p>
+          )}
+          <p className="mt-1 font-inter text-sm text-gray-600">System-wide statistics and analytics</p>
         </div>
 
         {/* Overview Statistics Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {/* Appointments Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Appointments</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {overview.appointments.total.toLocaleString()}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 flex gap-4 text-xs text-gray-600">
-              <span>Pending: {overview.appointments.byStatus.pending}</span>
-              <span>Confirmed: {overview.appointments.byStatus.confirmed}</span>
-              <span>Completed: {overview.appointments.byStatus.completed}</span>
-            </div>
-          </div>
-
-          {/* Revenue Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {formatCurrency(overview.revenue.total, 'KES')}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-gray-600">
-              Outstanding: {formatCurrency(overview.revenue.outstanding, 'KES')}
-            </div>
-          </div>
-
-          {/* Users Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {overview.users.total.toLocaleString()}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 flex gap-4 text-xs text-gray-600">
-              <span>Customers: {overview.users.byRole.customers}</span>
-              <span>Staff: {overview.users.byRole.staff}</span>
-              <span>Admins: {overview.users.byRole.admins}</span>
-            </div>
-          </div>
+          <StatCard
+            title="Appointments"
+            value={overview.appointments.total.toLocaleString()}
+            icon={MdEvent}
+            iconColor="#7b1c1c"
+            subtitle={`${overview.appointments.byStatus.completed} completed • ${overview.appointments.byStatus.confirmed} confirmed • ${overview.appointments.byStatus.pending} pending`}
+          />
 
           {/* Payments Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Payments</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {overview.payments.total.toLocaleString()}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
+          <StatCard
+            title="Payments"
+            value={overview.payments.total.toLocaleString()}
+            icon={MdAccountBalanceWallet}
+            iconColor="#2563eb"
+            subtitle={`${overview.payments.byStatus.success} success • ${formatCurrency(overview.payments.totalAmount, 'KES')} total`}
+          />
+
+          {/* Revenue Card */}
+          <StatCard
+            title="Revenue"
+            value={formatCurrency(overview.revenue.total, 'KES')}
+            icon={MdAttachMoney}
+            iconColor="#059669"
+            subtitle={`${formatCurrency(overview.revenue.outstanding, 'KES')} outstanding`}
+          />
+
+          {/* Users Card */}
+          <StatCard
+            title="Users"
+            value={overview.users.total.toLocaleString()}
+            icon={MdPeople}
+            iconColor="#8b5cf6"
+            subtitle={`${overview.users.active} active • ${overview.users.verified} verified`}
+          />
+
+          {/* Services Card */}
+          <StatCard
+            title="Services"
+            value={overview.services.total.toLocaleString()}
+            icon={MdBuild}
+            iconColor="#ec4899"
+            subtitle={`${overview.services.active} active`}
+          />
+
+          {/* Payment Methods Breakdown Card */}
+          <StatCard
+            title="Payment Methods"
+            value={(Object.values(overview.payments.byMethod) as any[]).reduce((a, b) => a + b, 0).toLocaleString()}
+            icon={MdPayment}
+            iconColor="#D4AF37"
+            subtitle={`M-Pesa: ${overview.payments.byMethod.mpesa} • Card: ${overview.payments.byMethod.card} • Cash: ${overview.payments.byMethod.cash}`}
+          />
+        </div>
+
+        {/* Additional Stats Row */}
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* Users by Role */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="mb-2 flex items-center gap-2">
+              <MdPeople size={20} color="#8b5cf6" />
+              <p className="font-inter text-sm font-medium text-gray-600">Users by Role</p>
             </div>
-            <div className="mt-4 text-xs text-gray-600">
-              Total Amount: {formatCurrency(overview.payments.totalAmount, 'KES')}
+            <div className="mt-2 space-y-1 text-xs text-gray-600">
+              <p>Customers: {overview.users.byRole.customers}</p>
+              <p>Staff: {overview.users.byRole.staff}</p>
+              <p>Admins: {overview.users.byRole.admins}</p>
             </div>
           </div>
 
-          {/* Services Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Services</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {overview.services.total.toLocaleString()}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
+          {/* Payment Status Breakdown */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="mb-2 flex items-center gap-2">
+              <MdAccountBalanceWallet size={20} color="#2563eb" />
+              <p className="font-inter text-sm font-medium text-gray-600">Payment Status</p>
             </div>
-            <div className="mt-4 text-xs text-gray-600">
-              Active: {overview.services.active}
+            <div className="mt-2 space-y-1 text-xs text-gray-600">
+              <p>Success: {overview.payments.byStatus.success}</p>
+              <p>Pending: {overview.payments.byStatus.pending}</p>
+              <p>Failed: {overview.payments.byStatus.failed}</p>
+            </div>
+          </div>
+
+          {/* Appointment Status Breakdown */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="mb-2 flex items-center gap-2">
+              <MdEvent size={20} color="#7b1c1c" />
+              <p className="font-inter text-sm font-medium text-gray-600">Appointment Status</p>
+            </div>
+            <div className="mt-2 space-y-1 text-xs text-gray-600">
+              <p>Completed: {overview.appointments.byStatus.completed}</p>
+              <p>Confirmed: {overview.appointments.byStatus.confirmed}</p>
+              <p>Pending: {overview.appointments.byStatus.pending}</p>
+              <p>Cancelled: {overview.appointments.byStatus.cancelled}</p>
+              <p>No Show: {overview.appointments.byStatus.no_show}</p>
             </div>
           </div>
         </div>
 
         {/* Recent Activity Section */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Recent Appointments */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Appointments</h2>
-              <Link to="/appointments" className="text-sm font-medium text-brand-primary hover:text-brand-accent">
-                View All
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {recentActivity.appointments && recentActivity.appointments.length > 0 ? (
-                recentActivity.appointments.slice(0, 5).map((appointment: IAppointment) => (
-                  <div key={appointment._id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {typeof appointment.customerId === 'object' && appointment.customerId
-                          ? `${(appointment.customerId as IUser).firstName} ${(appointment.customerId as IUser).lastName}`
-                          : 'Unknown Customer'}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatAppointmentDateTime(appointment.startTime)}
-                      </p>
-                    </div>
-                    <span className={`badge badge-${getAppointmentStatusVariant(appointment.status)}`}>
-                      {formatAppointmentStatus(appointment.status)}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">No recent appointments</p>
-              )}
-            </div>
-          </div>
+          <ActivitySection
+            title="Recent Appointments"
+            icon={MdEvent}
+            items={recentActivity.appointments || []}
+            viewAllLink="/appointments"
+            onItemPress={(item: IAppointment) => {
+              const id = item._id;
+              if (id) navigate(`/appointments/${id}`);
+            }}
+            renderItem={(item: IAppointment) => (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-inter text-base font-semibold text-gray-900 dark:text-gray-50">
+                    {getAppointmentCustomerName(item)}
+                  </p>
+                  <p className="font-inter text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {formatAppointmentDateTime(item.startTime)}
+                  </p>
+                  {item.services && item.services.length > 0 && (
+                    <p className="font-inter text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {getAppointmentServicesDisplay(item)}
+                    </p>
+                  )}
+                </div>
+                <span className={`badge badge-${getAppointmentStatusVariant(item.status)}`}>
+                  {formatAppointmentStatus(item.status)}
+                </span>
+              </div>
+            )}
+          />
 
           {/* Recent Payments */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Payments</h2>
-              <Link to="/payments" className="text-sm font-medium text-brand-primary hover:text-brand-accent">
-                View All
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {recentActivity.payments && recentActivity.payments.length > 0 ? (
-                recentActivity.payments.slice(0, 5).map((payment: IPayment) => (
-                  <div key={payment._id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(payment.amount, payment.currency || 'KES')}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDateTime(payment.createdAt)}
-                      </p>
-                    </div>
-                    <span className={`badge badge-${payment.status === 'SUCCESS' ? 'success' : payment.status === 'FAILED' ? 'error' : 'soft'}`}>
-                      {payment.status}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">No recent payments</p>
-              )}
-            </div>
-          </div>
+          <ActivitySection
+            title="Recent Payments"
+            icon={MdAccountBalanceWallet}
+            items={recentActivity.payments || []}
+            viewAllLink="/payments"
+            onItemPress={(item: IPayment) => {
+              const id = item._id;
+              if (id) navigate(`/payments/${id}`);
+            }}
+            renderItem={(item: IPayment) => (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-inter text-base font-semibold text-gray-900 dark:text-gray-50">
+                    {formatCurrency(item.amount, item.currency || 'KES')}
+                  </p>
+                  <p className="font-inter text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {formatPaymentMethod(item.method)} • {formatDateTime(item.createdAt)}
+                  </p>
+                </div>
+                <span className={`badge badge-${item.status === 'SUCCESS' ? 'success' : item.status === 'FAILED' ? 'error' : 'soft'}`}>
+                  {formatPaymentStatus(item.status)}
+                </span>
+              </div>
+            )}
+          />
 
           {/* Recent Users */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Users</h2>
-              <Link to="/users" className="text-sm font-medium text-brand-primary hover:text-brand-accent">
-                View All
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {recentActivity.users && recentActivity.users.length > 0 ? (
-                recentActivity.users.slice(0, 5).map((user: IUser) => (
-                  <div key={user._id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
-                    </div>
-                    <span className={`badge badge-${user.isActive ? 'success' : 'error'}`}>
-                      {user.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">No recent users</p>
-              )}
-            </div>
-          </div>
+          <ActivitySection
+            title="Recent Users"
+            icon={MdPeople}
+            items={recentActivity.users || []}
+            viewAllLink="/users"
+            onItemPress={(item: IUser) => {
+              const id = item._id;
+              if (id) navigate(`/users/${id}`);
+            }}
+            renderItem={(item: IUser) => (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-inter text-base font-semibold text-gray-900 dark:text-gray-50">
+                    {item.firstName} {item.lastName}
+                  </p>
+                  <p className="font-inter text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {item.email}
+                  </p>
+                  {item.roles && item.roles.length > 0 && (
+                    <p className="font-inter text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {item.roles.map((r) => r.displayName || r.name).join(', ')}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`badge badge-${item.isActive ? 'success' : 'error'}`}>
+                    {item.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                  {item.isEmailVerified && (
+                    <span className="badge badge-soft text-xs">Verified</span>
+                  )}
+                </div>
+              </div>
+            )}
+          />
         </div>
 
         {/* Quick Actions */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
+          <h2 className="mb-4 font-poppins text-lg font-semibold text-gray-900">Quick Actions</h2>
           <div className="flex flex-wrap gap-4">
             <Link to="/appointments/new" className="btn-primary">
               New Appointment
@@ -334,139 +393,117 @@ const Dashboard = () => {
       <div className="">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900">My Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-600">Your appointment and payment overview</p>
+          <h1 className="font-poppins text-3xl font-semibold text-gray-900">My Dashboard</h1>
+          {user && (
+            <p className="mt-2 font-inter text-sm text-gray-600">
+              Welcome, {user.firstName} {user.lastName}!
+            </p>
+          )}
+          <p className="mt-1 font-inter text-sm text-gray-600">Your appointment and payment overview</p>
         </div>
 
         {/* Overview Statistics Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {/* Appointments Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">My Appointments</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {overview.appointments.total.toLocaleString()}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 flex gap-4 text-xs text-gray-600">
-              <span>Pending: {overview.appointments.byStatus.pending}</span>
-              <span>Confirmed: {overview.appointments.byStatus.confirmed}</span>
-              <span>Completed: {overview.appointments.byStatus.completed}</span>
-            </div>
-          </div>
+          <StatCard
+            title="My Appointments"
+            value={overview.appointments.total.toLocaleString()}
+            icon={MdEvent}
+            iconColor="#7b1c1c"
+            subtitle={`${overview.appointments.byStatus.confirmed} confirmed • ${overview.appointments.byStatus.completed} completed • ${overview.appointments.byStatus.pending} pending`}
+          />
+
+          {/* Payments Card */}
+          <StatCard
+            title="Payments"
+            value={overview.payments.total.toLocaleString()}
+            icon={MdAccountBalanceWallet}
+            iconColor="#2563eb"
+            subtitle={`Total: ${formatCurrency(overview.payments.totalAmount, 'KES')}`}
+          />
 
           {/* Total Spent Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Spent</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {formatCurrency(overview.financial.totalSpent, 'KES')}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            title="Total Spent"
+            value={formatCurrency(overview.financial.totalSpent, 'KES')}
+            icon={MdAttachMoney}
+            iconColor="#059669"
+          />
 
           {/* Outstanding Balance Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Outstanding Balance</p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {formatCurrency(overview.financial.outstandingBalance, 'KES')}
-                </p>
-              </div>
-              <div className="rounded-full bg-brand-tint p-3">
-                <svg className="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            title="Outstanding Balance"
+            value={formatCurrency(overview.financial.outstandingBalance, 'KES')}
+            icon={MdTrendingUp}
+            iconColor="#f59e0b"
+          />
         </div>
 
         {/* Recent Activity Section */}
         <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Recent Appointments */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Appointments</h2>
-              <Link to="/appointments" className="text-sm font-medium text-brand-primary hover:text-brand-accent">
-                View All
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {recentActivity.appointments && recentActivity.appointments.length > 0 ? (
-                recentActivity.appointments.slice(0, 5).map((appointment: IAppointment) => (
-                  <div key={appointment._id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatAppointmentDateTime(appointment.startTime)}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {typeof appointment.staffId === 'object' && appointment.staffId
-                          ? `${(appointment.staffId as IUser).firstName} ${(appointment.staffId as IUser).lastName}`
-                          : 'Staff'}
-                      </p>
-                    </div>
-                    <span className={`badge badge-${getAppointmentStatusVariant(appointment.status)}`}>
-                      {formatAppointmentStatus(appointment.status)}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">No recent appointments</p>
-              )}
-            </div>
-          </div>
+          <ActivitySection
+            title="Recent Appointments"
+            icon={MdEvent}
+            items={recentActivity.appointments || []}
+            viewAllLink="/appointments"
+            onItemPress={(item: IAppointment) => {
+              const id = item._id;
+              if (id) navigate(`/appointments/${id}`);
+            }}
+            renderItem={(item: IAppointment) => (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-inter text-base font-semibold text-gray-900 dark:text-gray-50">
+                    {formatAppointmentDateTime(item.startTime)}
+                  </p>
+                  <p className="font-inter text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {getAppointmentStaffName(item) || 'Staff'}
+                  </p>
+                  {item.services && item.services.length > 0 && (
+                    <p className="font-inter text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {getAppointmentServicesDisplay(item)}
+                    </p>
+                  )}
+                </div>
+                <span className={`badge badge-${getAppointmentStatusVariant(item.status)}`}>
+                  {formatAppointmentStatus(item.status)}
+                </span>
+              </div>
+            )}
+          />
 
           {/* Recent Payments */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Payments</h2>
-              <Link to="/payments" className="text-sm font-medium text-brand-primary hover:text-brand-accent">
-                View All
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {recentActivity.payments && recentActivity.payments.length > 0 ? (
-                recentActivity.payments.slice(0, 5).map((payment: IPayment) => (
-                  <div key={payment._id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(payment.amount, payment.currency || 'KES')}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDateTime(payment.createdAt)}
-                      </p>
-                    </div>
-                    <span className={`badge badge-${payment.status === 'SUCCESS' ? 'success' : payment.status === 'FAILED' ? 'error' : 'soft'}`}>
-                      {payment.status}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">No recent payments</p>
-              )}
-            </div>
-          </div>
+          <ActivitySection
+            title="Recent Payments"
+            icon={MdAccountBalanceWallet}
+            items={recentActivity.payments || []}
+            viewAllLink="/payments"
+            onItemPress={(item: IPayment) => {
+              const id = item._id;
+              if (id) navigate(`/payments/${id}`);
+            }}
+            renderItem={(item: IPayment) => (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-inter text-base font-semibold text-gray-900 dark:text-gray-50">
+                    {formatCurrency(item.amount, item.currency || 'KES')}
+                  </p>
+                  <p className="font-inter text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {formatPaymentMethod(item.method)} • {formatDateTime(item.createdAt)}
+                  </p>
+                </div>
+                <span className={`badge badge-${item.status === 'SUCCESS' ? 'success' : item.status === 'FAILED' ? 'error' : 'soft'}`}>
+                  {formatPaymentStatus(item.status)}
+                </span>
+              </div>
+            )}
+          />
         </div>
 
         {/* Quick Actions */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
+          <h2 className="mb-4 font-poppins text-lg font-semibold text-gray-900">Quick Actions</h2>
           <div className="flex flex-wrap gap-4">
             <Link to="/appointments/new" className="btn-primary">
               Book Appointment
