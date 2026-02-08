@@ -356,7 +356,7 @@ const UserList = () => {
                           {getUserInitials(user)}
                         </div>
                       )}
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 whitespace-nowrap">
                         {user.firstName} {user.lastName}
                       </div>
                     </div>
