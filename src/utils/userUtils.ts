@@ -1,4 +1,5 @@
-import type { IUser } from '../types/api.types';
+import { MdAdminPanelSettings, MdWork, MdPerson } from 'react-icons/md';
+import type { IUser, IRole } from '../types/api.types';
 
 /**
  * Format ISO timestamps into a human-friendly date format
@@ -58,4 +59,35 @@ export const getUserInitials = (user: IUser): string => {
 export const getRoleDisplayName = (user: IUser): string => {
   if (!user.roles || user.roles.length === 0) return 'User';
   return user.roles[0].displayName || user.roles[0].name || 'User';
+};
+
+/**
+ * Get styling for a role badge based on the role name
+ * @param role - The role object
+ * @returns An object with badge class and icon component
+ */
+export const getRoleStyle = (role: IRole) => {
+  const roleName = role.name.toLowerCase();
+  switch (roleName) {
+    case 'admin':
+      return {
+        badgeClass: 'bg-red-100 text-red-700',
+        icon: MdAdminPanelSettings,
+      };
+    case 'staff':
+      return {
+        badgeClass: 'bg-blue-100 text-blue-700',
+        icon: MdWork,
+      };
+    case 'customer':
+      return {
+        badgeClass: 'bg-green-100 text-green-700',
+        icon: MdPerson,
+      };
+    default:
+      return {
+        badgeClass: 'bg-gray-100 text-gray-700',
+        icon: MdPerson,
+      };
+  }
 };

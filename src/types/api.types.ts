@@ -85,10 +85,13 @@ export interface TokenResponse {
 // ============================================
 
 export interface IWorkingHours {
-  dayOfWeek: number; // 0-6, 0 = Sunday
-  startTime: string; // HH:mm format
-  endTime: string;
-  isWorking: boolean;
+  monday: { start: string; end: string }[];
+  tuesday: { start: string; end: string }[];
+  wednesday: { start: string; end: string }[];
+  thursday: { start: string; end: string }[];
+  friday: { start: string; end: string }[];
+  saturday: { start: string; end: string }[];
+  sunday: { start: string; end: string }[];
 }
 
 export interface INotificationPreferences {
@@ -110,7 +113,7 @@ export interface IUser {
   isActive: boolean;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
-  workingHours?: IWorkingHours[];
+  workingHours?: IWorkingHours;
   assignedServices?: string[];
   notificationPreferences?: INotificationPreferences;
   createdAt: string;

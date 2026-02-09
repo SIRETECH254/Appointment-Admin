@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useGetUserById, useUpdateUser } from '../../../tanstack/useUsers';
-import type { IUser } from '../../../types/api.types';
+import { useGetAllRoles } from '../../../tanstack/useRoles';
+import type { IUser, IRole } from '../../../types/api.types';
+import MultiSelect from '../../../components/ui/MultiSelect';
+import WorkingHoursInput from '../../../components/ui/WorkingHoursInput';
+
+type WorkingHours = {
+  [key: string]: { start: string; end: string }[];
+};
 
 /**
  * Inline message type for form feedback
@@ -14,7 +21,7 @@ type InlineMessage = {
 /**
  * UserEdit Component
  * 
- * Allows admin to edit user information including name, phone, role, and active status.
+ * Allows admin to edit user information including name, phone, roles, working hours and active status.
  * Email is displayed as read-only since it's a unique identifier.
  * 
  * Features:
@@ -31,6 +38,9 @@ const UserEdit = () => {
   // TanStack Query hooks
   const { data, isLoading, isError, error } = useGetUserById(id || '');
   const updateUser = useUpdateUser();
+  const { data: rolesData } = useGetAllRoles();
+
+  const allRoles = (rolesData as any)?.roles || [];
 
   // Extract user from API response (handle different response shapes)
   const user = (data as any)?.user ?? (data as IUser);
@@ -40,7 +50,8 @@ const UserEdit = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [role, setRole] = useState('');
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [workingHours, setWorkingHours] = useState<WorkingHours>({});
   const [isActive, setIsActive] = useState(true);
 
   // UI state
@@ -61,8 +72,8 @@ const UserEdit = () => {
     setLastName(user.lastName ?? '');
     setEmail(user.email ?? '');
     setPhone(user.phone ?? '');
-    // Get primary role (first role in array)
-    setRole(user.roles?.[0]?.name ?? '');
+    setSelectedRoles(user.roles?.map((r: IRole) => r._id) ?? []);
+    setWorkingHours(user.workingHours ?? {});
     setIsActive(user.isActive ?? true);
   }, [user]);
 
@@ -76,6 +87,11 @@ const UserEdit = () => {
       }
     };
   }, []);
+
+  const isStaff = useMemo(() => {
+    const staffRole = allRoles.find((r: IRole) => r.name === 'staff');
+    return staffRole && selectedRoles.includes(staffRole._id);
+  }, [selectedRoles, allRoles]);
 
   /**
    * Determine if form can be submitted
@@ -114,20 +130,17 @@ const UserEdit = () => {
         const userData: any = {
           firstName: trimmedFirstName,
           lastName: trimmedLastName,
+          roles: selectedRoles,
+          isActive,
         };
 
-        // Add optional fields if provided
         if (trimmedPhone) {
           userData.phone = trimmedPhone;
         }
 
-        // Add role if selected (may need to be handled via role assignment endpoint)
-        if (role) {
-          userData.role = role;
+        if (isStaff) {
+          userData.workingHours = workingHours;
         }
-
-        // Add active status
-        userData.isActive = isActive;
 
         // Call update mutation
         await updateUser.mutateAsync({
@@ -154,7 +167,7 @@ const UserEdit = () => {
         setIsSubmitting(false);
       }
     },
-    [firstName, lastName, phone, role, isActive, id, updateUser, navigate]
+    [firstName, lastName, phone, selectedRoles, isActive, id, updateUser, navigate, isStaff, workingHours]
   );
 
   // Get error message from API response
@@ -193,6 +206,11 @@ const UserEdit = () => {
       </div>
     );
   }
+
+  const roleOptions = allRoles.map((r: IRole) => ({
+    value: r._id,
+    label: r.displayName,
+  }));
 
   return (
     <div className="space-y-6">
@@ -263,19 +281,14 @@ const UserEdit = () => {
             />
           </div>
 
-          {/* Role */}
-          <div className="auth-field">
-            <label className="label">Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="input-select w-full"
-            >
-              <option value="">Select role</option>
-              <option value="admin">Admin</option>
-              <option value="staff">Staff</option>
-              <option value="customer">Customer</option>
-            </select>
+          {/* Roles */}
+          <div className="auth-field md:col-span-2">
+            <MultiSelect
+              label="Roles"
+              options={roleOptions}
+              selected={selectedRoles}
+              onChange={setSelectedRoles}
+            />
           </div>
 
           {/* Active status */}
@@ -295,6 +308,12 @@ const UserEdit = () => {
             </div>
           </div>
         </div>
+
+        {isStaff && (
+          <div className="mt-6">
+            <WorkingHoursInput workingHours={workingHours} onChange={setWorkingHours} />
+          </div>
+        )}
 
         {/* Inline success/error message */}
         {inlineMessage ? (

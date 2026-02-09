@@ -4,7 +4,7 @@ import { MdVisibility, MdEdit, MdDelete, MdAdd } from 'react-icons/md';
 import { useGetAllUsers, useDeleteUser } from '../../../tanstack/useUsers';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
-import { formatDateTime, getUserInitials, getRoleDisplayName } from '../../../utils/userUtils';
+import { formatDateTime, getUserInitials, getRoleStyle } from '../../../utils/userUtils';
 import type { IUser } from '../../../types/api.types';
 
 /**
@@ -369,7 +369,20 @@ const UserList = () => {
 
                   {/* Role */}
                   <td className="table-cell">
-                    <span className="badge badge-soft">{getRoleDisplayName(user)}</span>
+                    <div className="flex flex-wrap gap-1">
+                      {user.roles.map((role) => {
+                        const { badgeClass, icon: Icon } = getRoleStyle(role);
+                        return (
+                          <span
+                            key={role._id}
+                            className={`badge text-xs inline-flex items-center gap-1 ${badgeClass}`}
+                          >
+                            <Icon size={14} />
+                            {role.displayName || role.name}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </td>
 
                   {/* Status */}

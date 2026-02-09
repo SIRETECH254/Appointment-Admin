@@ -361,24 +361,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Quick Actions */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 font-poppins text-lg font-semibold text-gray-900">Quick Actions</h2>
-          <div className="flex flex-wrap gap-4">
-            <Link to="/appointments/new" className="btn-primary">
-              New Appointment
-            </Link>
-            <Link to="/users/new" className="btn-secondary">
-              Add User
-            </Link>
-            <Link to="/services/new" className="btn-secondary">
-              Add Service
-            </Link>
-            <Link to="/payments" className="btn-ghost">
-              View Payments
-            </Link>
-          </div>
-        </div>
+
       </div>
     );
   }
@@ -501,21 +484,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Quick Actions */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 font-poppins text-lg font-semibold text-gray-900">Quick Actions</h2>
-          <div className="flex flex-wrap gap-4">
-            <Link to="/appointments/new" className="btn-primary">
-              Book Appointment
-            </Link>
-            <Link to="/appointments" className="btn-secondary">
-              My Appointments
-            </Link>
-            <Link to="/profile" className="btn-ghost">
-              View Profile
-            </Link>
-          </div>
-        </div>
+
       </div>
     );
   }
