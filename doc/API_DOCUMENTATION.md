@@ -424,8 +424,9 @@ The system uses a unified user model with roles:
 - **Request Body:**
   ```json
   {
-    "paymentMethod": "mpesa" | "paystack",
-    "phoneNumber": "string"
+    "paymentMethod": "MPESA" | "CARD",
+    "phoneNumber": "string",
+    "email": "string"
   }
   ```
 
@@ -436,8 +437,8 @@ The system uses a unified user model with roles:
 - **Request Body:**
   ```json
   {
-    "newStartTime": "ISO8601 datetime",
-    "staffId": "string"
+    "startTime": "ISO8601 datetime",
+    "endTime": "ISO8601 datetime"
   }
   ```
 
@@ -514,11 +515,7 @@ The system uses a unified user model with roles:
   - `serviceId` - Service ID (required, can be repeated for multiple services)
   - `date` - Date in YYYY-MM-DD format (required)
 - **Note:** For multiple services, include `serviceId` parameter multiple times: `?serviceId=id1&serviceId=id2`. The API sums the durations of all services to calculate total duration for slot generation.
-- **Auth Required:** No
-- **Query Parameters:**
-  - `staffId` - Staff member ID (required)
-  - `serviceId` - Service ID (required for duration calculation)
-  - `date` - Date in YYYY-MM-DD format (required)
+
 - **Response:**
   ```json
   {
@@ -619,9 +616,10 @@ The system uses a unified user model with roles:
 - **Request Body:**
   ```json
   {
-    "appointmentId": "string",
-    "paymentMethod": "mpesa" | "paystack",
-    "phoneNumber": "string"
+    "services": ["string"],
+    "method": "MPESA" | "CARD",
+    "phone": "string",
+    "email": "string"
   }
   ```
 - **Response:**
@@ -629,9 +627,20 @@ The system uses a unified user model with roles:
   {
     "success": true,
     "data": {
-      "paymentId": "string",
-      "checkoutRequestId": "string",
-      "status": "pending"
+      "payment": {
+        "_id": "string",
+        "amount": "number",
+        "method": "MPESA" | "CARD",
+        "type": "BOOKING_FEE" | "FULL_PAYMENT",
+        "status": "PENDING",
+        // ... other IPayment fields
+      },
+      "gateway": {
+        "checkoutRequestId": "string",
+        "merchantRequestId": "string",
+        "authorizationUrl": "string",
+        "reference": "string"
+      }
     }
   }
   ```
@@ -644,9 +653,9 @@ The system uses a unified user model with roles:
   ```json
   {
     "appointmentId": "string",
-    "paymentMethod": "mpesa" | "paystack",
+    "paymentMethod": "MPESA" | "CARD" | "CASH",
     "phoneNumber": "string",
-    "amount": "number"
+    "email": "string"
   }
   ```
 
@@ -658,7 +667,7 @@ The system uses a unified user model with roles:
   - `page` - Page number
   - `limit` - Items per page
   - `status` - Filter by status (pending, completed, failed)
-  - `method` - Filter by method (mpesa, paystack)
+  - `method` - Filter by method (mpesa, card, cash)
   - `type` - Filter by type (booking_fee, service_payment)
   - `startDate` - Filter from date
   - `endDate` - Filter to date
@@ -678,6 +687,24 @@ The system uses a unified user model with roles:
 - **Description:** Paystack payment callback (internal)
 - **Auth Required:** No (validated by Paystack signature)
 
+#### Query M-Pesa Status
+- **Endpoint:** `GET /payments/status/:checkoutRequestId`
+- **Description:** Query the status of an M-Pesa STK Push payment.
+- **Auth Required:** Yes
+- **Path Parameters:**
+  - `checkoutRequestId` - The M-Pesa Checkout Request ID
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "resultCode": "number",
+      "resultDesc": "string",
+      "status": "string"
+    }
+  }
+  ```
+
 ---
 
 ### Notification Endpoints
@@ -691,18 +718,28 @@ The system uses a unified user model with roles:
 - **Request Body:**
   ```json
   {
-    "recipientId": "string",
-    "type": "email" | "sms" | "push" | "in_app",
-    "category": "appointment" | "payment" | "system" | "promotional",
+    "recipient": "string",
+    "type": "email" | "sms" | "in_app",
+    "category": "general" | "appointment" | "payment",
     "subject": "string",
     "message": "string",
+    "metadata": {},
     "actions": [
       {
         "label": "string",
-        "type": "link" | "action",
-        "value": "string"
+        "type": "api" | "navigate" | "modal" | "confirm",
+        "route": "string",
+        "endpoint": "string",
+        "method": "GET" | "POST" | "PATCH" | "DELETE",
+        "payload": {}
       }
-    ]
+    ],
+    "context": {
+      "resourceId": "string",
+      "resourceType": "string",
+      "additionalData": {}
+    },
+    "expiresAt": "ISO8601 datetime"
   }
   ```
 
@@ -713,7 +750,7 @@ The system uses a unified user model with roles:
 - **Query Parameters:**
   - `page` - Page number
   - `limit` - Items per page
-  - `isRead` - Filter by read status
+  - `status` - Filter by read status (read/unread)
 
 #### Get Unread Count
 - **Endpoint:** `GET /notifications/unread-count`
@@ -729,7 +766,7 @@ The system uses a unified user model with roles:
 - **Endpoint:** `GET /notifications/category/:category`
 - **Description:** Get notifications by category
 - **Auth Required:** Yes
-- **Categories:** `appointment`, `payment`, `system`, `promotional`
+- **Categories:** `general`, `appointment`, `payment`
 
 #### Mark as Read
 - **Endpoint:** `PATCH /notifications/:notificationId/read`
@@ -745,6 +782,21 @@ The system uses a unified user model with roles:
 - **Endpoint:** `DELETE /notifications/:notificationId`
 - **Description:** Delete notification
 - **Auth Required:** Yes
+
+#### Send Bulk Notification
+- **Endpoint:** `POST /notifications/bulk`
+- **Description:** Send bulk notification to multiple recipients (admin only)
+- **Auth Required:** Yes (Admin)
+- **Request Body:**
+  ```json
+  {
+    "recipients": ["string"],
+    "type": "email" | "sms" | "in_app",
+    "category": "general" | "appointment" | "payment",
+    "subject": "string",
+    "message": "string"
+  }
+  ```
 
 ---
 
@@ -960,7 +1012,7 @@ The API client automatically handles:
 ## Usage Example
 
 ```typescript
-import { authAPI, appointmentAPI, serviceAPI } from '@/api';
+import { authAPI, appointmentAPI, serviceAPI, availabilityAPI } from '@/api';
 
 // Login
 const response = await authAPI.login({
@@ -987,13 +1039,20 @@ const appointment = await appointmentAPI.create({
   staffId: 'staffId',
   services: ['serviceId1', 'serviceId2'],
   startTime: '2025-01-30T09:00:00Z',
+  endTime: '2025-01-30T10:00:00Z', // Assuming calculated or fixed end time
   notes: 'Customer notes'
 });
 
-// Confirm with payment
+// Confirm with payment (MPESA example)
 await appointmentAPI.confirm(appointment.data._id, {
-  paymentMethod: 'mpesa',
-  phoneNumber: '254712345678'
+  method: 'MPESA', // Corrected from paymentMethod
+  phone: '254712345678' // Corrected from phoneNumber
+});
+
+// Confirm with payment (CARD example)
+await appointmentAPI.confirm(appointment.data._id, {
+  method: 'CARD',
+  email: 'user@example.com'
 });
 ```
 

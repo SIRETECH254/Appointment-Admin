@@ -89,9 +89,15 @@ The store is configured in `redux/index.ts`:
 ```typescript
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import authReducer from './slices/authSlice';
-import { RootState } from './types';
+// Custom storage adapter for redux-persist (localStorage with async API)
+const storage = {
+  getItem: (key: string): Promise<string | null> =>
+    Promise.resolve(localStorage.getItem(key)),
+  setItem: (key: string, value: string): Promise<void> =>
+    Promise.resolve(localStorage.setItem(key, value)),
+  removeItem: (key: string): Promise<void> =>
+    Promise.resolve(localStorage.removeItem(key)),
+};
 
 // Redux Persist configuration (localStorage for web)
 const persistConfig = {
@@ -121,6 +127,9 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
+export type AppDispatch = typeof store.dispatch;
+export type { RootState };
 ```
 
 ### Key Features
@@ -184,7 +193,7 @@ interface AuthState {
 - **`setLoading(boolean)`** - Sets loading state
 - **`setAuthLoading(boolean)`** - Sets loading and clears error
 - **`setAuthSuccess(user)`** - Sets user and authenticated state
-- **`setAuthFailure(error)`** - Sets error and clears loading
+- **`setAuthFailure(error | null)`** - Sets error and clears loading
 - **`clearAuth()`** - Clears all auth state
 
 #### Usage Example
@@ -208,45 +217,14 @@ dispatch(loginStart());
 
 ## TypeScript Types
 
-### User Type
+### User and Role Types
 
-Aligned with `IUser` from API types:
-
-```typescript
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  avatar?: string;
-  roles: Role[];
-  isActive: boolean;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  workingHours?: IWorkingHours[];
-  assignedServices?: string[];
-  notificationPreferences?: INotificationPreferences;
-  createdAt: string;
-  updatedAt: string;
-}
-```
-
-### Role Type
-
-Aligned with `IRole` from API types:
+The `User` and `Role` types are imported and re-exported from `../types/api.types` to maintain a single source of truth for these core entities. For their detailed structure, refer to `src/types/api.types.ts`.
 
 ```typescript
-interface Role {
-  _id: string;
-  name: string;
-  displayName: string;
-  description?: string;
-  permissions: string[];
-  isSystemRole: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { IUser, IRole } from '../../types/api.types'; // Path relative to slices or hooks
+export type User = IUser;
+export type Role = IRole;
 ```
 
 ### Auth State Type

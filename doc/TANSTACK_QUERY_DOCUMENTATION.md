@@ -132,6 +132,7 @@ src/
     ├── usePayments.ts
     ├── useNotifications.ts
     ├── useContact.ts
+    ├── useDashboard.ts
     └── useStoreConfig.ts
 ```
 

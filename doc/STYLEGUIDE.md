@@ -48,11 +48,15 @@ Core auth classes:
 - `auth-form`, `auth-field`
 - `auth-actions`, `auth-remember`, `auth-checkbox`
 - `auth-button`
-- `auth-inline-message-success`, `auth-inline-message-error`
+- `auth-inline-message`
+- `auth-inline-message-success`
+- `auth-inline-message-error`
 
 ## Buttons
 
 Use the base `btn` class plus a variant:
+
+- `btn`
 
 - `btn-primary`
 - `btn-secondary`
@@ -72,8 +76,10 @@ Input and label classes:
 
 ## Alerts
 
+- `alert`
 - `alert-success`
 - `alert-error`
+- `alert-info`
 - `alert-info`
 
 ## Badges
