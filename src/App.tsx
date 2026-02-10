@@ -3,7 +3,7 @@ import { useAuth } from './contexts/AuthContext'
 import NotFound from './routes/NotFound'
 import Dashboard from './routes/protected/Dashboard'
 import Layout from './routes/protected/Layout'
-import AppointmentAdd from './routes/protected/appointments/AppointmentAdd'
+import AppointmentAddTabs from './routes/protected/appointments/AppointmentAddTabs'
 import AppointmentDetails from './routes/protected/appointments/AppointmentDetails'
 import AppointmentEdit from './routes/protected/appointments/AppointmentEdit'
 import AppointmentList from './routes/protected/appointments/AppointmentList'
@@ -99,7 +99,7 @@ function App() {
 
         {/* Appointments */}
         <Route path="/appointments" element={<AppointmentList />} />
-        <Route path="/appointments/new" element={<AppointmentAdd />} />
+        <Route path="/appointments/new" element={<AppointmentAddTabs />} />
         <Route path="/appointments/:id" element={<AppointmentDetails />} />
         <Route path="/appointments/:id/edit" element={<AppointmentEdit />} />
         <Route path="/appointments/:id/confirm" element={<ConfirmAppointment />} />
