@@ -4,308 +4,177 @@
 - [Imports](#imports)
 - [Context and State Management](#context-and-state-management)
 - [UI Structure](#ui-structure)
+- [Tabbed Navigation Flow](#tabbed-navigation-flow)
 - [Planned Layout](#planned-layout)
 - [Sketch Wireframe](#sketch-wireframe)
-- [Form Inputs](#form-inputs)
+- [Form Inputs by Tab](#form-inputs-by-tab)
 - [API Integration](#api-integration)
 - [Components Used](#components-used)
 - [Error Handling](#error-handling)
 - [Navigation Flow](#navigation-flow)
 - [Functions Involved](#functions-involved)
-- [Future Enhancements](#future-enhancements)
 
 ## Imports
 ```tsx
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useCreateAppointment } from '@/tanstack/useAppointments';
-import { useGetAllServices, useGetServicesByStaff } from '@/tanstack/useServices';
-import { useGetAllUsers, useGetStaffByService } from '@/tanstack/useUsers';
-import { availabilityAPI } from '@/api';
-import type { ITimeSlot } from '@/types/api.types';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCreateAppointment } from '../../../tanstack/useAppointments';
+import { useGetAllServices } from '../../../tanstack/useServices';
+import { useGetAllUsers } from '../../../tanstack/useUsers';
+import { useGetSlots } from '../../../tanstack/useAvailability';
+import type { ITimeSlot } from '../../../types/api.types';
+import { APPOINTMENT_TABS } from '../../../constants/appointmentTabs';
 ```
 
 ## Context and State Management
-- **Create Mutation:** `useCreateAppointment()` handles appointment creation with cache invalidation.
-- **Service Queries:** 
-  - `useGetAllServices({ status: 'active' })` - Fetches all active services
-  - `useGetServicesByStaff(staffId)` - Fetches services for a specific staff member (staff-first flow)
-- **Staff Queries:**
-  - `useGetAllUsers({ role: 'staff', status: 'active' })` - Fetches all active staff
-  - `useGetStaffByService(serviceId)` - Fetches staff who provide a specific service (service-first flow)
-- **Availability API:** `availabilityAPI.getSlots()` - Fetches available time slots for staff, services, and date
+- **Create Mutation:** `useCreateAppointment()` handles appointment creation.
+- **Service Queries:** `useGetAllServices({ status: 'active' })` fetches all active services.
+- **Staff Queries:** `useGetAllUsers({ role: 'staff', status: 'active' })` fetches all active staff.
+- **Slots Query:** `useGetSlots(params)` fetches available time slots using TanStack Query.
 - **Local State:**
-  - `staffId` - Selected staff member ID (required)
-  - `selectedServices` - Array of selected service IDs (required, min 1)
-  - `selectedDate` - Selected date in YYYY-MM-DD format (required)
-  - `selectedSlot` - Selected time slot with startTime and endTime (required)
-  - `availableSlots` - Array of available slots fetched from API
-  - `notes` - Optional notes for the appointment
-  - `inlineMessage` - Success/error feedback message
-  - `isSubmitting` - Form submission state
-  - `isFetchingSlots` - Loading state for slot fetching
-  - `selectionFlow` - Tracks whether user selected staff-first or service-first
+  - `staffId`: Selected staff member ID.
+  - `selectedServices`: Array of selected service IDs.
+  - `selectedDate`: Selected date (YYYY-MM-DD).
+  - `selectedSlot`: Selected time slot object.
+  - `notes`: Optional appointment notes.
+  - `activeTabId`: Currently active tab ID.
+  - `inlineMessage`: Success/error feedback messages.
+  - `isSubmitting`: Submission state.
 
 ## UI Structure
-- **Header Card:** Title "Create Appointment" with description explaining the dual flow.
-- **Form Card:** Two-column grid layout with form fields.
-- **Form Fields:** 
-  - staffId (select) - Shows all staff or filtered by selected service
-  - services (multi-select checkboxes) - Shows all services or filtered by selected staff
-  - date (date picker) - Date selection in YYYY-MM-DD format
-  - "Check Available Slots" button - Fetches available time slots
-  - Available slots grid - Displays selectable time slots
-  - Selected slot display - Shows the chosen time slot
-  - notes (textarea) - Optional notes
-- **Actions:** Cancel button (navigate back), Create button (submit form).
+- **Header:** Page title and description.
+- **Progress Stepper:** Visual indicator of current step (Staff -> Services -> Date & Time -> Notes -> Summary).
+- **Tab Content:** Dynamic area rendering the component for the active step.
+- **Action Footer:** Navigation buttons (Previous, Next, or Create Appointment).
+
+## Tabbed Navigation Flow
+1. **Staff:** Choose a staff member. Selecting a staff member auto-selects all services they provide by default.
+2. **Services:** Refine service selection. Only services provided by the selected staff can be chosen.
+3. **Date & Time:** Select a date and fetch available time slots. Select a specific slot.
+4. **Notes:** Optional field for additional information.
+5. **Summary:** Review all selections. Each section has an "Edit" button that navigates back to the respective tab.
 
 ## Planned Layout
 ```
-┌────────────────────────────────────────────┐
-│ Create Appointment                         │
-│ Schedule a new appointment.                │
-├────────────────────────────────────────────┤
-│ Staff         │ Services                   │
-│ Date          │ [Check Available Slots]    │
-│ Available Slots (grid)                     │
-│ Selected Slot (display)                    │
-│ Notes         │ (textarea)                │
-├────────────────────────────────────────────┤
-│ [Cancel]  [Create Appointment]            │
-└────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ Create Appointment                                       │
+│ [ (1) Staff ]──[ (2) Services ]──[ (3) Date ]──[ (4) Summary ] │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│                 [ Active Tab Content ]                   │
+│                                                          │
+├──────────────────────────────────────────────────────────┤
+│ [ Previous ]                           [ Next / Create ] │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ## Sketch Wireframe
+
+### Step 1: Staff Selection
 ```
 ┌────────────────────────────────────────────────────┐
 │ Create Appointment                                │
-│ Schedule a new appointment. Select staff or      │
-│ services first, then choose a date and time slot. │
-│                                                    │
-│ Staff: [Jane Smith ▼]                            │
-│        Showing staff who provide selected service │
-│ Services: [☑ Haircut] [☑ Trim] [☐ Massage]      │
-│          Showing services for selected staff       │
-│ Date: [2025-01-25]                               │
-│ [Check Available Slots]                           │
-│                                                    │
-│ Available Slots:                                  │
-│ [09:00 AM - 09:50 AM] [10:00 AM - 10:50 AM]      │
-│ [11:00 AM - 11:50 AM] [02:00 PM - 02:50 PM]      │
-│                                                    │
-│ Selected: 10:00 AM - 10:50 AM                    │
-│                                                    │
-│ Notes: [Optional notes...]                        │
-│                                                    │
-│ [Cancel]                    [Create Appointment]  │
+│ (1) Staff  -- (2) Services -- (3) Date -- (4) Sum. │
+├────────────────────────────────────────────────────┤
+│ Select Staff                                      │
+│                                                   │
+│ ┌───────────────┐ ┌───────────────┐ ┌───────────┐ │
+│ │ [👤] Jane S.  │ │ [👤] John D.  │ │ ...       │ │
+│ │ Services: 2   │ │ Services: 3   │ │           │ │
+│ └───────────────┘ └───────────────┘ └───────────┘ │
+│                                                   │
+│                                         [ Next ]  │
 └────────────────────────────────────────────────────┘
 ```
 
-## Form Inputs
-- **Staff:** Select dropdown with available staff members, `input-select` class (required). Filters based on selected services in service-first flow.
-- **Services:** Multi-select checkboxes with available services, `input-select` class (required, min 1). Filters based on selected staff in staff-first flow.
-- **Date:** Date picker in YYYY-MM-DD format, `input` class (required). Minimum date is today.
-- **Check Available Slots Button:** Button to fetch available time slots, `btn-secondary` class. Enabled when staff, services, and date are selected.
-- **Available Slots:** Grid of selectable time slot buttons showing time ranges (e.g., "09:00 AM - 09:50 AM").
-- **Selected Slot Display:** Shows the chosen time slot in a highlighted box.
-- **Notes:** Textarea for optional notes, `input` class.
+### Step 3: Date & Time Selection
+```
+┌────────────────────────────────────────────────────┐
+│ Create Appointment                                │
+│ (1) Staff  -- (2) Services -- (3) Date -- (4) Sum. │
+├────────────────────────────────────────────────────┤
+│ Select Date & Time                                │
+│                                                   │
+│ Date: [ 2026-02-18 ]                              │
+│ [ Check Available Slots ]                         │
+│                                                   │
+│ Available Slots:                                  │
+│ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │
+│ │ 09:00 AM│ │ 10:00 AM│ │ 11:00 AM│ │ ...     │   │
+│ └─────────┘ └─────────┘ └─────────┘ └─────────┘   │
+│                                                   │
+│ Selected: 10:00 AM - 10:45 AM                     │
+│                                                   │
+│ [ Previous ]                            [ Next ]  │
+└────────────────────────────────────────────────────┘
+```
+
+### Step 5: Summary
+```
+┌────────────────────────────────────────────────────┐
+│ Create Appointment                                │
+│ (1) Staff  -- (2) Services -- (3) Date -- (4) Sum. │
+├────────────────────────────────────────────────────┤
+│ Appointment Summary                               │
+│                                                   │
+│ ┌──────────────────┐ ┌──────────────────────────┐ │
+│ │ Staff [Edit]     │ │ Services [Edit]          │ │
+│ │ Jane Smith       │ │ • Haircut                │ │
+│ └──────────────────┘ └──────────────────────────┘ │
+│ ┌──────────────────┐ ┌──────────────────────────┐ │
+│ │ Date & Time [Ed] │ │ Notes [Edit]             │ │
+│ │ Feb 18, 2026     │ │ No notes provided        │ │
+│ │ 10:00 - 10:45 AM │ │                          │ │
+│ └──────────────────┘ └──────────────────────────┘ │
+│                                                   │
+│ [ Previous ]                [ Create Appointment ] │
+└────────────────────────────────────────────────────┘
+```
+
+## Form Inputs by Tab
+- **Staff Tab:** Grid of staff cards. Each card shows name, roles, services provided, and working hours for the selected date.
+- **Services Tab:** Grid of service cards with checkboxes. Services not provided by the selected staff are disabled.
+- **Date & Time Tab:**
+  - Date input (`type="date"`, min=today).
+  - "Check Available Slots" button.
+  - Grid of time slot buttons.
+- **Notes Tab:** Textarea for optional notes.
+- **Summary Tab:** Non-interactive review cards with edit shortcuts.
 
 ## API Integration
 
 ### Appointment Creation
-- **Endpoint:** `POST /api/appointments` via `useCreateAppointment()` mutation.
-- **Request Payload:**
+- **Endpoint:** `POST /api/appointments` via `useCreateAppointment()`.
+- **Payload:**
   ```typescript
   {
     staffId: string,
     services: string[],
-    startTime: string, // ISO 8601 format from selected slot
-    endTime: string, // ISO 8601 format from selected slot
+    startTime: string, // ISO format
+    endTime: string,   // ISO format
     notes?: string
   }
   ```
-- **Note:** Customer is derived from authenticated user if not provided (admin can specify customerId).
-- **Response:** Created appointment object with `_id`, status `PENDING`.
-- **Cache Invalidation:** Mutation invalidates `['appointments']` query to refresh list.
 
 ### Slot Availability
-- **Endpoint:** `GET /api/availability/slots` via `availabilityAPI.getSlots()`.
-- **Query Parameters:**
-  ```typescript
-  {
-    staffId: string,
-    serviceId: string | string[], // Single service or array for multiple services
-    date: string // YYYY-MM-DD format
-  }
-  ```
-- **Response:**
-  ```typescript
-  {
-    success: true,
-    data: {
-      slots: [
-        {
-          startTime: string, // ISO 8601 format
-          endTime: string // ISO 8601 format
-        }
-      ]
-    }
-  }
-  ```
-- **Note:** When multiple services are selected, the API sums their durations and generates slots accordingly.
-
-## Components Used
-- React Router DOM: `Link`, `useNavigate` for routing.
-- TanStack Query: `useCreateAppointment`, `useGetAllServices`, `useGetCustomers` hooks.
-- Tailwind CSS classes: `label`, `input`, `input-select`, `btn-primary`, `btn-secondary`, `alert-success`, `alert-error`.
+- **Endpoint:** `GET /api/availability/slots` via `useGetSlots()`.
+- **Parameters:** `staffId`, `serviceId` (array of IDs), `date`.
 
 ## Error Handling
-- **Validation:** Client-side validation for required fields (staffId, services, selectedDate, selectedSlot).
-- **Slot Selection:** Ensure a slot is selected before allowing submission.
-- **Service Validation:** Ensure at least one service is selected.
-- **Date Validation:** Date must be today or in the future.
-- **Slot Availability:** 
-  - Backend validates slot availability (working hours, breaks, existing appointments).
-  - If no slots available, display error message.
-  - Handle API errors gracefully with user-friendly messages.
-- **Submit Error:** Show inline `alert-error` with API error message if creation fails.
-- **Success State:** Show `alert-success` message, then navigate to appointment details page.
+- **Inline Messages:** Displays success/error alerts within the form container.
+- **Validation:**
+  - "Next" navigation depends on local validation (e.g., must select staff before moving to services).
+  - "Create Appointment" button disabled until all required fields (staff, services, date, slot) are present.
+- **Slot Availability:** Shows specific error if no slots are returned for the selected combination.
 
 ## Navigation Flow
-- Route: `/appointments/new`.
-- **Cancel Button:** Navigate back to `/appointments` (appointment list).
-- **Success:** After successful creation, navigate to `/appointments/:id` (newly created appointment's details page).
-- **Error:** Stay on create page, show error message, keep form data.
+- **Next/Previous:** Manages `activeTabId` based on `APPOINTMENT_TABS` constant.
+- **Edit in Summary:** Sets `activeTabId` to the specific step ID.
+- **Success:** Navigates to `/appointments/:id` after successful creation.
 
 ## Functions Involved
-
-### Selection Flow Management
-- **`handleStaffChange`** — Handles staff selection and sets flow to staff-first.
-  - Clears selected services, slot, and available slots when staff changes.
-  - Sets `selectionFlow` to `'staff-first'`.
-
-- **`handleServiceToggle`** — Handles service selection/deselection.
-  - If first service selected and no staff, sets flow to `'service-first'`.
-  - Clears slot selection when services change.
-
-### Slot Fetching
-- **`handleCheckSlots`** — Fetches available slots from API.
-  ```tsx
-  const handleCheckSlots = async () => {
-    if (!staffId || selectedServices.length === 0 || !selectedDate) {
-      setInlineMessage({ type: 'error', text: 'Please select staff, services, and date before checking slots.' });
-      return;
-    }
-    setIsFetchingSlots(true);
-    try {
-      const serviceIds = selectedServices.length === 1 
-        ? selectedServices[0] 
-        : selectedServices;
-      
-      const response = await availabilityAPI.getSlots({
-        staffId,
-        serviceId: serviceIds,
-        date: selectedDate,
-      });
-      
-      if (response.data.success && response.data.data?.slots) {
-        setAvailableSlots(response.data.data.slots);
-        if (response.data.data.slots.length === 0) {
-          setInlineMessage({ type: 'error', text: 'No available slots for the selected date.' });
-        }
-      }
-    } catch (error) {
-      setInlineMessage({ type: 'error', text: 'Failed to fetch available slots.' });
-    } finally {
-      setIsFetchingSlots(false);
-    }
-  };
-  ```
-
-- **`formatTime`** — Formats ISO date string to readable time format.
-  ```tsx
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      hour12: true 
-    });
-  };
-  ```
-
-### Form Submission
-- **`handleSubmit`** — Validates form and submits appointment creation.
-  ```tsx
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!canSubmit || !selectedSlot) return;
-    
-    setIsSubmitting(true);
-    try {
-      const result = await createAppointment.mutateAsync({
-        staffId,
-        services: selectedServices,
-        startTime: selectedSlot.startTime,
-        endTime: selectedSlot.endTime,
-        notes: notes.trim() || undefined,
-      });
-      setInlineMessage({ type: 'success', text: 'Appointment created successfully.' });
-      setTimeout(() => navigate(`/appointments/${result._id}`), 1200);
-    } catch (error) {
-      setInlineMessage({ type: 'error', text: error?.response?.data?.message || 'Failed to create appointment.' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  ```
-
-- **`canSubmit`** — Computes whether form can be submitted.
-  ```tsx
-  const canSubmit = useMemo(() => {
-    return Boolean(
-      staffId &&
-      selectedServices.length > 0 &&
-      selectedDate &&
-      selectedSlot &&
-      !isSubmitting
-    );
-  }, [staffId, selectedServices, selectedDate, selectedSlot, isSubmitting]);
-  ```
-
-- **`canCheckSlots`** — Computes whether slots can be fetched.
-  ```tsx
-  const canCheckSlots = useMemo(() => {
-    return Boolean(staffId && selectedServices.length > 0 && selectedDate && !isFetchingSlots);
-  }, [staffId, selectedServices, selectedDate, isFetchingSlots]);
-  ```
-
-## Selection Flows
-
-### Staff-First Flow
-1. User selects a staff member from the dropdown.
-2. Services list filters to show only services assigned to that staff.
-3. User selects one or more services.
-4. User selects a date.
-5. User clicks "Check Available Slots".
-6. Available slots are displayed.
-7. User selects a slot.
-8. User submits the form.
-
-### Service-First Flow
-1. User selects one or more services from the list.
-2. Staff list filters to show only staff who provide the selected service(s).
-3. User selects a staff member.
-4. User selects a date.
-5. User clicks "Check Available Slots".
-6. Available slots are displayed.
-7. User selects a slot.
-8. User submits the form.
-
-## Future Enhancements
-- Calendar view for date selection.
-- Recurring appointment option.
-- Appointment templates.
-- Customer selection with search/filter (for admin).
-- Real-time slot updates.
-- Slot preview showing service details.
+- `handleStaffChange`: Updates `staffId` and auto-populates `selectedServices` based on staff capability.
+- `handleServiceToggle`: Manages multiple service selection.
+- `handleCheckSlots`: Triggers the TanStack Query to fetch availability.
+- `handleSubmit`: Orchestrates the final API call.
+- `goToNextTab` / `goToPreviousTab`: Utility functions for step-based navigation.
