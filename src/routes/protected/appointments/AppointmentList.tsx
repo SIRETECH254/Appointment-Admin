@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MdVisibility, MdAdd } from 'react-icons/md';
+import { FiSearch, FiFilter, FiList } from 'react-icons/fi';
 import { useGetAllAppointments } from '../../../tanstack/useAppointments';
 import { useGetAllUsers } from '../../../tanstack/useUsers';
 import Pagination from '../../../components/ui/Pagination';
-import { formatAppointmentDateTime, formatAppointmentStatus, getAppointmentStatusVariant, getAppointmentCustomerName, getAppointmentStaffName, getAppointmentServicesDisplay } from '../../../utils/appointmentUtils';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatAppointmentDateTime, getAppointmentCustomerName, getAppointmentStaffName } from '../../../utils/appointmentUtils';
 import { formatCurrency } from '../../../utils/paymentUtils';
 import type { IAppointment } from '../../../types/api.types';
 
@@ -30,7 +32,7 @@ const AppointmentList = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   // Fetch staff users for filter dropdown
   const { data: staffData } = useGetAllUsers({ role: 'staff', status: 'active' });
@@ -118,56 +120,54 @@ const AppointmentList = () => {
   return (
     <div className="space-y-6">
       {/* Page header with title and Add Appointment button */}
-      <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
-        <div>
+      <header className="">
+        {/* title and description */}
+        <div className="mb-4">
           <h1 className="text-2xl font-semibold text-gray-900">Appointments</h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage appointments and schedules
           </p>
         </div>
-        <Link to="/appointments/new" className="btn-primary flex items-center gap-2">
-          <span>Add Appointment</span>
-          <MdAdd size={24} />
-        </Link>
-      </div>
 
-      {/* Filters and search toolbar */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-y-4">
+        {/* search Bar and Add button */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           {/* Search input */}
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+          <div className="flex-1">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search appointments by customer..."
+                className="input-search"
+              />
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search appointments by customer..."
-              className="input-search"
-            />
           </div>
 
-          {/* Filters row */}
-          <div className="flex flex-row gap-2 flex-wrap items-center">
+          {/* Add appointment button */}
+          <Link to="/appointments/new" className="btn-primary flex items-center gap-2 w-full sm:w-auto">
+            <span>Add Appointment</span>
+            <MdAdd size={24} />
+          </Link>
+        </div>
+
+        {/* appointment count & filters */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          {/* appointment count */}
+          <div className="">
+            <p className="text-sm text-gray-500">Showing {pagination.total} appointments</p>
+          </div>
+
+          {/* filters */}
+          <div className="flex flex-wrap gap-2">
             {/* Status filter */}
-            <div className="flex-1 min-w-[150px]">
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterStatus}
                 onChange={(e) => handleStatusFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -179,11 +179,12 @@ const AppointmentList = () => {
             </div>
 
             {/* Staff filter */}
-            <div className="flex-1 min-w-[150px]">
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterStaffId}
                 onChange={(e) => handleStaffFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Staff</option>
                 {staffUsers.map((staff: any) => (
@@ -195,12 +196,14 @@ const AppointmentList = () => {
             </div>
 
             {/* Items per page */}
-            <div>
+            <div className="relative">
+              <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={itemsPerPage}
                 onChange={(e) => handleItemsPerPageChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
+                <option value="5">5 per page</option>
                 <option value="10">10 per page</option>
                 <option value="25">25 per page</option>
                 <option value="50">50 per page</option>
@@ -209,7 +212,7 @@ const AppointmentList = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Appointments table */}
       <div className="table-container">
@@ -219,7 +222,6 @@ const AppointmentList = () => {
             <tr>
               <th className="table-header-cell">Customer</th>
               <th className="table-header-cell">Staff</th>
-              <th className="table-header-cell">Services</th>
               <th className="table-header-cell">Date/Time</th>
               <th className="table-header-cell">Status</th>
               <th className="table-header-cell">Amount</th>
@@ -241,9 +243,6 @@ const AppointmentList = () => {
                       <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
                     </td>
                     <td className="table-cell">
-                      <div className="h-4 w-40 animate-pulse rounded bg-gray-300" />
-                    </td>
-                    <td className="table-cell">
                       <div className="h-4 w-36 animate-pulse rounded bg-gray-300" />
                     </td>
                     <td className="table-cell">
@@ -252,7 +251,11 @@ const AppointmentList = () => {
                     <td className="table-cell">
                       <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
                     </td>
-                    <td className="table-cell" />
+                    <td className="table-cell">
+                      <div className="flex items-center justify-end">
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </>
@@ -261,7 +264,7 @@ const AppointmentList = () => {
             {/* Error state */}
             {isError && !isLoading && (
               <tr>
-                <td colSpan={7} className="table-cell-center">
+                <td colSpan={6} className="table-cell-center">
                   <div className="alert-error mx-auto max-w-md">{errorMessage}</div>
                 </td>
               </tr>
@@ -270,7 +273,7 @@ const AppointmentList = () => {
             {/* Empty state */}
             {!isLoading && !isError && appointments.length === 0 && (
               <tr>
-                <td colSpan={7} className="table-cell-center">
+                <td colSpan={6} className="table-cell-center">
                   <p className="text-gray-500">No appointments found.</p>
                   {debouncedSearch || filterStatus !== 'all' || filterStaffId !== 'all' ? (
                     <p className="mt-2 text-sm text-gray-400">
@@ -285,14 +288,13 @@ const AppointmentList = () => {
             {!isLoading &&
               !isError &&
               appointments.map((appointment: IAppointment) => {
-                const statusVariant = getAppointmentStatusVariant(appointment.status);
                 const totalAmount = (appointment.bookingFeeAmount || 0) + (appointment.remainingAmount || 0);
 
                 return (
                   <tr key={appointment._id} className="table-row">
                     {/* Customer */}
                     <td className="table-cell">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 whitespace-nowrap">
                         {getAppointmentCustomerName(appointment)}
                       </div>
                     </td>
@@ -302,11 +304,6 @@ const AppointmentList = () => {
                       {getAppointmentStaffName(appointment)}
                     </td>
 
-                    {/* Services */}
-                    <td className="table-cell-text">
-                      {getAppointmentServicesDisplay(appointment)}
-                    </td>
-
                     {/* Date/Time */}
                     <td className="table-cell-text">
                       {formatAppointmentDateTime(appointment.startTime)}
@@ -314,9 +311,7 @@ const AppointmentList = () => {
 
                     {/* Status */}
                     <td className="table-cell">
-                      <span className={`badge badge-${statusVariant}`}>
-                        {formatAppointmentStatus(appointment.status)}
-                      </span>
+                      <StatusBadge status={appointment.status} type="appointment-status" />
                     </td>
 
                     {/* Amount */}
@@ -329,7 +324,7 @@ const AppointmentList = () => {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           to={`/appointments/${appointment._id}`}
-                          className="btn-ghost btn-sm flex items-center gap-1"
+                          className="flex items-center justify-center rounded-lg bg-white p-2 text-blue-600 transition hover:bg-blue-50"
                           title="View appointment"
                         >
                           <MdVisibility className="h-4 w-4" />
@@ -341,9 +336,11 @@ const AppointmentList = () => {
               })}
           </tbody>
         </table>
+      </div>
 
-        {/* Pagination */}
-        {!isLoading && !isError && pagination.totalPages > 1 && (
+      {/* Pagination - separate from table container */}
+      {!isLoading && !isError && pagination.totalPages > 1 && (
+        <div className="mt-4">
           <Pagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
@@ -351,8 +348,8 @@ const AppointmentList = () => {
             pageSize={pagination.limit}
             onPageChange={setCurrentPage}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
