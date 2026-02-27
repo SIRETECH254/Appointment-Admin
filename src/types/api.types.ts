@@ -362,49 +362,31 @@ export interface GetDayAvailabilityResponse {
 // Break Types
 // ============================================
 
-export type RecurringFrequency = 'daily' | 'weekly';
-
-export interface IRecurringPattern {
-  frequency: RecurringFrequency;
-  daysOfWeek?: number[]; // 0-6
-  endDate?: string;
-}
-
 export interface IBreak {
   _id: string;
   staffId: string | IUser;
-  startTime: string;
-  endTime: string;
+  startTime: string; // HH:MM format (e.g., "13:00")
+  endTime: string;   // HH:MM format (e.g., "14:00")
   reason?: string;
-  isRecurring: boolean;
-  recurringPattern?: IRecurringPattern;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateBreakPayload {
   staffId: string;
-  startTime: string;
-  endTime: string;
+  startTime: string; // HH:MM format (e.g., "13:00")
+  endTime: string;   // HH:MM format (e.g., "14:00")
   reason?: string;
-  isRecurring?: boolean;
-  recurringPattern?: IRecurringPattern;
 }
 
 export interface UpdateBreakPayload {
-  staffId?: string;
-  startTime?: string;
-  endTime?: string;
+  startTime?: string; // HH:MM format (e.g., "13:00")
+  endTime?: string;   // HH:MM format (e.g., "14:00")
   reason?: string;
-  isRecurring?: boolean;
-  recurringPattern?: IRecurringPattern;
 }
 
 export interface GetBreaksParams extends PaginationParams {
   staffId?: string;
-  date?: string;
-  startDate?: string;
-  endDate?: string;
 }
 
 // ============================================

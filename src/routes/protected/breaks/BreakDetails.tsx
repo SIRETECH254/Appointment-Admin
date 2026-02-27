@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { FiUser, FiMail, FiClock, FiFileText, FiCalendar, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
 import { useGetBreakById } from '../../../tanstack/useBreaks';
-import { formatBreakDateTime, formatBreakTimeRange, getStaffName, getStaffInitials } from '../../../utils/breakUtils';
+import { formatBreakDateTime, formatBreakTimeRange, formatFullDateTime, getStaffName, getStaffInitials } from '../../../utils/breakUtils';
 import type { IBreak } from '../../../types/api.types';
 
 /**
@@ -54,8 +55,37 @@ const BreakDetails = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center text-sm text-gray-500">
-        Loading break...
+      <div className="space-y-6">
+        {/* Loading skeleton for header card */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-6 items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-16 w-16 animate-pulse rounded-full bg-gray-300" />
+              <div className="space-y-2">
+                <div className="h-6 w-32 animate-pulse rounded bg-gray-300" />
+                <div className="h-4 w-40 animate-pulse rounded bg-gray-300" />
+                <div className="h-5 w-24 animate-pulse rounded bg-gray-300" />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="h-10 w-24 animate-pulse rounded-xl bg-gray-300" />
+              <div className="h-10 w-32 animate-pulse rounded-xl bg-gray-300" />
+            </div>
+          </div>
+        </div>
+
+        {/* Loading skeleton for details card */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="h-6 w-32 animate-pulse rounded bg-gray-300 mb-4" />
+          <div className="grid gap-4 md:grid-cols-2">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="space-y-2">
+                <div className="h-3 w-20 animate-pulse rounded bg-gray-300" />
+                <div className="h-4 w-32 animate-pulse rounded bg-gray-300" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -63,11 +93,15 @@ const BreakDetails = () => {
   // Error state
   if (isError) {
     return (
-      <div className="space-y-4">
-        <div className="alert-error">{errorMessage}</div>
-        <Link to="/breaks" className="btn-secondary">
-          Back to Breaks
-        </Link>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+        <div className="text-center">
+          <FiAlertTriangle className="mx-auto h-24 w-24 text-red-500 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Break</h2>
+          <p className="text-gray-600 mb-6 max-w-md">{errorMessage}</p>
+          <Link to="/breaks" className="btn-secondary">
+            Back to Breaks
+          </Link>
+        </div>
       </div>
     );
   }
@@ -75,11 +109,15 @@ const BreakDetails = () => {
   // No break found
   if (!breakItem) {
     return (
-      <div className="space-y-4">
-        <div className="alert-error">Break not found.</div>
-        <Link to="/breaks" className="btn-secondary">
-          Back to Breaks
-        </Link>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+        <div className="text-center">
+          <FiXCircle className="mx-auto h-24 w-24 text-gray-400 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Break Not Found</h2>
+          <p className="text-gray-600 mb-6">The break you're looking for doesn't exist or has been removed.</p>
+          <Link to="/breaks" className="btn-secondary">
+            Back to Breaks
+          </Link>
+        </div>
       </div>
     );
   }
@@ -91,7 +129,7 @@ const BreakDetails = () => {
         {/* Layout: stack on mobile, align items side-by-side on desktop */}
         <div className="flex flex-col gap-6 items-center justify-center">
           {/* Identity block: avatar + staff name + metadata */}
-          <div className="flex items-center gap-4">
+          <div className="flex-col items-center gap-4">
             {staffUser?.avatar ? (
               // Server-hosted avatar image when available
               <img
@@ -146,52 +184,73 @@ const BreakDetails = () => {
         {/* Two-column grid on desktop for compact layout */}
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {/* Staff Information Section */}
-          <div>
-            <p className="text-xs uppercase text-gray-400">Staff</p>
-            <p className="text-sm text-gray-700">{staffName}</p>
+          <div className="flex items-start gap-3">
+            <FiUser className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
+            <div>
+              <p className="text-xs uppercase text-gray-400">Staff</p>
+              <p className="text-sm text-gray-700">{staffName}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400">Staff Email</p>
-            <p className="text-sm text-gray-700">
-              {staffUser?.email || '—'}
-            </p>
+          <div className="flex items-start gap-3">
+            <FiMail className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
+            <div>
+              <p className="text-xs uppercase text-gray-400">Staff Email</p>
+              <p className="text-sm text-gray-700">
+                {staffUser?.email || '—'}
+              </p>
+            </div>
           </div>
 
           {/* Time Information Section */}
-          <div>
-            <p className="text-xs uppercase text-gray-400">Start Time</p>
-            <p className="text-sm text-gray-700">
-              {formatBreakDateTime(breakItem.startTime)}
-            </p>
+          <div className="flex items-start gap-3">
+            <FiClock className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
+            <div>
+              <p className="text-xs uppercase text-gray-400">Start Time</p>
+              <p className="text-sm text-gray-700">
+                {formatBreakDateTime(breakItem.startTime)}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400">End Time</p>
-            <p className="text-sm text-gray-700">
-              {formatBreakDateTime(breakItem.endTime)}
-            </p>
+          <div className="flex items-start gap-3">
+            <FiClock className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
+            <div>
+              <p className="text-xs uppercase text-gray-400">End Time</p>
+              <p className="text-sm text-gray-700">
+                {formatBreakDateTime(breakItem.endTime)}
+              </p>
+            </div>
           </div>
 
           {/* Reason Section */}
-          <div>
-            <p className="text-xs uppercase text-gray-400">Reason</p>
-            <p className="text-sm text-gray-700">
-              {breakItem.reason || '—'}
-            </p>
+          <div className="flex items-start gap-3">
+            <FiFileText className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
+            <div>
+              <p className="text-xs uppercase text-gray-400">Reason</p>
+              <p className="text-sm text-gray-700">
+                {breakItem.reason || '—'}
+              </p>
+            </div>
           </div>
 
           {/* Timestamps Section */}
-          <div>
-            <p className="text-xs uppercase text-gray-400">Created</p>
-            <p className="text-sm text-gray-700">
-              {formatBreakDateTime(breakItem.createdAt)}
-            </p>
+          <div className="flex items-start gap-3">
+            <FiCalendar className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
+            <div>
+              <p className="text-xs uppercase text-gray-400">Created</p>
+              <p className="text-sm text-gray-700">
+                {formatFullDateTime(breakItem.createdAt)}
+              </p>
+            </div>
           </div>
           {breakItem.updatedAt && (
-            <div>
-              <p className="text-xs uppercase text-gray-400">Last Updated</p>
-              <p className="text-sm text-gray-700">
-                {formatBreakDateTime(breakItem.updatedAt)}
-              </p>
+            <div className="flex items-start gap-3">
+              <FiCalendar className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
+              <div>
+                <p className="text-xs uppercase text-gray-400">Last Updated</p>
+                <p className="text-sm text-gray-700">
+                  {formatFullDateTime(breakItem.updatedAt)}
+                </p>
+              </div>
             </div>
           )}
         </div>

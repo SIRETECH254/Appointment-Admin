@@ -1,44 +1,51 @@
 import type { IBreak, IUser } from '../types/api.types';
 
 /**
- * Format ISO timestamps into a human-friendly date-time format
+ * Format HH:MM time string into a human-friendly time format
  * Returns "—" if value is invalid or missing
  * 
- * @param value - ISO date string to format
- * @returns Formatted date and time string or "—" if invalid
+ * @param value - HH:MM format time string (e.g., "13:00")
+ * @returns Formatted time string (e.g., "1:00 PM") or "—" if invalid
  */
 export const formatBreakDateTime = (value?: string): string => {
   if (!value) return '—';
+  
+  // Handle HH:MM format
+  const timeMatch = value.match(/^(\d{1,2}):(\d{2})$/);
+  if (timeMatch) {
+    const hours = parseInt(timeMatch[1], 10);
+    const minutes = timeMatch[2];
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+    return `${displayHours}:${minutes} ${period}`;
+  }
+  
+  // Fallback: try to parse as ISO date string for backward compatibility
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
-  return new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date);
+  if (!Number.isNaN(date.getTime())) {
+    return new Intl.DateTimeFormat('en-US', {
+      timeStyle: 'short',
+    }).format(date);
+  }
+  
+  return '—';
 };
 
 /**
  * Format start and end times as a readable time range
  * Returns "—" if values are invalid or missing
  * 
- * @param startTime - ISO date string for start time
- * @param endTime - ISO date string for end time
- * @returns Formatted time range string or "—" if invalid
+ * @param startTime - HH:MM format time string (e.g., "13:00")
+ * @param endTime - HH:MM format time string (e.g., "14:00")
+ * @returns Formatted time range string (e.g., "1:00 PM - 2:00 PM") or "—" if invalid
  */
 export const formatBreakTimeRange = (startTime?: string, endTime?: string): string => {
   if (!startTime || !endTime) return '—';
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return '—';
   
-  const startFormatted = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(start);
+  const startFormatted = formatBreakDateTime(startTime);
+  const endFormatted = formatBreakDateTime(endTime);
   
-  const endFormatted = new Intl.DateTimeFormat('en-US', {
-    timeStyle: 'short',
-  }).format(end);
+  if (startFormatted === '—' || endFormatted === '—') return '—';
   
   return `${startFormatted} - ${endFormatted}`;
 };
@@ -91,17 +98,67 @@ export const getStaffInitials = (breakItem: IBreak): string => {
 };
 
 /**
- * Format Date object to datetime-local input format (YYYY-MM-DDTHH:mm)
- * Used for pre-populating datetime-local inputs in forms
+ * Format HH:MM time string to time input format (HH:MM)
+ * Used for pre-populating time inputs in forms
  * 
- * @param date - Date object to format
- * @returns Formatted string in datetime-local format
+ * @param timeString - HH:MM format time string (e.g., "13:00")
+ * @returns Formatted string in time input format (HH:MM) or empty string if invalid
  */
-export const formatDateTimeLocal = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+export const formatTimeInput = (timeString?: string): string => {
+  if (!timeString) return '';
+  
+  // Handle HH:MM format directly
+  const timeMatch = timeString.match(/^(\d{1,2}):(\d{2})$/);
+  if (timeMatch) {
+    const hours = timeMatch[1].padStart(2, '0');
+    const minutes = timeMatch[2];
+    return `${hours}:${minutes}`;
+  }
+  
+  // Fallback: try to parse as ISO date string and extract time
+  const date = new Date(timeString);
+  if (!Number.isNaN(date.getTime())) {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+  
+  return '';
+};
+
+/**
+ * Compare two time strings in HH:MM format
+ * Returns true if startTime is before endTime
+ * 
+ * @param startTime - HH:MM format time string (e.g., "13:00")
+ * @param endTime - HH:MM format time string (e.g., "14:00")
+ * @returns true if startTime < endTime, false otherwise
+ */
+export const isTimeBefore = (startTime: string, endTime: string): boolean => {
+  const [startHours, startMinutes] = startTime.split(':').map(Number);
+  const [endHours, endMinutes] = endTime.split(':').map(Number);
+  
+  const startTotal = startHours * 60 + startMinutes;
+  const endTotal = endHours * 60 + endMinutes;
+  
+  return startTotal < endTotal;
+};
+
+/**
+ * Format ISO date string into a full date and time format
+ * Returns "—" if value is invalid or missing
+ * 
+ * @param value - ISO date string to format
+ * @returns Formatted date and time string (e.g., "Jan 15, 2024, 10:37 AM") or "—" if invalid
+ */
+export const formatFullDateTime = (value?: string): string => {
+  if (!value) return '—';
+  
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  
+  return new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
 };

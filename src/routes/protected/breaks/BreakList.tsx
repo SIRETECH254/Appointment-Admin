@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdEdit, MdDelete, MdAdd } from 'react-icons/md';
+import { MdAdd } from 'react-icons/md';
+import { FiFilter, FiList, FiSearch, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useGetAllBreaks, useDeleteBreak } from '../../../tanstack/useBreaks';
 import { useGetAllUsers } from '../../../tanstack/useUsers';
 import Pagination from '../../../components/ui/Pagination';
@@ -88,11 +89,14 @@ const BreakList = () => {
 
   // Extract breaks and pagination from API response
   const breaks = (data as any)?.breaks || [];
-  const pagination = (data as any)?.pagination || {
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 1,
+  const paginationData = (data as any)?.pagination || {};
+  
+  // Map backend pagination structure to component expectations
+  const pagination = {
+    page: paginationData.currentPage || 1,
+    limit: itemsPerPage,
+    total: paginationData.totalBreaks || 0,
+    totalPages: paginationData.totalPages || 1,
   };
 
   /**
@@ -155,40 +159,25 @@ const BreakList = () => {
 
   return (
     <div className="space-y-6">
+
       {/* Page header with title and Add Break button */}
-      <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
-        <div>
+      <header className="">
+
+        {/* title and description */}
+        <div className="mb-4">
           <h1 className="text-2xl font-semibold text-gray-900">Breaks</h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage staff breaks and schedules
           </p>
         </div>
-        <Link to="/breaks/new" className="btn-primary flex items-center gap-2">
-          <span className="">Add Break</span>
-          <MdAdd size={24}/>
-        </Link>
-      </div>
 
-      {/* Filters and search toolbar */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
+        {/* search Bar and Add button */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+
           {/* Search input */}
+          <div className="flex-1">
           <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
             <input
               type="text"
               value={searchTerm}
@@ -196,17 +185,35 @@ const BreakList = () => {
               placeholder="Search breaks..."
               className="input-search"
             />
+            </div>
+          </div>
+
+          {/* Add break button */}
+          <Link to="/breaks/new" className="btn-primary flex items-center gap-2 w-full sm:w-auto">
+            <span className="">Add Break</span>
+            <MdAdd size={24}/>
+          </Link>
+
+        </div>
+
+        {/* break count & filters */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          
+          {/* break count */}
+          <div className="">
+             <p className="text-sm text-gray-500">Showing {pagination.total} breaks</p>
           </div>
            
           {/* filters */}
-          <div className="flex flex-row gap-2 flex-wrap items-center"> 
+          <div className="flex flex-wrap gap-2"> 
 
             {/* Staff filter */}
-            <div>
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterStaff}
                 onChange={(e) => handleStaffFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Staff</option>
                 {staffUsers.map((staff: IUser) => (
@@ -218,12 +225,14 @@ const BreakList = () => {
             </div>
 
             {/* Items per page */}
-            <div>
+            <div className="relative">
+              <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={itemsPerPage}
                 onChange={(e) => handleItemsPerPageChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
+                <option value="5">10 per page</option>
                 <option value="10">10 per page</option>
                 <option value="25">25 per page</option>
                 <option value="50">50 per page</option>
@@ -234,7 +243,8 @@ const BreakList = () => {
           </div>
 
         </div>
-      </div>
+
+      </header>
 
       {/* Breaks table */}
       <div className="table-container">
@@ -250,12 +260,6 @@ const BreakList = () => {
               </th>
               <th className="table-header-cell">
                 End Time
-              </th>
-              <th className="table-header-cell">
-                Reason
-              </th>
-              <th className="table-header-cell">
-                Created
               </th>
               <th className="table-header-cell-right">
                 Actions
@@ -283,12 +287,12 @@ const BreakList = () => {
                       <div className="h-4 w-40 animate-pulse rounded bg-gray-300" />
                     </td>
                     <td className="table-cell">
-                      <div className="h-4 w-32 animate-pulse rounded bg-gray-300" />
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                      </div>
                     </td>
-                    <td className="table-cell">
-                      <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
-                    </td>
-                    <td className="table-cell" />
                   </tr>
                 ))}
               </>
@@ -297,7 +301,7 @@ const BreakList = () => {
             {/* Error state */}
             {isError && !isLoading && (
               <tr>
-                <td colSpan={6} className="table-cell-center">
+                <td colSpan={4} className="table-cell-center">
                   <div className="alert-error mx-auto max-w-md">{errorMessage}</div>
                 </td>
               </tr>
@@ -306,7 +310,7 @@ const BreakList = () => {
             {/* Empty state */}
             {!isLoading && !isError && breaks.length === 0 && (
               <tr>
-                <td colSpan={6} className="table-cell-center">
+                <td colSpan={4} className="table-cell-center">
                   <p className="text-gray-500">No breaks found.</p>
                   {debouncedSearch || filterStaff !== 'all' ? (
                     <p className="mt-2 text-sm text-gray-400">
@@ -344,7 +348,7 @@ const BreakList = () => {
                             {staffInitials}
                           </div>
                         )}
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-gray-900 whitespace-nowrap">
                           {staffName}
                         </div>
                       </div>
@@ -360,47 +364,33 @@ const BreakList = () => {
                       {formatBreakDateTime(breakItem.endTime)}
                     </td>
 
-                    {/* Reason */}
-                    <td className="table-cell">
-                      {breakItem.reason ? (
-                        <span className="badge badge-soft">{breakItem.reason}</span>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
-                    </td>
-
-                    {/* Created date */}
-                    <td className="table-cell-text">
-                      {formatBreakDateTime(breakItem.createdAt)}
-                    </td>
-
                     {/* Actions */}
                     <td className="table-cell">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           to={`/breaks/${breakItem._id}`}
-                          className="btn-ghost btn-sm flex items-center gap-1"
+                          className="flex items-center justify-center rounded-lg bg-white p-2 text-blue-600 transition hover:bg-blue-50"
                           title="View break"
                         >
-                          <MdVisibility className="h-4 w-4" />
+                          <FiEye className="h-4 w-4" />
                         </Link>
                         <Link
                           to={`/breaks/${breakItem._id}/edit`}
-                          className="btn-secondary btn-sm flex items-center gap-1"
+                          className="flex items-center justify-center rounded-lg bg-white p-2 text-teal-600 transition hover:bg-teal-50"
                           title="Edit break"
                         >
-                          <MdEdit className="h-4 w-4" />
+                          <FiEdit2 className="h-4 w-4" />
                         </Link>
                         <button
                           type="button"
                           onClick={() =>
                             handleDeleteClick(breakItem._id, staffName)
                           }
-                          className="btn-ghost btn-sm flex items-center gap-1 text-red-600 hover:text-red-700"
+                          className="flex items-center justify-center rounded-lg bg-white p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                           title="Delete break"
                           disabled={deleteBreak.isPending}
                         >
-                          <MdDelete className="h-4 w-4" />
+                          <FiTrash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>

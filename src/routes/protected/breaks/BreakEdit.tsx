@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useGetBreakById, useUpdateBreak } from '../../../tanstack/useBreaks';
-import { useGetAllUsers } from '../../../tanstack/useUsers';
-import { formatDateTimeLocal } from '../../../utils/breakUtils';
-import type { IBreak, IUser, UpdateBreakPayload } from '../../../types/api.types';
+import { formatTimeInput, isTimeBefore } from '../../../utils/breakUtils';
+import type { IBreak, UpdateBreakPayload } from '../../../types/api.types';
 
 /**
  * Inline message type for form feedback
@@ -32,14 +31,11 @@ const BreakEdit = () => {
   // TanStack Query hooks
   const { data, isLoading, isError, error } = useGetBreakById(id || '');
   const updateBreak = useUpdateBreak();
-  const { data: staffData } = useGetAllUsers({ role: 'staff' });
-  const staffUsers = (staffData as any)?.users || [];
 
   // Extract break from API response (handle different response shapes)
   const breakItem = (data as any)?.break ?? (data as IBreak);
 
   // Form state
-  const [staffId, setStaffId] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [reason, setReason] = useState('');
@@ -58,17 +54,9 @@ const BreakEdit = () => {
   useEffect(() => {
     if (!breakItem) return;
 
-    // Extract staff ID (handle both string and populated object)
-    const staffIdValue = typeof breakItem.staffId === 'string' 
-      ? breakItem.staffId 
-      : breakItem.staffId._id;
-    setStaffId(staffIdValue);
-
-    // Convert ISO strings to datetime-local format
-    const startDate = new Date(breakItem.startTime);
-    const endDate = new Date(breakItem.endTime);
-    setStartTime(formatDateTimeLocal(startDate));
-    setEndTime(formatDateTimeLocal(endDate));
+    // Extract time from HH:MM format string
+    setStartTime(formatTimeInput(breakItem.startTime));
+    setEndTime(formatTimeInput(breakItem.endTime));
 
     setReason(breakItem.reason || '');
   }, [breakItem]);
@@ -89,17 +77,20 @@ const BreakEdit = () => {
    * Requires all required fields, valid time range, and reason length check
    */
   const canSubmit = useMemo(() => {
-    if (!staffId || !startTime || !endTime) return false;
+    if (!startTime || !endTime) return false;
     if (isSubmitting) return false;
     
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    if (start >= end) return false;
+    // Validate time format (HH:MM)
+    const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timePattern.test(startTime) || !timePattern.test(endTime)) return false;
+    
+    // Validate that start time is before end time
+    if (!isTimeBefore(startTime, endTime)) return false;
     
     if (reason && reason.length > 300) return false;
     
     return true;
-  }, [staffId, startTime, endTime, reason, isSubmitting]);
+  }, [startTime, endTime, reason, isSubmitting]);
 
   /**
    * Handle form submission
@@ -110,7 +101,7 @@ const BreakEdit = () => {
       event.preventDefault();
 
       // Client-side validation
-      if (!staffId || !startTime || !endTime) {
+      if (!startTime || !endTime) {
         setInlineMessage({
           type: 'error',
           text: 'All required fields must be filled.',
@@ -118,11 +109,18 @@ const BreakEdit = () => {
         return;
       }
 
-      const start = new Date(startTime);
-      const end = new Date(endTime);
+      // Validate time format (HH:MM)
+      const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timePattern.test(startTime) || !timePattern.test(endTime)) {
+        setInlineMessage({
+          type: 'error',
+          text: 'Please enter valid times in HH:MM format.',
+        });
+        return;
+      }
 
       // Validate time range
-      if (start >= end) {
+      if (!isTimeBefore(startTime, endTime)) {
         setInlineMessage({
           type: 'error',
           text: 'Start time must be earlier than end time.',
@@ -143,11 +141,10 @@ const BreakEdit = () => {
       setIsSubmitting(true);
 
       try {
-        // Build update payload
+        // Build update payload with HH:MM format
         const breakData: UpdateBreakPayload = {
-          staffId,
-          startTime: start.toISOString(),
-          endTime: end.toISOString(),
+          startTime: startTime.trim(),
+          endTime: endTime.trim(),
         };
 
         // Add reason if provided or set to undefined if empty
@@ -182,7 +179,7 @@ const BreakEdit = () => {
         setIsSubmitting(false);
       }
     },
-    [staffId, startTime, endTime, reason, id, updateBreak, navigate]
+    [startTime, endTime, reason, id, updateBreak, navigate]
   );
 
   // Get error message from API response
@@ -239,38 +236,21 @@ const BreakEdit = () => {
       >
         {/* Form fields grid */}
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Staff */}
-          <div className="auth-field">
-            <label className="label">
-              Staff <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={staffId}
-              onChange={(e) => setStaffId(e.target.value)}
-              className="input-select w-full"
-              required
-            >
-              <option value="">Select staff</option>
-              {staffUsers.map((staff: IUser) => (
-                <option key={staff._id} value={staff._id}>
-                  {staff.firstName} {staff.lastName}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Start Time */}
           <div className="auth-field">
             <label className="label">
               Start Time <span className="text-red-500">*</span>
             </label>
             <input
-              type="datetime-local"
+              type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
               className="input"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Break applies to all days when staff has working hours
+            </p>
           </div>
 
           {/* End Time */}
@@ -279,12 +259,15 @@ const BreakEdit = () => {
               End Time <span className="text-red-500">*</span>
             </label>
             <input
-              type="datetime-local"
+              type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
               className="input"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Break applies to all days when staff has working hours
+            </p>
           </div>
 
           {/* Reason */}

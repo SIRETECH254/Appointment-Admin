@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCreateBreak } from '../../../tanstack/useBreaks';
 import { useGetAllUsers } from '../../../tanstack/useUsers';
+import { isTimeBefore } from '../../../utils/breakUtils';
 import type { CreateBreakPayload, IUser } from '../../../types/api.types';
 
 /**
@@ -64,9 +65,12 @@ const BreakAdd = () => {
     if (!staffId || !startTime || !endTime) return false;
     if (isSubmitting) return false;
     
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    if (start >= end) return false;
+    // Validate time format (HH:MM)
+    const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timePattern.test(startTime) || !timePattern.test(endTime)) return false;
+    
+    // Validate that start time is before end time
+    if (!isTimeBefore(startTime, endTime)) return false;
     
     if (reason && reason.length > 300) return false;
     
@@ -90,11 +94,18 @@ const BreakAdd = () => {
         return;
       }
 
-      const start = new Date(startTime);
-      const end = new Date(endTime);
+      // Validate time format (HH:MM)
+      const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timePattern.test(startTime) || !timePattern.test(endTime)) {
+        setInlineMessage({
+          type: 'error',
+          text: 'Please enter valid times in HH:MM format.',
+        });
+        return;
+      }
 
       // Validate time range
-      if (start >= end) {
+      if (!isTimeBefore(startTime, endTime)) {
         setInlineMessage({
           type: 'error',
           text: 'Start time must be earlier than end time.',
@@ -115,11 +126,11 @@ const BreakAdd = () => {
       setIsSubmitting(true);
 
       try {
-        // Build create payload
+        // Build create payload with HH:MM format
         const breakData: CreateBreakPayload = {
           staffId,
-          startTime: start.toISOString(),
-          endTime: end.toISOString(),
+          startTime: startTime.trim(),
+          endTime: endTime.trim(),
         };
 
         // Add reason if provided
@@ -206,12 +217,15 @@ const BreakAdd = () => {
               Start Time <span className="text-red-500">*</span>
             </label>
             <input
-              type="datetime-local"
+              type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
               className="input"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Break applies to all days when staff has working hours
+            </p>
           </div>
 
           {/* End Time */}
@@ -220,12 +234,15 @@ const BreakAdd = () => {
               End Time <span className="text-red-500">*</span>
             </label>
             <input
-              type="datetime-local"
+              type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
               className="input"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Break applies to all days when staff has working hours
+            </p>
           </div>
 
           {/* Reason */}
