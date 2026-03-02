@@ -28,7 +28,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
       {/* Primary navigation links */}
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => item.path !== '/profile' && item.path !== '/store').map((item) => {
           const Icon = item.icon
           return (
             <NavLink
@@ -51,12 +51,37 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         })}
       </nav>
 
-      {/* Footer action: logout */}
-      <div className="mt-6 border-t border-gray-200 pt-4">
+      {/* Footer section: Store, Profile, and Logout */}
+      <div className="mt-auto bg-brand-tint px-4 py-4 -mx-4 -mb-6 ">
+        {/* Store and Profile links */}
+        <div className="space-y-1 mb-3">
+          {NAV_ITEMS.filter((item) => item.path === '/profile' || item.path === '/store').map((item) => {
+            const Icon = item.icon
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
+                    isActive
+                      ? 'text-brand-primary font-semibold'
+                      : 'text-gray-700 hover:text-brand-primary'
+                  }`
+                }
+                onClick={onClose}
+                end={item.end ?? true}
+              >
+                <Icon size={18} />
+                <span className="font-medium">{item.label}</span>
+              </NavLink>
+            )
+          })}
+        </div>
+        {/* Logout button */}
         <button
           type="button"
           onClick={() => void logout()}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-sm font-semibold text-white hover:bg-brand-accent"
+          className="flex w-full items-center justify-start gap-2 rounded-xl px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition"
         >
           <MdLogout size={18} />
           Logout

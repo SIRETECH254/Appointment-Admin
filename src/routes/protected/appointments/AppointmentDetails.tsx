@@ -236,11 +236,11 @@ const AppointmentDetails = () => {
         </div>
       </div>
 
-      {/* Details section */}
+      {/* Appointment Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <FiFileText className="h-5 w-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-900">Appointment Details</h2>
+          <FiCalendar className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Appointment Information</h2>
         </div>
         <div className="space-y-4">
           {/* Services */}
@@ -284,10 +284,10 @@ const AppointmentDetails = () => {
         </div>
       </div>
 
-      {/* Payment section */}
+      {/* Payment Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <FiCreditCard className="h-5 w-5 text-gray-600" />
+          <FiDollarSign className="h-5 w-5 text-green-600" />
           <h2 className="text-lg font-semibold text-gray-900">Payment Information</h2>
         </div>
         <div className="space-y-3">
@@ -325,8 +325,13 @@ const AppointmentDetails = () => {
         <div className={`alert-${inlineMessage.type}`}>{inlineMessage.text}</div>
       )}
 
-      {/* Action buttons */}
-      <div className="flex flex-row gap-3 w-full">
+      {/* Actions Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiFileText className="h-5 w-5 text-gray-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Actions</h2>
+        </div>
+        <div className="flex flex-row gap-3 w-full">
         {isPending && (
           <>
             <Link to={`/appointments/${id}/confirm`} className="btn-primary flex-1">
@@ -378,6 +383,7 @@ const AppointmentDetails = () => {
             </button>
           </>
         )}
+        </div>
       </div>
 
       <Link to="/appointments" className="btn-secondary w-full">

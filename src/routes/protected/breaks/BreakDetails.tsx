@@ -175,68 +175,88 @@ const BreakDetails = () => {
         </div>
       </div>
 
-      {/* Break details card */}
+      {/* Staff Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        {/* Section title */}
-        <h2 className="text-lg font-semibold text-gray-900">
-          Break Details
-        </h2>
-        {/* Two-column grid on desktop for compact layout */}
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {/* Staff Information Section */}
+        <div className="flex items-center gap-2 mb-4">
+          <FiUser className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Staff Information</h2>
+        </div>
+        <div className="space-y-4">
           <div className="flex items-start gap-3">
-            <FiUser className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
-            <div>
-              <p className="text-xs uppercase text-gray-400">Staff</p>
+            <FiUser className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Staff</p>
               <p className="text-sm text-gray-700">{staffName}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <FiMail className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
-            <div>
-              <p className="text-xs uppercase text-gray-400">Staff Email</p>
+            <FiMail className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Staff Email</p>
               <p className="text-sm text-gray-700">
                 {staffUser?.email || '—'}
               </p>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Time Information Section */}
+      {/* Time Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiClock className="h-5 w-5 text-orange-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Time Information</h2>
+        </div>
+        <div className="space-y-4">
           <div className="flex items-start gap-3">
-            <FiClock className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
-            <div>
-              <p className="text-xs uppercase text-gray-400">Start Time</p>
+            <FiClock className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Start Time</p>
               <p className="text-sm text-gray-700">
                 {formatBreakDateTime(breakItem.startTime)}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <FiClock className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
-            <div>
-              <p className="text-xs uppercase text-gray-400">End Time</p>
+            <FiClock className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">End Time</p>
               <p className="text-sm text-gray-700">
                 {formatBreakDateTime(breakItem.endTime)}
               </p>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Reason Section */}
-          <div className="flex items-start gap-3">
-            <FiFileText className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
-            <div>
-              <p className="text-xs uppercase text-gray-400">Reason</p>
-              <p className="text-sm text-gray-700">
-                {breakItem.reason || '—'}
-              </p>
-            </div>
+      {/* Break Details Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiFileText className="h-5 w-5 text-teal-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Break Details</h2>
+        </div>
+        <div className="flex items-start gap-3">
+          <FiFileText className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs uppercase text-gray-400 mb-1">Reason</p>
+            <p className="text-sm text-gray-700">
+              {breakItem.reason || '—'}
+            </p>
           </div>
+        </div>
+      </div>
 
-          {/* Timestamps Section */}
+      {/* System Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCalendar className="h-5 w-5 text-gray-600" />
+          <h2 className="text-lg font-semibold text-gray-900">System Information</h2>
+        </div>
+        <div className="space-y-4">
           <div className="flex items-start gap-3">
-            <FiCalendar className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
-            <div>
-              <p className="text-xs uppercase text-gray-400">Created</p>
+            <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Created</p>
               <p className="text-sm text-gray-700">
                 {formatFullDateTime(breakItem.createdAt)}
               </p>
@@ -244,9 +264,9 @@ const BreakDetails = () => {
           </div>
           {breakItem.updatedAt && (
             <div className="flex items-start gap-3">
-              <FiCalendar className="mt-1 h-5 w-5 text-gray-400 shrink-0" />
-              <div>
-                <p className="text-xs uppercase text-gray-400">Last Updated</p>
+              <FiCalendar className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase text-gray-400 mb-1">Last Updated</p>
                 <p className="text-sm text-gray-700">
                   {formatFullDateTime(breakItem.updatedAt)}
                 </p>

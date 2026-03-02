@@ -31,9 +31,9 @@ import type { IBreak } from '@/types/api.types';
   - `timeRange` - Formatted time range string
 
 ## UI Structure
-- **Header Card:** Staff name with avatar/initials, break time range, reason badge.
-- **Details Card:** Two-column grid showing staff info, start/end times, reason, created/updated dates.
-- **Actions:** Edit button linking to `/breaks/:id/edit`, Back to list button.
+- **Header Card:** Break time range and action buttons (Edit, Back to Breaks).
+- **Break Details Card:** Staff information, staff email, start time, end time, and reason with icons.
+- **System Information Card:** Created date and last updated date (if available) with icons.
 
 ## Planned Layout
 ```
@@ -54,24 +54,36 @@ import type { IBreak } from '@/types/api.types';
 ## Sketch Wireframe
 ```
 ┌────────────────────────────────────────────────────┐
-│ Break Details                                      │
-│                                                    │
-│ [JD] John Doe                                      │
+│ Break Details                                       │
 │ Jan 23, 2026, 12:00 PM - 12:30 PM                 │
-│ [Lunch]                                            │
+│ [Edit Break] [Back to Breaks]                      │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 📄 Break Details                                    │
+│ ─────────────────────────────────────────────────  │
+│ 👤 Staff                                            │
+│ John Doe                                            │
 │                                                    │
-│ [Edit Break]              [Back to Breaks]         │
+│ 📧 Staff Email                                      │
+│ john@example.com                                    │
 │                                                    │
-│ ────────────────────────────────────────────────  │
+│ 🕐 Start Time                                       │
+│ Jan 23, 2026, 12:00 PM                             │
 │                                                    │
-│ Break Details                                      │
+│ 🕐 End Time                                         │
+│ Jan 23, 2026, 12:30 PM                             │
 │                                                    │
-│ Staff: John Doe                                    │
-│ Start Time: Jan 23, 2026, 12:00 PM                 │
-│ End Time: Jan 23, 2026, 12:30 PM                  │
-│ Reason: Lunch                                      │
-│ Created: Jan 23, 2026, 10:00 AM                   │
-│ Updated: Jan 23, 2026, 10:00 AM                   │
+│ 📄 Reason                                          │
+│ Lunch                                               │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 📅 System Information                               │
+│ ─────────────────────────────────────────────────  │
+│ 📅 Created                                          │
+│ Jan 23, 2026, 10:00 AM                             │
+│                                                    │
+│ 📅 Last Updated                                     │
+│ Jan 23, 2026, 10:00 AM                             │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -89,9 +101,10 @@ import type { IBreak } from '@/types/api.types';
 
 ## Components Used
 - React Router DOM: `Link`, `useParams` for routing.
+- React Icons: `FiUser`, `FiMail`, `FiClock`, `FiFileText`, `FiCalendar` for section icons.
 - TanStack Query: `useGetBreakById` hook.
-- Utility Functions: `formatBreakDateTime`, `formatBreakTimeRange`, `getStaffName`, `getStaffInitials` from `@/utils/breakUtils`.
-- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `badge`, `badge-soft`, `alert-error`.
+- Utility Functions: `formatBreakDateTime`, `formatFullDateTime`, `getStaffName`, `getStaffInitials` from `@/utils/breakUtils`.
+- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `rounded-2xl`, `border`, `shadow-sm`, `p-6`, `alert-error`.
 
 ## Error Handling
 - **Loading State:** Show loading indicator while fetching break data.

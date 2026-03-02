@@ -231,66 +231,73 @@ const NotificationDetails = () => {
         </div>
       </div>
 
-      {/* Notification details card */}
+      {/* Message Content Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Notification Details
-        </h2>
-
-        {/* Message */}
-        <div className="mb-6">
-          <div className="flex items-start gap-3 mb-2">
-            <FiMessageSquare className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <p className="text-xs uppercase text-gray-400">Message</p>
-          </div>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap ml-8">
-            {notification.message}
-          </p>
+        <div className="flex items-center gap-2 mb-4">
+          <FiMessageSquare className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Message Content</h2>
         </div>
+        <div className="flex items-start gap-3 mb-2">
+          <FiMessageSquare className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <p className="text-xs uppercase text-gray-400">Message</p>
+        </div>
+        <p className="text-sm text-gray-700 whitespace-pre-wrap ml-8">
+          {notification.message}
+        </p>
+      </div>
 
-        {/* Metadata */}
-        {notification.metadata && Object.keys(notification.metadata).length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-start gap-3 mb-2">
-              <FiTag className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
-              <p className="text-xs uppercase text-gray-400">Metadata</p>
-            </div>
-            <pre className="text-xs bg-gray-50 p-3 rounded-lg overflow-x-auto ml-8">
-              {JSON.stringify(notification.metadata, null, 2)}
-            </pre>
+      {/* Metadata Section */}
+      {notification.metadata && Object.keys(notification.metadata).length > 0 && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <FiTag className="h-5 w-5 text-purple-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Metadata</h2>
           </div>
-        )}
-
-        {/* Context */}
-        {notification.context && (
-          <div className="mb-6">
-            <div className="flex items-start gap-3 mb-2">
-              <FiTag className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
-              <p className="text-xs uppercase text-gray-400">Context</p>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-lg ml-8">
-              <p className="text-sm text-gray-700">
-                <span className="font-medium">Resource ID:</span>{' '}
-                {notification.context.resourceId}
-              </p>
-              <p className="text-sm text-gray-700 mt-1">
-                <span className="font-medium">Resource Type:</span>{' '}
-                {notification.context.resourceType}
-              </p>
-              {notification.context.additionalData &&
-                Object.keys(notification.context.additionalData).length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-xs text-gray-500 mb-1">Additional Data:</p>
-                    <pre className="text-xs overflow-x-auto">
-                      {JSON.stringify(notification.context.additionalData, null, 2)}
-                    </pre>
-                  </div>
-                )}
-            </div>
+          <div className="flex items-start gap-3 mb-2">
+            <FiTag className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+            <p className="text-xs uppercase text-gray-400">Metadata</p>
           </div>
-        )}
+          <pre className="text-xs bg-gray-50 p-3 rounded-lg overflow-x-auto ml-8">
+            {JSON.stringify(notification.metadata, null, 2)}
+          </pre>
+        </div>
+      )}
 
-        {/* Timestamps */}
+      {/* Context Section */}
+      {notification.context && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <FiTag className="h-5 w-5 text-teal-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Context</h2>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-700">
+              <span className="font-medium">Resource ID:</span>{' '}
+              {notification.context.resourceId}
+            </p>
+            <p className="text-sm text-gray-700 mt-1">
+              <span className="font-medium">Resource Type:</span>{' '}
+              {notification.context.resourceType}
+            </p>
+            {notification.context.additionalData &&
+              Object.keys(notification.context.additionalData).length > 0 && (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-500 mb-1">Additional Data:</p>
+                  <pre className="text-xs overflow-x-auto">
+                    {JSON.stringify(notification.context.additionalData, null, 2)}
+                  </pre>
+                </div>
+              )}
+          </div>
+        </div>
+      )}
+
+      {/* Timestamps Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCalendar className="h-5 w-5 text-orange-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Timestamps</h2>
+        </div>
         <div className="space-y-4">
           <div className="flex items-start gap-3">
             <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
@@ -335,10 +342,13 @@ const NotificationDetails = () => {
         </div>
       </div>
 
-      {/* Actions card */}
+      {/* Actions Section */}
       {notification.actions && notification.actions.length > 0 && (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <FiSend className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Actions</h2>
+          </div>
           <div className="flex flex-wrap gap-3">
             {notification.actions.map((action: INotificationAction) => (
               <button

@@ -29,10 +29,10 @@ import type { IPayment } from '@/types/api.types';
 - **Derived State:** Payment information extracted from API response.
 
 ## UI Structure
-- **Header Card:** Payment number, status badge, amount, and payment method.
-- **Details Card:** Payment information (customer, type, date, transaction references).
-- **Appointment Link:** Link to related appointment if payment is for an appointment.
-- **Transaction References:** Display processor references (M-Pesa checkout ID, Paystack reference).
+- **Header Card:** Payment number, status badge, and payment method badge.
+- **Payment Information Card:** Amount, method, type, status, and payment date with icons.
+- **Transaction Details Card:** Transaction reference (displayed conditionally if transactionRef exists).
+- **Related Information Card:** Link to related appointment (displayed conditionally if appointmentId exists).
 
 ## Planned Layout
 ```
@@ -55,25 +55,39 @@ import type { IPayment } from '@/types/api.types';
 ## Sketch Wireframe
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ Payment #PAY-2025-0001                                     │
-│ Status: [Success]                                          │
+│ Payment Details                                             │
+│ Payment #PAY-2025-0001                                      │
+│ [Success Badge] [M-Pesa Badge]                             │
+└────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│ 💰 Payment Information                                      │
+│ ─────────────────────────────────────────────────────────  │
+│ 💰 Amount                                                   │
+│ KES 1,500.00                                               │
 │                                                            │
-│ Amount: KES 200                                            │
-│ Method: M-Pesa                                             │
-│ Type: Booking Fee                                          │
+│ 💳 Method                                                   │
+│ [M-Pesa Badge]                                             │
 │                                                            │
-│ Payment Details:                                           │
-│ • Customer: John Doe (john@example.com)                   │
-│ • Payment Date: January 25, 2025, 10:30 AM                │
-│ • Transaction Reference: ws_CO_25012025103000             │
-│ • M-Pesa Checkout ID: abc123...                          │
+│ 🏷️ Type                                                     │
+│ Booking Fee                                                 │
 │                                                            │
-│ Related Appointment:                                       │
-│ • Appointment #APT-2025-0001                             │
-│ • Date: January 25, 2025, 9:00 AM                        │
-│ [View Appointment]                                        │
+│ ✓ Status                                                    │
+│ [Success Badge]                                             │
 │                                                            │
-│ [Back to Payments]                                        │
+│ 📅 Payment Date                                             │
+│ January 25, 2025, 10:30 AM                                 │
+└────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│ # Transaction Details (if transactionRef exists)           │
+│ ─────────────────────────────────────────────────────────  │
+│ # Transaction Reference                                     │
+│ ws_CO_25012025103000                                       │
+└────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│ 📅 Related Information (if appointmentId exists)            │
+│ ─────────────────────────────────────────────────────────  │
+│ Related Appointment                                        │
+│ [View Appointment Button]                                  │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -89,9 +103,11 @@ import type { IPayment } from '@/types/api.types';
 
 ## Components Used
 - React Router DOM: `Link`, `useParams` for routing.
+- React Icons: `FiDollarSign`, `FiCreditCard`, `FiTag`, `FiCheckCircle`, `FiCalendar`, `FiHash` for section icons.
 - TanStack Query: `useGetPaymentById` hook.
-- Utility Functions: `formatPaymentStatus`, `getPaymentStatusVariant`, `formatPaymentMethod`, `formatPaymentType`, `formatCurrency` from `@/utils/paymentUtils`, `formatDateTimeWithTime` from `@/utils`.
-- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `badge`, `badge-success`, `badge-error`, `badge-soft`, `alert-error`.
+- StatusBadge: For payment status and payment method badges.
+- Utility Functions: `formatPaymentMethod`, `formatPaymentType`, `formatCurrency`, `getPaymentAppointmentId` from `@/utils/paymentUtils`, `formatDateTimeWithTime` from `@/utils/userUtils`.
+- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `rounded-2xl`, `border`, `shadow-sm`, `p-6`, `alert-error`.
 
 ## Error Handling
 - **Loading State:** Show loading indicator while fetching payment data.

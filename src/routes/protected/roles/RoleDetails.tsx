@@ -63,13 +63,47 @@ const RoleDetails = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="h-6 w-32 bg-gray-300 rounded mb-4 animate-pulse" />
+        {/* Role Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
           <div className="space-y-4">
-            {[...Array(7)].map((_, i) => (
+            {[...Array(3)].map((_, i) => (
               <div key={i} className="space-y-2">
-                <div className="h-3 w-24 bg-gray-300 rounded animate-pulse" />
-                <div className="h-4 w-48 bg-gray-300 rounded animate-pulse" />
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Permissions skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-32 bg-gray-300 rounded mb-4" />
+          <div className="grid gap-2 md:grid-cols-2">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-4 w-32 bg-gray-300 rounded" />
+            ))}
+          </div>
+        </div>
+        {/* Status Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-32 bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* System Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
               </div>
             ))}
           </div>
@@ -155,13 +189,12 @@ const RoleDetails = () => {
         </div>
       </div>
 
-      {/* Role details card */}
+      {/* Role Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        {/* Section title */}
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Role Details
-        </h2>
-        {/* Vertical list layout */}
+        <div className="flex items-center gap-2 mb-4">
+          <FiTag className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Role Information</h2>
+        </div>
         <div className="space-y-4">
           {/* Name */}
           <div className="flex items-start gap-3">
@@ -189,38 +222,53 @@ const RoleDetails = () => {
               <p className="text-sm text-gray-700">{role.description || '—'}</p>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Permissions Section */}
-          <div className="flex items-start gap-3">
-            <FiKey className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase text-gray-400 mb-1">Permissions</p>
-              <div className="mt-2">
-                {role.permissions && role.permissions.length > 0 ? (
-                  role.permissions.includes('*') ? (
-                    <span className="badge badge-soft">* (All Permissions)</span>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {role.permissions.map((permission: string, index: number) => (
-                        <span key={index} className="badge badge-soft">
-                          {permission}
-                        </span>
-                      ))}
-                    </div>
-                  )
+      {/* Permissions Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiKey className="h-5 w-5 text-orange-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Permissions</h2>
+        </div>
+        <div className="flex items-start gap-3">
+          <FiKey className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs uppercase text-gray-400 mb-1">Permissions</p>
+            <div className="mt-2">
+              {role.permissions && role.permissions.length > 0 ? (
+                role.permissions.includes('*') ? (
+                  <span className="badge badge-soft">* (All Permissions)</span>
                 ) : (
-                  <p className="text-sm text-gray-500">No permissions assigned</p>
-                )}
-              </div>
+                  <div className="flex flex-wrap gap-2">
+                    {role.permissions.map((permission: string, index: number) => (
+                      <span key={index} className="badge badge-soft">
+                        {permission}
+                      </span>
+                    ))}
+                  </div>
+                )
+              ) : (
+                <p className="text-sm text-gray-500">No permissions assigned</p>
+              )}
             </div>
           </div>
+        </div>
+      </div>
 
+      {/* Status Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCheckCircle className="h-5 w-5 text-green-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Status Information</h2>
+        </div>
+        <div className="space-y-4">
           {/* Status */}
           <div className="flex items-start gap-3">
             {role.isActive ? (
               <FiCheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
             ) : (
-              <FiXCircle className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+              <FiXCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
             )}
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase text-gray-400 mb-1">Status</p>
@@ -238,7 +286,16 @@ const RoleDetails = () => {
               </p>
             </div>
           </div>
+        </div>
+      </div>
 
+      {/* System Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCalendar className="h-5 w-5 text-orange-600" />
+          <h2 className="text-lg font-semibold text-gray-900">System Information</h2>
+        </div>
+        <div className="space-y-4">
           {/* Role Created */}
           <div className="flex items-start gap-3">
             <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />

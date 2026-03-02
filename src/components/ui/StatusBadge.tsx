@@ -40,7 +40,8 @@ export type BadgeType =
   | 'notification-category'
   | 'notification-status'
   | 'contact-status'
-  | 'service-status';
+  | 'service-status'
+  | 'verified-status';
 
 interface StatusBadgeProps {
   status: string | boolean;
@@ -215,6 +216,13 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
 
     if (badgeType === 'service-status') {
       if (status === true || status === 'true' || upperStatus === 'ACTIVE') {
+        return <FiCheckCircle className="h-3 w-3" />;
+      }
+      return <FiXCircle className="h-3 w-3" />;
+    }
+
+    if (badgeType === 'verified-status') {
+      if (status === true || status === 'true' || upperStatus === 'VERIFIED' || upperStatus === 'YES') {
         return <FiCheckCircle className="h-3 w-3" />;
       }
       return <FiXCircle className="h-3 w-3" />;
@@ -531,6 +539,21 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       }
     }
 
+    if (badgeType === 'verified-status') {
+      if (status === true || status === 'true' || upperStatus === 'VERIFIED' || upperStatus === 'YES') {
+        return {
+          bg: 'bg-green-100',
+          text: 'text-green-700',
+          iconColor: '#16A34A', // green-600
+        };
+      }
+      return {
+        bg: 'bg-red-100',
+        text: 'text-red-700',
+        iconColor: '#DC2626', // red-600
+      };
+    }
+
     return {
       bg: 'bg-gray-100',
       text: 'text-gray-700',
@@ -548,6 +571,14 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return 'Active';
       }
       return 'Inactive';
+    }
+
+    // Handle verified-status with boolean
+    if (badgeType === 'verified-status') {
+      if (status === true || status === 'true' || String(status).toUpperCase() === 'VERIFIED' || String(status).toUpperCase() === 'YES') {
+        return 'Verified';
+      }
+      return 'Not Verified';
     }
 
     // For notification types, use special formatting

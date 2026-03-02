@@ -20,23 +20,35 @@ const PaymentDetails = () => {
   if (isLoading) {
     return (
       <div className="space-y-6">
+        {/* Header skeleton */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
-          <div className="h-6 w-48 bg-gray-300 rounded mb-2" />
-          <div className="h-4 w-32 bg-gray-300 rounded mb-4" />
-          <div className="flex gap-2">
-            <div className="h-6 w-20 bg-gray-300 rounded-full" />
-            <div className="h-6 w-24 bg-gray-300 rounded-full" />
+          <div className="flex flex-col gap-4">
+            <div className="h-6 w-48 bg-gray-300 rounded" />
+            <div className="h-4 w-32 bg-gray-300 rounded" />
+            <div className="flex gap-2">
+              <div className="h-6 w-20 bg-gray-300 rounded-full" />
+              <div className="h-6 w-24 bg-gray-300 rounded-full" />
+            </div>
           </div>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="h-6 w-40 bg-gray-300 rounded mb-4 animate-pulse" />
+        {/* Payment Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
           <div className="space-y-4">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(5)].map((_, i) => (
               <div key={i} className="space-y-2">
-                <div className="h-3 w-24 bg-gray-300 rounded animate-pulse" />
-                <div className="h-4 w-48 bg-gray-300 rounded animate-pulse" />
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
               </div>
             ))}
+          </div>
+        </div>
+        {/* Transaction Details skeleton (conditional) */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-2">
+            <div className="h-3 w-32 bg-gray-300 rounded" />
+            <div className="h-4 w-64 bg-gray-300 rounded" />
           </div>
         </div>
       </div>
@@ -59,6 +71,7 @@ const PaymentDetails = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-6">
           <div>
@@ -72,8 +85,12 @@ const PaymentDetails = () => {
         </div>
       </div>
 
+      {/* Payment Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <FiDollarSign className="h-5 w-5 text-green-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Payment Information</h2>
+        </div>
         <div className="space-y-4">
           <div className="flex items-start gap-3">
             <FiDollarSign className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -86,7 +103,7 @@ const PaymentDetails = () => {
             <FiCreditCard className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase text-gray-400 mb-1">Method</p>
-              <p className="text-sm text-gray-700">{formatPaymentMethod(payment.method)}</p>
+              <StatusBadge status={payment.method} type="payment-method" />
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -110,24 +127,39 @@ const PaymentDetails = () => {
               <p className="text-sm text-gray-700">{formatDateTimeWithTime(payment.createdAt)}</p>
             </div>
           </div>
-          {payment.transactionRef && (
-            <div className="flex items-start gap-3">
-              <FiHash className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs uppercase text-gray-400 mb-1">Transaction Reference</p>
-                <p className="text-sm text-gray-700 font-mono">{payment.transactionRef}</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
+      {/* Transaction Details Section */}
+      {payment.transactionRef && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <FiHash className="h-5 w-5 text-gray-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Transaction Details</h2>
+          </div>
+          <div className="flex items-start gap-3">
+            <FiHash className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Transaction Reference</p>
+              <p className="text-sm text-gray-700 font-mono">{payment.transactionRef}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Related Information Section */}
       {appointmentId && (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Related Appointment</h2>
-          <Link to={`/appointments/${appointmentId}`} className="btn-primary">
-            View Appointment
-          </Link>
+          <div className="flex items-center gap-2 mb-4">
+            <FiCalendar className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Related Information</h2>
+          </div>
+          <div>
+            <p className="text-xs uppercase text-gray-400 mb-2">Related Appointment</p>
+            <Link to={`/appointments/${appointmentId}`} className="btn-primary">
+              View Appointment
+            </Link>
+          </div>
         </div>
       )}
 

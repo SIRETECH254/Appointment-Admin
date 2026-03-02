@@ -29,8 +29,10 @@ import type { IService } from '@/types/api.types';
 
 ## UI Structure
 - **Header Card:** Service name, status badge, and action buttons (Edit, Back to Services).
-- **Details Card:** Two-column grid layout displaying service information.
-- **Information Sections:** Basic details (name, description), pricing (full price), timing (duration), ordering (sort order), status, and timestamps (created, updated).
+- **Service Information Card:** Name and description with icons.
+- **Service Settings Card:** Duration, full price, and sort order with icons.
+- **Status Information Card:** Active/inactive status with badge and icon.
+- **System Information Card:** Created date and updated date with icons.
 
 ## Planned Layout
 ```
@@ -50,20 +52,46 @@ import type { IService } from '@/types/api.types';
 ## Sketch Wireframe
 ```
 ┌────────────────────────────────────────────────────┐
-│ Haircut                              [Active]      │
+│ Service Details                                     │
+│ Haircut                                             │
+│ [Active Badge]                                      │
+│ [Edit Service] [Back to Services]                   │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 🏷️ Service Information                               │
+│ ─────────────────────────────────────────────────  │
+│ 🏷️ Name                                             │
+│ Haircut                                             │
 │                                                    │
-│ [Edit Service]              [Back to Services]    │
-├────────────────────────────────────────────────────┤
-│ Service Details                                    │
+│ 📄 Description                                      │
+│ Classic men haircut with styling                   │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ ⚙️ Service Settings                                  │
+│ ─────────────────────────────────────────────────  │
+│ 🕐 Duration                                         │
+│ 30 minutes                                          │
 │                                                    │
-│ Name: Haircut                                      │
-│ Description: Classic men haircut with styling     │
-│ Duration: 30 min                                   │
-│ Full Price: KES 500                                │
-│ Sort Order: 1                                      │
-│ Status: Active                                     │
-│ Created: Jan 01, 2025, 10:30 AM                    │
-│ Updated: Jan 15, 2025, 2:45 PM                     │
+│ 💰 Full Price                                       │
+│ KES 500.00                                          │
+│                                                    │
+│ 📊 Sort Order                                       │
+│ 0                                                   │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ ✓ Status Information                                │
+│ ─────────────────────────────────────────────────  │
+│ ✓ Status                                            │
+│ [Active Badge]                                      │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 📅 System Information                                │
+│ ─────────────────────────────────────────────────  │
+│ 📅 Created Date                                     │
+│ Jan 01, 2025, 10:30 AM                              │
+│                                                    │
+│ 📅 Updated Date                                     │
+│ Jan 15, 2025, 2:45 PM                               │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -95,9 +123,11 @@ import type { IService } from '@/types/api.types';
 
 ## Components Used
 - React Router DOM: `Link`, `useParams` for routing.
+- React Icons: `FiTag`, `FiFileText`, `FiClock`, `FiDollarSign`, `FiList`, `FiCheckCircle`, `FiXCircle`, `FiCalendar`, `FiSettings` for section icons.
 - TanStack Query: `useGetServiceById` hook.
-- Utility Functions: `formatDateTimeWithTime`, `formatPrice`, `formatDuration` from `@/utils/serviceUtils`.
-- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `badge-success`, `badge-error`.
+- StatusBadge: For service status badge (active/inactive).
+- Utility Functions: `formatDateTimeWithTime` from `@/utils/userUtils`, `formatPrice`, `formatDuration` from `@/utils/serviceUtils`.
+- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `rounded-2xl`, `border`, `shadow-sm`, `p-6`, `alert-error`.
 
 ## Error Handling
 - **Loading State:** Show loading indicator while fetching service data.

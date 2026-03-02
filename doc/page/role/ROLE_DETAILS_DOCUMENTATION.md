@@ -30,10 +30,11 @@ import type { IRole } from '@/types/api.types';
   - `permissionsDisplay` - Formatted permissions string or array for display
 
 ## UI Structure
-- **Header Card:** Role name/displayName with status badges (Active/Inactive, System Role indicator).
-- **Details Card:** Two-column grid showing role information: name (read-only if system role), displayName, description, permissions list, isActive status, system role indicator, created/updated dates.
-- **Permissions Display:** List of permissions as badges or formatted text.
-- **Actions:** Edit button linking to `/roles/:id/edit`, Back to list button.
+- **Header Card:** Role name, display name, status badge, and action buttons (Edit, Back to Roles).
+- **Role Information Card:** Name, display name, and description with icons.
+- **Permissions Card:** List of all permissions in a grid layout (2 columns) with icon.
+- **Status Information Card:** Status badge and system role indicator with icon.
+- **System Information Card:** Created date and last updated date with icons.
 
 ## Planned Layout
 ```
@@ -55,26 +56,51 @@ import type { IRole } from '@/types/api.types';
 ## Sketch Wireframe
 ```
 ┌────────────────────────────────────────────────────┐
-│ Role Details                                      │
+│ Role Details                                       │
+│ Admin                                              │
+│ Administrator                                      │
+│ [Active Badge]                                     │
+│ [Edit Role] [Back to Roles]                        │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 🏷️ Role Information                                 │
+│ ─────────────────────────────────────────────────  │
+│ 🏷️ Name                                             │
+│ admin                                              │
 │                                                    │
-│ [AD] Admin                                        │
-│ admin@example.com                                 │
-│ [Active] [System Role]                            │
+│ 🏷️ Display Name                                    │
+│ Administrator                                      │
 │                                                    │
-│ [Edit Role]              [Back to Roles]          │
+│ 📄 Description                                     │
+│ Full system access for administrators              │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 🔑 Permissions                                      │
+│ ─────────────────────────────────────────────────  │
+│ [Permission Grid: 2 columns]                       │
+│ • manage_users                                     │
+│ • view_appointments                                │
+│ • manage_payments                                   │
+│ • view_customers                                    │
+│ ...                                                │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ ✓ Status Information                                │
+│ ─────────────────────────────────────────────────  │
+│ ✓ Status                                            │
+│ [Active Badge]                                      │
 │                                                    │
-│ ────────────────────────────────────────────────  │
+│ System Role                                         │
+│ Yes                                                │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 📅 System Information                               │
+│ ─────────────────────────────────────────────────  │
+│ 📅 Role Created                                     │
+│ Jan 01, 2025, 10:30 AM                             │
 │                                                    │
-│ Role Details                                      │
-│                                                    │
-│ Name: admin                                       │
-│ Display Name: Admin                               │
-│ Description: Full system access for administrators│
-│ Permissions: * (all permissions)                 │
-│ Status: Active                                    │
-│ System Role: Yes                                  │
-│ Created: Jan 01, 2025, 10:30 AM                   │
-│ Updated: Jan 15, 2025, 2:45 PM                    │
+│ 📅 Last Updated                                     │
+│ Jan 15, 2025, 2:45 PM                              │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -106,9 +132,11 @@ import type { IRole } from '@/types/api.types';
 
 ## Components Used
 - React Router DOM: `Link`, `useParams` for routing.
+- React Icons: `FiTag`, `FiKey`, `FiCheckCircle`, `FiCalendar` for section icons.
 - TanStack Query: `useGetRoleById` hook.
-- Utility Functions: `formatDateTimeWithTime`, `getRoleInitials`, `formatPermissions` from `@/utils/roleUtils`.
-- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `badge`, `badge-soft`, `badge-success`, `badge-error`, `alert-error`.
+- StatusBadge: For role status badge.
+- Utility Functions: `formatDateTimeWithTime` from `@/utils/userUtils`.
+- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `rounded-2xl`, `border`, `shadow-sm`, `p-6`, `alert-error`.
 
 ## Error Handling
 - **Loading State:** Show loading indicator while fetching role data.

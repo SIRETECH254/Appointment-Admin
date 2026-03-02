@@ -74,17 +74,42 @@ const ContactDetails = () => {
   if (isLoading) {
     return (
       <div className="space-y-6">
+        {/* Header skeleton */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
-          <div className="h-8 w-64 bg-gray-300 rounded mb-4" />
-          <div className="h-6 w-24 bg-gray-300 rounded-full" />
+          <div className="flex flex-col gap-4">
+            <div className="h-8 w-64 bg-gray-300 rounded" />
+            <div className="h-6 w-24 bg-gray-300 rounded-full" />
+          </div>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="h-6 w-40 bg-gray-300 rounded mb-4 animate-pulse" />
+        {/* Contact Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
           <div className="space-y-4">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(3)].map((_, i) => (
               <div key={i} className="space-y-2">
-                <div className="h-3 w-24 bg-gray-300 rounded animate-pulse" />
-                <div className="h-4 w-48 bg-gray-300 rounded animate-pulse" />
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Message Content skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-2">
+            <div className="h-4 w-full bg-gray-300 rounded" />
+            <div className="h-4 w-5/6 bg-gray-300 rounded" />
+            <div className="h-4 w-4/6 bg-gray-300 rounded" />
+          </div>
+        </div>
+        {/* Timestamps skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-32 bg-gray-300 rounded mb-4" />
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
               </div>
             ))}
           </div>
@@ -162,14 +187,13 @@ const ContactDetails = () => {
         </div>
       </div>
 
-      {/* Contact details card */}
+      {/* Contact Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Contact Details
-        </h2>
-
-        {/* Contact Information */}
-        <div className="mb-6 space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+          <FiUser className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Contact Information</h2>
+        </div>
+        <div className="space-y-4">
           <div className="flex items-start gap-3">
             <FiUser className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
@@ -196,38 +220,48 @@ const ContactDetails = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Message */}
-        <div className="mb-6">
-          <div className="flex items-start gap-3 mb-2">
-            <FiMessageSquare className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
-            <p className="text-xs uppercase text-gray-400">Message</p>
-          </div>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap ml-8">
-            {contact.message}
-          </p>
+      {/* Message Content Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiMessageSquare className="h-5 w-5 text-teal-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Message Content</h2>
         </div>
+        <div className="flex items-start gap-3 mb-2">
+          <FiMessageSquare className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+          <p className="text-xs uppercase text-gray-400">Message</p>
+        </div>
+        <p className="text-sm text-gray-700 whitespace-pre-wrap ml-8">
+          {contact.message}
+        </p>
+      </div>
 
-        {/* User Information (if userId exists) */}
-        {userInfo && (
-          <div className="mb-6">
-            <div className="flex items-start gap-3 mb-2">
-              <FiUser className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-              <p className="text-xs uppercase text-gray-400">User Account</p>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-lg ml-8">
-              <p className="text-sm text-gray-700">
-                <span className="font-medium">Name:</span>{' '}
-                {userInfo.firstName} {userInfo.lastName}
-              </p>
-              <p className="text-sm text-gray-700 mt-1">
-                <span className="font-medium">Email:</span> {userInfo.email}
-              </p>
-            </div>
+      {/* User Account Section */}
+      {userInfo && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <FiUser className="h-5 w-5 text-orange-600" />
+            <h2 className="text-lg font-semibold text-gray-900">User Account</h2>
           </div>
-        )}
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-700">
+              <span className="font-medium">Name:</span>{' '}
+              {userInfo.firstName} {userInfo.lastName}
+            </p>
+            <p className="text-sm text-gray-700 mt-1">
+              <span className="font-medium">Email:</span> {userInfo.email}
+            </p>
+          </div>
+        </div>
+      )}
 
-        {/* Timestamps */}
+      {/* Timestamps Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCalendar className="h-5 w-5 text-orange-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Timestamps</h2>
+        </div>
         <div className="space-y-4">
           <div className="flex items-start gap-3">
             <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />

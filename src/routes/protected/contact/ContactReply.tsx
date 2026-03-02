@@ -1,10 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { MdArrowBack } from 'react-icons/md';
+import { FiMail, FiTag, FiMessageSquare, FiUser, FiCalendar, FiSend, FiFileText } from 'react-icons/fi';
 import {
   useGetContactMessageById,
   useReplyToContactMessage,
 } from '../../../tanstack/useContact';
+import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatDateTimeWithTime, getRecipientEmail } from '../../../utils/contactUtils';
 import type { IContact } from '../../../types/api.types';
 
@@ -160,42 +162,70 @@ const ContactReply = () => {
 
       {/* Contact context card */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Context</h2>
-        <div className="space-y-3">
-          <div>
-            <p className="text-xs uppercase text-gray-400 mb-1">To</p>
-            <p className="text-sm text-gray-700">{recipientEmail}</p>
+        <div className="flex items-center gap-2 mb-4">
+          <FiMessageSquare className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Contact Context</h2>
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <FiMail className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">To</p>
+              <p className="text-sm text-gray-700">{recipientEmail}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400 mb-1">Subject</p>
-            <p className="text-sm text-gray-700">Re: {contact.subject}</p>
+          <div className="flex items-start gap-3">
+            <FiTag className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Subject</p>
+              <p className="text-sm text-gray-700">Re: {contact.subject}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400 mb-2">Original Message</p>
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                {contact.message}
+          <div className="flex items-start gap-3">
+            <FiMessageSquare className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-2">Original Message</p>
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {contact.message}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <FiUser className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">From</p>
+              <p className="text-sm text-gray-700">
+                {contact.name} &lt;{contact.email}&gt;
               </p>
             </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400 mb-1">From</p>
-            <p className="text-sm text-gray-700">
-              {contact.name} &lt;{contact.email}&gt;
-            </p>
+          <div className="flex items-start gap-3">
+            <FiCalendar className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Received</p>
+              <p className="text-sm text-gray-700">
+                {formatDateTimeWithTime(contact.createdAt)}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400 mb-1">Received</p>
-            <p className="text-sm text-gray-700">
-              {formatDateTimeWithTime(contact.createdAt)}
-            </p>
+          <div className="flex items-start gap-3">
+            <FiTag className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Status</p>
+              <StatusBadge status={contact.status} type="contact-status" />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Reply form card */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Reply Message</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <FiSend className="h-5 w-5 text-green-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Reply Message</h2>
+        </div>
 
         {/* Inline message */}
         {inlineMessage && (

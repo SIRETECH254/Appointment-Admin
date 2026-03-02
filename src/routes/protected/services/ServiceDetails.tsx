@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { FiTag, FiFileText, FiClock, FiDollarSign, FiList, FiCheckCircle, FiXCircle, FiCalendar, FiAlertTriangle } from 'react-icons/fi';
+import { FiTag, FiFileText, FiClock, FiDollarSign, FiList, FiCheckCircle, FiXCircle, FiCalendar, FiAlertTriangle, FiSettings } from 'react-icons/fi';
 import { useGetServiceById } from '../../../tanstack/useServices';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatDateTimeWithTime, formatPrice, formatDuration } from '../../../utils/serviceUtils';
@@ -47,13 +47,46 @@ const ServiceDetails = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="h-6 w-40 bg-gray-300 rounded mb-4 animate-pulse" />
+        {/* Service Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
           <div className="space-y-4">
-            {[...Array(8)].map((_, i) => (
+            {[...Array(2)].map((_, i) => (
               <div key={i} className="space-y-2">
-                <div className="h-3 w-24 bg-gray-300 rounded animate-pulse" />
-                <div className="h-4 w-48 bg-gray-300 rounded animate-pulse" />
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Service Settings skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-32 bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Status Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-2">
+            <div className="h-3 w-20 bg-gray-300 rounded" />
+            <div className="h-6 w-20 bg-gray-300 rounded-full" />
+          </div>
+        </div>
+        {/* System Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
               </div>
             ))}
           </div>
@@ -128,13 +161,12 @@ const ServiceDetails = () => {
         </div>
       </div>
 
-      {/* Service details card */}
+      {/* Service Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        {/* Section title */}
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Service Details
-        </h2>
-        {/* Vertical list layout */}
+        <div className="flex items-center gap-2 mb-4">
+          <FiTag className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Service Information</h2>
+        </div>
         <div className="space-y-4">
           {/* Name */}
           <div className="flex items-start gap-3">
@@ -153,7 +185,16 @@ const ServiceDetails = () => {
               <p className="text-sm text-gray-700">{service.description || '—'}</p>
             </div>
           </div>
+            </div>
+          </div>
 
+      {/* Service Settings Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiSettings className="h-5 w-5 text-purple-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Service Settings</h2>
+        </div>
+        <div className="space-y-4">
           {/* Duration */}
           <div className="flex items-start gap-3">
             <FiClock className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
@@ -180,20 +221,35 @@ const ServiceDetails = () => {
               <p className="text-sm text-gray-700">{service.sortOrder ?? 0}</p>
             </div>
           </div>
+            </div>
+          </div>
 
-          {/* Status */}
+      {/* Status Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCheckCircle className="h-5 w-5 text-green-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Status Information</h2>
+        </div>
           <div className="flex items-start gap-3">
             {service.isActive ? (
               <FiCheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
             ) : (
-              <FiXCircle className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+            <FiXCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
             )}
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase text-gray-400 mb-1">Status</p>
               <StatusBadge status={service.isActive} type="service-status" />
+          </div>
             </div>
           </div>
 
+      {/* System Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCalendar className="h-5 w-5 text-orange-600" />
+          <h2 className="text-lg font-semibold text-gray-900">System Information</h2>
+        </div>
+        <div className="space-y-4">
           {/* Created Date */}
           <div className="flex items-start gap-3">
             <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />

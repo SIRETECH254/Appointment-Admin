@@ -39,7 +39,8 @@ import type { IUser } from '@/types/api.types';
 ## UI Structure
 - **Header Card:** Title "Edit User" with description.
 - **Form Card:** Two-column grid layout with form fields.
-- **Form Fields:** firstName, lastName, email (disabled), phone, role select, isActive toggle.
+- **Form Fields:** firstName, lastName, email (disabled), phone, roles (multi-select), isActive toggle.
+- **Working Hours Section:** Displayed only if user has staff role, uses custom Tailwind CSS classes. Each day in a card with gray background, add/remove time slots per day.
 - **Actions:** Cancel button (navigate back), Save button (submit form).
 
 ## Planned Layout
@@ -61,14 +62,31 @@ import type { IUser } from '@/types/api.types';
 ```
 ┌────────────────────────────────────────────────────┐
 │ Edit User                                          │
-│ Update user information and permissions.           │
+│ Update user information and permissions.          │
 │                                                    │
 │ First Name: [John              ]                  │
 │ Last Name:  [Doe               ]                  │
 │ Email:      [john@example.com] (disabled)         │
 │ Phone:      [+254712345678     ]                  │
-│ Role:       [Admin ▼]                             │
+│ Roles:      [Multi-select: Admin, Staff ▼]        │
 │ ☑ Active                                          │
+│                                                    │
+│ ────────────────────────────────────────────────  │
+│ 🕐 Working Hours (if staff role selected)         │
+│                                                    │
+│ ┌──────────────────────────────────────────────┐ │
+│ │ Monday                                        │ │
+│ │ [09:00] to [17:00]  [×]  [+ Add Slot]       │ │
+│ └──────────────────────────────────────────────┘ │
+│ ┌──────────────────────────────────────────────┐ │
+│ │ Tuesday                                       │ │
+│ │ [09:00] to [17:00]  [×]  [+ Add Slot]       │ │
+│ └──────────────────────────────────────────────┘ │
+│ ┌──────────────────────────────────────────────┐ │
+│ │ Wednesday                                     │ │
+│ │ [09:00] to [17:00]  [×]  [+ Add Slot]       │ │
+│ └──────────────────────────────────────────────┘ │
+│ ... (Thursday, Friday, Saturday, Sunday)          │
 │                                                    │
 │ [Cancel]                    [Save Changes]        │
 └────────────────────────────────────────────────────┘
@@ -100,8 +118,10 @@ import type { IUser } from '@/types/api.types';
 
 ## Components Used
 - React Router DOM: `Link`, `useNavigate`, `useParams` for routing.
-- TanStack Query: `useGetUserById`, `useUpdateUser` hooks.
-- Tailwind CSS classes: `label`, `input`, `input-disabled`, `input-select`, `btn-primary`, `btn-secondary`, `alert-success`, `alert-error`.
+- React Icons: `FiClock`, `FiPlus`, `FiX` for working hours section.
+- TanStack Query: `useGetUserById`, `useUpdateUser`, `useGetAllRoles` hooks.
+- MultiSelect: For role selection (multiple roles support).
+- Tailwind CSS classes: `label`, `input`, `input-disabled`, `btn-primary`, `btn-secondary`, `alert-success`, `alert-error`, `rounded-lg`, `border`, `bg-gray-50`, `p-4`.
 
 ## Error Handling
 - **Loading State:** Show loading indicator while fetching user data.

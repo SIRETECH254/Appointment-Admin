@@ -486,8 +486,14 @@ appointment-admin/
 **Purpose:** View single user (admin).
 
 **Features:**
-- User profile, roles, status, optional appointments/payments summary.
-- Edit and delete (or deactivate) actions.
+- User profile header with avatar, name, email, and all assigned roles displayed as badges.
+- Contact Information section: email and phone.
+- Account Information section: all roles, account status, email verification status (with StatusBadge), phone verification status (with StatusBadge).
+- Working Hours section: displayed only if user has staff role, shows weekly schedule with time slots for each day.
+- System Information section: account creation date and last updated timestamp.
+- Edit and back to users actions.
+- Enhanced loading skeleton with multiple section placeholders.
+- Error and not found states.
 
 **Backend:** `GET /api/users/:userId`
 
@@ -513,9 +519,17 @@ appointment-admin/
 **Purpose:** Edit user (admin).
 
 **Features:**
-- Pre-filled form; update profile, roles, status.
-- Validation and save.
-- Success/error feedback.
+- Pre-filled form with user information: firstName, lastName, email (read-only), phone, roles (multi-select), active status (checkbox).
+- Working Hours section: displayed only if user has staff role, uses custom Tailwind CSS classes for styling.
+  - Each day of the week in a card layout with gray background.
+  - Add/remove time slots per day.
+  - Time inputs for start and end times.
+  - Visual indicators for days with no working hours.
+- Validation: firstName and lastName required.
+- Form submission with loading state.
+- Success/error feedback with inline messages.
+- Auto-redirect to user list on successful update.
+- Enhanced loading skeleton matching form structure.
 
 **Backend:** `PUT /api/users/:userId`, `PUT /api/users/:userId/status`, `POST /api/users/:userId/roles`, `DELETE /api/users/:userId/roles/:roleId`
 
@@ -986,7 +1000,18 @@ appointment-admin/
 - **Card:** Container with optional accent strip (gold); padding, border-radius, shadow.
 - **Modal:** Dialog overlay; title, content, footer actions; close on overlay/escape.
 - **Alert:** Success, error, info variants; icon + message.
-- **Badge:** Status badges (e.g. PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW; NEW, READ, REPLIED, ARCHIVED).
+- **StatusBadge:** Reusable status badge component with icons and color-coded backgrounds. Supports multiple badge types:
+  - `user-role`: Admin, Staff, Customer/Client roles
+  - `user-status`: Active, Inactive, Suspended, Pending
+  - `appointment-status`: Pending, Confirmed, Completed, Cancelled, No Show
+  - `payment-status`: Success, Pending, Failed, Refunded
+  - `payment-method`: M-Pesa (green), Card/Paystack (blue), Cash (gray)
+  - `notification-type`: Email, SMS, Push, In-App
+  - `notification-category`: Appointment, Payment, System, Promotional, General
+  - `notification-status`: Sent, Pending, Failed, Read
+  - `contact-status`: New, Read, Replied, Archived
+  - `service-status`: Active (green), Inactive (red)
+  - `verified-status`: Verified (green), Not Verified (red) - used for email/phone verification
 
 ### Layout Components (`components/layout/`)
 

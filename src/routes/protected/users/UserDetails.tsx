@@ -6,6 +6,12 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatDateTimeWithTime, getUserInitials, getRoleDisplayName } from '../../../utils/userUtils';
 import type { IUser } from '../../../types/api.types';
 
+const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+
+const formatDayName = (day: string): string => {
+  return day.charAt(0).toUpperCase() + day.slice(1);
+};
+
 /**
  * UserDetails Component
  * 
@@ -35,10 +41,10 @@ const UserDetails = () => {
     return getUserInitials(user);
   }, [user]);
 
-  // Resolve the most relevant role label for the header pill
-  const roleLabel = useMemo(() => {
-    if (!user) return 'User';
-    return getRoleDisplayName(user);
+  // Check if user has staff role
+  const hasStaffRole = useMemo(() => {
+    if (!user?.roles) return false;
+    return user.roles.some((role) => role.name === 'staff' || role.name === 'Staff');
   }, [user]);
 
   // Get error message from API response
@@ -50,14 +56,15 @@ const UserDetails = () => {
     return (
       <div className="space-y-6">
         {/* Header skeleton */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-6 items-center justify-center animate-pulse">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="flex flex-col gap-6 items-center justify-center">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-gray-300" />
               <div className="space-y-2">
                 <div className="h-6 w-48 bg-gray-300 rounded" />
                 <div className="h-4 w-64 bg-gray-300 rounded" />
                 <div className="flex gap-2 mt-3">
+                  <div className="h-6 w-20 bg-gray-300 rounded-full" />
                   <div className="h-6 w-20 bg-gray-300 rounded-full" />
                   <div className="h-6 w-20 bg-gray-300 rounded-full" />
                 </div>
@@ -69,14 +76,38 @@ const UserDetails = () => {
             </div>
           </div>
         </div>
-        {/* Details skeleton */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="h-6 w-32 bg-gray-300 rounded mb-4 animate-pulse" />
+        {/* Contact Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
           <div className="space-y-4">
-            {[...Array(7)].map((_, i) => (
+            {[...Array(2)].map((_, i) => (
               <div key={i} className="space-y-2">
-                <div className="h-3 w-24 bg-gray-300 rounded animate-pulse" />
-                <div className="h-4 w-48 bg-gray-300 rounded animate-pulse" />
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Account Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-32 bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* System Information skeleton */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4" />
+          <div className="space-y-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded" />
+                <div className="h-4 w-48 bg-gray-300 rounded" />
               </div>
             ))}
           </div>
@@ -149,10 +180,12 @@ const UserDetails = () => {
               <p className="text-sm text-gray-500">{user.email ?? '—'}</p>
               {/* Role + status pills */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                {/* Role pill shows first available role */}
-                {user.roles && user.roles.length > 0 && (
-                  <StatusBadge status={user.roles[0].name} type="user-role" />
-                )}
+                {/* Display all roles */}
+                {user.roles && user.roles.length > 0 ? (
+                  user.roles.map((role) => (
+                    <StatusBadge key={role._id} status={role.name} type="user-role" />
+                  ))
+                ) : null}
                 {/* Status pill driven by isActive flag */}
                 <StatusBadge status={user.isActive ? 'active' : 'inactive'} type="user-status" />
               </div>
@@ -173,13 +206,12 @@ const UserDetails = () => {
         </div>
       </div>
 
-      {/* User details card */}
+      {/* Contact Information Section */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        {/* Section title */}
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          User Details
-        </h2>
-        {/* Vertical list layout */}
+        <div className="flex items-center gap-2 mb-4">
+          <FiMail className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Contact Information</h2>
+        </div>
         <div className="space-y-4">
           {/* Email */}
           <div className="flex items-start gap-3">
@@ -198,7 +230,16 @@ const UserDetails = () => {
               <p className="text-sm text-gray-700">{user.phone || '—'}</p>
             </div>
           </div>
+            </div>
+          </div>
 
+      {/* Account Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiShield className="h-5 w-5 text-purple-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Account Information</h2>
+        </div>
+        <div className="space-y-4">
           {/* Role */}
           <div className="flex items-start gap-3">
             <FiShield className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
@@ -231,34 +272,74 @@ const UserDetails = () => {
 
           {/* Email Verified */}
           <div className="flex items-start gap-3">
-            {user.isEmailVerified ? (
-              <FiCheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-            ) : (
-              <FiXCircle className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
-            )}
+            <FiMail className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase text-gray-400 mb-1">Email Verified</p>
-              <p className="text-sm text-gray-700">
-                {user.isEmailVerified ? 'Yes' : 'No'}
-              </p>
+              <StatusBadge status={user.isEmailVerified || user.emailVerified || false} type="verified-status" />
             </div>
           </div>
 
           {/* Phone Verified */}
           <div className="flex items-start gap-3">
-            {user.isPhoneVerified ? (
-              <FiCheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-            ) : (
-              <FiXCircle className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
-            )}
+            <FiPhone className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase text-gray-400 mb-1">Phone Verified</p>
-              <p className="text-sm text-gray-700">
-                {user.isPhoneVerified ? 'Yes' : 'No'}
-              </p>
+              <StatusBadge status={user.isPhoneVerified || user.phoneVerified || false} type="verified-status" />
             </div>
           </div>
+        </div>
+      </div>
 
+      {/* Working Hours Section - Only show if user has staff role */}
+      {hasStaffRole && user.workingHours && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <FiClock className="h-5 w-5 text-teal-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Working Hours</h2>
+          </div>
+          <div className="space-y-3">
+            {DAYS.map((day) => {
+              const dayHours = user.workingHours?.[day];
+              if (!dayHours || dayHours.length === 0) {
+                return (
+                  <div key={day} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
+                    <div className="w-24 flex-shrink-0">
+                      <p className="text-sm font-medium text-gray-700 capitalize">{formatDayName(day)}</p>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500">Not available</p>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div key={day} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-0">
+                  <div className="w-24 flex-shrink-0">
+                    <p className="text-sm font-medium text-gray-700 capitalize">{formatDayName(day)}</p>
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    {dayHours.map((slot, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <span className="text-sm text-gray-700">
+                          {slot.start} - {slot.end}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* System Information Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCalendar className="h-5 w-5 text-orange-600" />
+          <h2 className="text-lg font-semibold text-gray-900">System Information</h2>
+        </div>
+        <div className="space-y-4">
           {/* Account Created */}
           <div className="flex items-start gap-3">
             <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />

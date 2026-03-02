@@ -33,9 +33,12 @@ import type { IContact, ContactStatus } from '@/types/api.types';
   - `selectedStatus` - Selected status for update (if using dropdown)
 
 ## UI Structure
-- **Header Card:** Contact subject, status badge, and action buttons (Back, Reply, Status Update).
-- **Details Card:** Full contact information including name, email, phone, subject, message, status, timestamps (created, updated), and user information (if userId exists).
-- **Status Update Section:** Dropdown or button group to update contact status (NEW, READ, REPLIED, ARCHIVED).
+- **Header Card:** Contact subject, status badge, and action buttons (Back, Reply).
+- **Contact Information Card:** From (name + email), phone (if available), and subject with icons.
+- **Message Content Card:** Full message text with proper whitespace handling.
+- **User Account Card:** User information if message is from registered user (displayed conditionally if userId exists).
+- **Timestamps Card:** Created date, updated date, and status with icons.
+- **Status Update Card:** Form to update contact status (NEW, READ, REPLIED, ARCHIVED).
 
 ## Planned Layout
 ```
@@ -66,26 +69,50 @@ import type { IContact, ContactStatus } from '@/types/api.types';
 ## Sketch Wireframe
 ```
 ┌────────────────────────────────────────────────────┐
-│ ← Back  Booking Enquiry                           │
-│ [NEW] [✉ Reply] [Update Status ▼]                │
+│ Contact Details                                     │
+│ Booking Enquiry                                     │
+│ [NEW Badge]                                         │
+│ [← Back] [✉ Reply]                                 │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 👤 Contact Information                              │
+│ ─────────────────────────────────────────────────  │
+│ 👤 From                                             │
+│ John Doe <john@example.com>                        │
 │                                                    │
-│ From: John Doe <john@example.com>                │
-│ Phone: +254712345678                              │
-│ Subject: Booking Enquiry                          │
+│ 📞 Phone                                            │
+│ +254712345678                                      │
 │                                                    │
-│ Message:                                         │
+│ 📄 Subject                                          │
+│ Booking Enquiry                                    │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 💬 Message Content                                  │
+│ ─────────────────────────────────────────────────  │
 │ I would like to know your availability next week.  │
 │ I'm interested in scheduling an appointment for    │
-│ a haircut.                                        │
+│ a haircut.                                         │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 👤 User Account (if userId exists)                  │
+│ ─────────────────────────────────────────────────  │
+│ [User info card with name, email, link]            │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ 📅 Timestamps                                       │
+│ ─────────────────────────────────────────────────  │
+│ 📅 Created                                          │
+│ Jan 15, 2025 10:30 AM                              │
 │                                                    │
-│ Status: [NEW]                                     │
-│ Created: Jan 15, 2025 10:30 AM                    │
-│ Updated: Jan 15, 2025 10:30 AM                   │
+│ 📅 Updated                                          │
+│ Jan 15, 2025 10:30 AM                              │
 │                                                    │
-│ User: John Doe (john@example.com)                 │
-│                                                    │
-│ Update Status:                                    │
-│ [New] [Read] [Replied] [Archived]                │
+│ Status                                             │
+│ [NEW Badge]                                        │
+└────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ Status Update                                       │
+│ [Status update form]                                │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -107,9 +134,11 @@ import type { IContact, ContactStatus } from '@/types/api.types';
 
 ## Components Used
 - React Router DOM: `Link`, `useNavigate`, `useParams` for routing.
-- React Icons: `MdArrowBack`, `MdReply` for action buttons.
+- React Icons: `FiUser`, `FiMail`, `FiPhone`, `FiMessageSquare`, `FiCalendar`, `FiClock` for section icons.
 - TanStack Query: `useGetContactMessageById`, `useUpdateContactStatus` hooks.
-- Tailwind CSS classes: `label`, `btn-primary`, `btn-secondary`, `btn-ghost`, `alert-success`, `alert-error`, `badge-soft`, `badge-success`, `badge-error`.
+- StatusBadge: For contact status badge.
+- Utility Functions: `formatDateTimeWithTime` from `@/utils/userUtils`.
+- Tailwind CSS classes: `btn-primary`, `btn-secondary`, `rounded-2xl`, `border`, `shadow-sm`, `p-6`, `alert-success`, `alert-error`.
 
 ## Error Handling
 - **Loading State:** Show loading indicator while fetching contact data.

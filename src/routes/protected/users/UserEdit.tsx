@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { FiClock, FiPlus, FiX } from 'react-icons/fi';
 import { useGetUserById, useUpdateUser } from '../../../tanstack/useUsers';
 import { useGetAllRoles } from '../../../tanstack/useRoles';
 import type { IUser, IRole } from '../../../types/api.types';
 import MultiSelect from '../../../components/ui/MultiSelect';
-import WorkingHoursInput from '../../../components/ui/WorkingHoursInput';
+
+const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+
+const formatDayName = (day: string): string => {
+  return day.charAt(0).toUpperCase() + day.slice(1);
+};
 
 type WorkingHours = {
   [key: string]: { start: string; end: string }[];
@@ -177,8 +183,21 @@ const UserEdit = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center text-sm text-gray-500">
-        Loading user...
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 w-48 bg-gray-300 rounded mb-2" />
+          <div className="h-4 w-64 bg-gray-300 rounded" />
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="grid gap-4 md:grid-cols-2">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-4 w-24 bg-gray-300 rounded" />
+                <div className="h-10 w-full bg-gray-300 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -310,8 +329,85 @@ const UserEdit = () => {
         </div>
 
         {isStaff && (
-          <div className="mt-6">
-            <WorkingHoursInput workingHours={workingHours} onChange={setWorkingHours} />
+          <div className="mt-6 border-t border-gray-200 pt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FiClock className="h-5 w-5 text-teal-600" />
+              <h3 className="text-md font-semibold text-gray-900">Working Hours</h3>
+            </div>
+            <div className="space-y-4">
+              {DAYS.map((day) => {
+                const dayHours = workingHours[day] || [];
+                return (
+                  <div key={day} className="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-medium text-gray-700 capitalize">
+                        {formatDayName(day)}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newWorkingHours = { ...workingHours };
+                          if (!newWorkingHours[day]) {
+                            newWorkingHours[day] = [];
+                          }
+                          newWorkingHours[day].push({ start: '09:00', end: '17:00' });
+                          setWorkingHours(newWorkingHours);
+                        }}
+                        className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-accent transition"
+                      >
+                        <FiPlus className="h-3 w-3" />
+                        Add Slot
+                      </button>
+                    </div>
+                    {dayHours.length === 0 ? (
+                      <p className="text-sm text-gray-500 italic">No working hours set</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {dayHours.map((slot, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <input
+                              type="time"
+                              value={slot.start}
+                              onChange={(e) => {
+                                const newWorkingHours = { ...workingHours };
+                                newWorkingHours[day][index].start = e.target.value;
+                                setWorkingHours(newWorkingHours);
+                              }}
+                              className="input flex-1"
+                            />
+                            <span className="text-sm text-gray-500">to</span>
+                            <input
+                              type="time"
+                              value={slot.end}
+                              onChange={(e) => {
+                                const newWorkingHours = { ...workingHours };
+                                newWorkingHours[day][index].end = e.target.value;
+                                setWorkingHours(newWorkingHours);
+                              }}
+                              className="input flex-1"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newWorkingHours = { ...workingHours };
+                                newWorkingHours[day].splice(index, 1);
+                                if (newWorkingHours[day].length === 0) {
+                                  delete newWorkingHours[day];
+                                }
+                                setWorkingHours(newWorkingHours);
+                              }}
+                              className="flex items-center justify-center w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 transition"
+                            >
+                              <FiX className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 

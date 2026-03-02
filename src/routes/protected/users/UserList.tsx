@@ -375,7 +375,7 @@ const UserList = () => {
 
                   {/* Role */}
                   <td className="table-cell">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex  gap-1 whitespace-nowrap">
                       {user.roles.map((role) => (
                         <StatusBadge
                           key={role._id}
