@@ -65,165 +65,154 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
    * Get icon component based on status and type
    */
   const getIcon = (status: string | boolean, badgeType: BadgeType): React.ReactNode => {
-    // Handle service-status with boolean
-    if (badgeType === 'service-status') {
-      if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE') {
-        return <FiCheckCircle className="h-3 w-3" />;
-      }
-      return <FiXCircle className="h-3 w-3" />;
-    }
-
     const upperStatus = typeof status === 'string' ? status.toUpperCase() : String(status).toUpperCase();
 
-    if (badgeType === 'user-role') {
-      switch (upperStatus) {
-        case 'ADMIN':
-          return <FiShield className="h-3 w-3" />;
-        case 'STAFF':
-          return <FiUser className="h-3 w-3" />;
-        case 'CLIENT':
-        case 'CUSTOMER':
-          return <FiUser className="h-3 w-3" />;
-        default:
-          return <FiHelpCircle className="h-3 w-3" />;
-      }
-    }
-
-    if (badgeType === 'user-status') {
-      switch (upperStatus) {
-        case 'ACTIVE':
+    switch (badgeType) {
+      case 'service-status':
+        if (status === true || status === 'true' || upperStatus === 'ACTIVE') {
           return <FiCheckCircle className="h-3 w-3" />;
-        case 'INACTIVE':
-          return <FiXCircle className="h-3 w-3" />;
-        case 'SUSPENDED':
-          return <FiAlertCircle className="h-3 w-3" />;
-        case 'PENDING':
-          return <FiClock className="h-3 w-3" />;
-        default:
-          return <FiHelpCircle className="h-3 w-3" />;
-      }
-    }
+        }
+        return <FiXCircle className="h-3 w-3" />;
 
-    if (badgeType === 'appointment-status') {
-      switch (upperStatus) {
-        case 'PENDING':
-          return <FiClock className="h-3 w-3" />;
-        case 'CONFIRMED':
+      case 'user-role':
+        switch (upperStatus) {
+          case 'ADMIN':
+            return <FiShield className="h-3 w-3" />;
+          case 'STAFF':
+            return <FiUser className="h-3 w-3" />;
+          case 'CLIENT':
+          case 'CUSTOMER':
+            return <FiUser className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'user-status':
+        switch (upperStatus) {
+          case 'ACTIVE':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'INACTIVE':
+            return <FiXCircle className="h-3 w-3" />;
+          case 'SUSPENDED':
+            return <FiAlertCircle className="h-3 w-3" />;
+          case 'PENDING':
+            return <FiClock className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'appointment-status':
+        switch (upperStatus) {
+          case 'PENDING':
+            return <FiClock className="h-3 w-3" />;
+          case 'CONFIRMED':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'COMPLETED':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'CANCELLED':
+          case 'NO_SHOW':
+            return <FiXCircle className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'payment-status':
+        switch (upperStatus) {
+          case 'SUCCESS':
+          case 'COMPLETED':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'PENDING':
+          case 'PROCESSING':
+            return <FiClock className="h-3 w-3" />;
+          case 'FAILED':
+          case 'CANCELLED':
+            return <FiXCircle className="h-3 w-3" />;
+          case 'REFUNDED':
+            return <FiCreditCard className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'payment-method':
+        switch (upperStatus) {
+          case 'MPESA':
+            return <FiSmartphone className="h-3 w-3" />;
+          case 'CARD':
+          case 'PAYSTACK':
+            return <FiCreditCard className="h-3 w-3" />;
+          case 'CASH':
+            return <FiTag className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'notification-type':
+        switch (upperStatus) {
+          case 'EMAIL':
+            return <FiMail className="h-3 w-3" />;
+          case 'SMS':
+            return <FiSmartphone className="h-3 w-3" />;
+          case 'PUSH':
+            return <FiBell className="h-3 w-3" />;
+          case 'IN_APP':
+            return <FiActivity className="h-3 w-3" />;
+          default:
+            return <FiBell className="h-3 w-3" />;
+        }
+
+      case 'notification-category':
+        switch (upperStatus) {
+          case 'APPOINTMENT':
+            return <FiCalendar className="h-3 w-3" />;
+          case 'PAYMENT':
+            return <FiCreditCard className="h-3 w-3" />;
+          case 'SYSTEM':
+            return <FiSettings className="h-3 w-3" />;
+          case 'PROMOTIONAL':
+            return <FiTag className="h-3 w-3" />;
+          case 'GENERAL':
+            return <FiBell className="h-3 w-3" />;
+          default:
+            return <FiBell className="h-3 w-3" />;
+        }
+
+      case 'notification-status':
+        switch (upperStatus) {
+          case 'SENT':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'PENDING':
+            return <FiClock className="h-3 w-3" />;
+          case 'FAILED':
+            return <FiXCircle className="h-3 w-3" />;
+          case 'READ':
+            return <FiCheckCircle className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'contact-status':
+        switch (upperStatus) {
+          case 'NEW':
+            return <FiMail className="h-3 w-3" />;
+          case 'READ':
+            return <FiMessageSquare className="h-3 w-3" />;
+          case 'REPLIED':
+            return <FiSend className="h-3 w-3" />;
+          case 'ARCHIVED':
+            return <FiArchive className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'verified-status':
+        if (status === true || status === 'true' || upperStatus === 'VERIFIED' || upperStatus === 'YES') {
           return <FiCheckCircle className="h-3 w-3" />;
-        case 'COMPLETED':
-          return <FiCheckCircle className="h-3 w-3" />;
-        case 'CANCELLED':
-        case 'NO_SHOW':
-          return <FiXCircle className="h-3 w-3" />;
-        default:
-          return <FiHelpCircle className="h-3 w-3" />;
-      }
+        }
+        return <FiXCircle className="h-3 w-3" />;
+
+      default:
+        return <FiHelpCircle className="h-3 w-3" />;
     }
-
-    if (badgeType === 'payment-status') {
-      switch (upperStatus) {
-        case 'SUCCESS':
-        case 'COMPLETED':
-          return <FiCheckCircle className="h-3 w-3" />;
-        case 'PENDING':
-        case 'PROCESSING':
-          return <FiClock className="h-3 w-3" />;
-        case 'FAILED':
-        case 'CANCELLED':
-          return <FiXCircle className="h-3 w-3" />;
-        case 'REFUNDED':
-          return <FiCreditCard className="h-3 w-3" />;
-        default:
-          return <FiHelpCircle className="h-3 w-3" />;
-      }
-    }
-
-    if (badgeType === 'payment-method') {
-      switch (upperStatus) {
-        case 'MPESA':
-          return <FiSmartphone className="h-3 w-3" />;
-        case 'CARD':
-        case 'PAYSTACK':
-          return <FiCreditCard className="h-3 w-3" />;
-        case 'CASH':
-          return <FiTag className="h-3 w-3" />;
-        default:
-          return <FiHelpCircle className="h-3 w-3" />;
-      }
-    }
-
-    if (badgeType === 'notification-type') {
-      switch (upperStatus) {
-        case 'EMAIL':
-          return <FiMail className="h-3 w-3" />;
-        case 'SMS':
-          return <FiSmartphone className="h-3 w-3" />;
-        case 'PUSH':
-          return <FiBell className="h-3 w-3" />;
-        case 'IN_APP':
-          return <FiActivity className="h-3 w-3" />;
-        default:
-          return <FiBell className="h-3 w-3" />;
-      }
-    }
-
-    if (badgeType === 'notification-category') {
-      switch (upperStatus) {
-        case 'APPOINTMENT':
-          return <FiCalendar className="h-3 w-3" />;
-        case 'PAYMENT':
-          return <FiCreditCard className="h-3 w-3" />;
-        case 'SYSTEM':
-          return <FiSettings className="h-3 w-3" />;
-        case 'PROMOTIONAL':
-          return <FiTag className="h-3 w-3" />;
-        case 'GENERAL':
-          return <FiBell className="h-3 w-3" />;
-        default:
-          return <FiBell className="h-3 w-3" />;
-      }
-    }
-
-    if (badgeType === 'notification-status') {
-      switch (upperStatus) {
-        case 'SENT':
-          return <FiCheckCircle className="h-3 w-3" />;
-        case 'PENDING':
-          return <FiClock className="h-3 w-3" />;
-        case 'FAILED':
-          return <FiXCircle className="h-3 w-3" />;
-        case 'READ':
-          return <FiCheckCircle className="h-3 w-3" />;
-        default:
-          return <FiHelpCircle className="h-3 w-3" />;
-      }
-    }
-
-    if (badgeType === 'contact-status') {
-      switch (upperStatus) {
-        case 'NEW':
-          return <FiMail className="h-3 w-3" />;
-        case 'READ':
-          return <FiMessageSquare className="h-3 w-3" />;
-        case 'REPLIED':
-          return <FiSend className="h-3 w-3" />;
-        case 'ARCHIVED':
-          return <FiArchive className="h-3 w-3" />;
-        default:
-          return <FiHelpCircle className="h-3 w-3" />;
-      }
-    }
-
-    if (badgeType === 'verified-status') {
-      if (status === true || status === 'true' || upperStatus === 'VERIFIED' || upperStatus === 'YES') {
-        return <FiCheckCircle className="h-3 w-3" />;
-      }
-      return <FiXCircle className="h-3 w-3" />;
-    }
-
-    // Default fallback for any unhandled badge types
-
-    return <FiHelpCircle className="h-3 w-3" />;
   };
 
   /**
