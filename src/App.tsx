@@ -22,6 +22,9 @@ import NotificationAdd from './routes/protected/notifications/NotificationAdd'
 import NotificationDetails from './routes/protected/notifications/NotificationDetails'
 import NotificationList from './routes/protected/notifications/NotificationList'
 import NotificationSettings from './routes/protected/notifications/NotificationSettings'
+import NewsletterList from './routes/protected/newsletters/NewsletterList'
+import NewsletterDetails from './routes/protected/newsletters/NewsletterDetails'
+import SendNewsletter from './routes/protected/newsletters/SendNewsletter'
 import PaymentAdd from './routes/protected/payments/PaymentAdd'
 import PaymentDetails from './routes/protected/payments/PaymentDetails'
 import PaymentList from './routes/protected/payments/PaymentList'
@@ -141,6 +144,11 @@ function App() {
           path="/notifications/:id"
           element={<NotificationDetails />}
         />
+
+        {/* Newsletters */}
+        <Route path="/newsletters" element={<NewsletterList />} />
+        <Route path="/newsletters/send" element={<SendNewsletter />} />
+        <Route path="/newsletters/:id" element={<NewsletterDetails />} />
 
         {/* Staff */}
         <Route path="/staff" element={<StaffList />} />

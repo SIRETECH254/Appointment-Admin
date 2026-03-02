@@ -5,6 +5,7 @@ import {
   MdAssignment,
   MdCalendarMonth,
   MdDashboard,
+  MdEmail,
   MdGroup,
   MdLocalAtm,
   MdMailOutline,
@@ -40,6 +41,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: MdNotificationsNone,
     end: true,
   },
+  { label: 'Newsletters', path: '/newsletters', icon: MdEmail, end: true },
   { label: 'Profile', path: '/profile', icon: MdAccountCircle, end: true },
   { label: 'Store', path: '/store', icon: MdStorefront, end: true },
 ]

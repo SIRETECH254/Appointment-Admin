@@ -53,6 +53,11 @@ import type {
   UpdateContactStatusPayload,
   ReplyToContactPayload,
   GetContactsParams,
+  // Newsletter types
+  SubscribeNewsletterPayload,
+  SendNewsletterPayload,
+  UpdateNewsletterStatusPayload,
+  GetNewslettersParams,
   // Store configuration types
   UpdateStoreConfigurationPayload,
   // Dashboard types
@@ -302,6 +307,27 @@ export const contactAPI = {
     const payload = { message: replyData.reply };
     return api.post(`/api/contact/${contactId}/reply`, payload);
   },
+};
+
+// ============================================
+// Newsletter API
+// ============================================
+export const newsletterAPI = {
+  subscribeNewsletter: (email: string) => api.post('/api/newsletter/subscribe', { email }),
+
+  unsubscribeNewsletter: (params?: { token?: string; email?: string }) => api.get('/api/newsletter/unsubscribe', { params }),
+
+  getAllSubscribers: (params?: GetNewslettersParams) => api.get('/api/newsletter', { params }),
+
+  getSubscriberById: (subscriberId: string) => api.get(`/api/newsletter/${subscriberId}`),
+
+  updateSubscriberStatus: (subscriberId: string, statusData: UpdateNewsletterStatusPayload) => api.patch(`/api/newsletter/${subscriberId}/status`, statusData),
+
+  deleteSubscriber: (subscriberId: string) => api.delete(`/api/newsletter/${subscriberId}`),
+
+  sendNewsletter: (payload: SendNewsletterPayload) => api.post('/api/newsletter/send', payload),
+
+  getSubscriptionStats: () => api.get('/api/newsletter/stats'),
 };
 
 // ============================================

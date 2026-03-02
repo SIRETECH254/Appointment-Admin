@@ -614,6 +614,55 @@ export interface GetContactsParams extends PaginationParams {
 }
 
 // ============================================
+// Newsletter Types
+// ============================================
+
+export type NewsletterStatus = 'SUBSCRIBED' | 'UNSUBSCRIBED' | 'BOUNCED';
+export type NewsletterSource = 'WEBSITE' | 'ADMIN' | 'API' | 'IMPORT';
+
+export interface INewsletter {
+  _id: string;
+  email: string;
+  userId?: string | IUser | null;
+  status: NewsletterStatus;
+  subscribedAt: string;
+  unsubscribedAt?: string;
+  unsubscribeToken?: string;
+  source: NewsletterSource;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscribeNewsletterPayload {
+  email: string;
+}
+
+export interface SendNewsletterPayload {
+  subject: string;
+  message: string;
+  status?: NewsletterStatus;
+}
+
+export interface UpdateNewsletterStatusPayload {
+  status: NewsletterStatus;
+}
+
+export interface GetNewslettersParams extends PaginationParams {
+  status?: NewsletterStatus;
+  search?: string;
+  sort?: string;
+}
+
+export interface NewsletterStatsResponse {
+  total: number;
+  subscribed: number;
+  unsubscribed: number;
+  bounced: number;
+  recentSubscriptions: number;
+}
+
+// ============================================
 // Store Configuration Types
 // ============================================
 
