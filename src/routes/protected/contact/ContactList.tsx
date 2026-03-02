@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdReply } from 'react-icons/md';
+import { FiSearch, FiFilter, FiList, FiEye, FiSend } from 'react-icons/fi';
 import {
   useGetAllContactMessages,
 } from '../../../tanstack/useContact';
 import Pagination from '../../../components/ui/Pagination';
+import StatusBadge from '../../../components/ui/StatusBadge';
 import {
   formatDateTime,
-  getStatusBadgeClass,
-  getStatusDisplayName,
 } from '../../../utils/contactUtils';
 import type { IContact } from '../../../types/api.types';
 
@@ -108,52 +107,48 @@ const ContactList = () => {
   return (
     <div className="space-y-6">
       {/* Page header with title */}
-      <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
-        <div>
+      <header className="">
+        {/* title and description */}
+        <div className="mb-4">
           <h1 className="text-2xl font-semibold text-gray-900">Contacts</h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage and view all contact messages
           </p>
         </div>
-      </div>
 
-      {/* Filters and search toolbar */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
+        {/* search Bar */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           {/* Search input */}
-          <div className="relative w-full md:w-auto">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+          <div className="flex-1">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search contacts..."
+                className="input-search"
+              />
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search contacts..."
-              className="input-search"
-            />
+          </div>
+        </div>
+
+        {/* contact count & filters */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          {/* contact count */}
+          <div className="">
+            <p className="text-sm text-gray-500">Showing {pagination.total} contacts</p>
           </div>
 
           {/* filters */}
-          <div className="flex flex-row gap-2 flex-wrap items-center w-full md:w-auto">
+          <div className="flex flex-wrap gap-2">
             {/* Status filter */}
-            <div>
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterStatus}
                 onChange={(e) => handleStatusFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Status</option>
                 <option value="new">New</option>
@@ -164,12 +159,14 @@ const ContactList = () => {
             </div>
 
             {/* Items per page */}
-            <div>
+            <div className="relative">
+              <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={itemsPerPage}
                 onChange={(e) => handleItemsPerPageChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
+                <option value="5">5 per page</option>
                 <option value="10">10 per page</option>
                 <option value="25">25 per page</option>
                 <option value="50">50 per page</option>
@@ -178,7 +175,7 @@ const ContactList = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Contact cards */}
       <div className="space-y-4">
@@ -235,9 +232,7 @@ const ContactList = () => {
                   {/* Left side: content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className={getStatusBadgeClass(contact.status)}>
-                        {getStatusDisplayName(contact.status)}
-                      </span>
+                      <StatusBadge status={contact.status} type="contact-status" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {contact.subject}
@@ -263,17 +258,17 @@ const ContactList = () => {
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <Link
                       to={`/contact/${contact._id}`}
-                      className="btn-ghost btn-sm flex items-center gap-1"
+                      className="flex items-center justify-center rounded-lg bg-white p-2 text-blue-600 transition hover:bg-blue-50"
                       title="View contact"
                     >
-                      <MdVisibility className="h-4 w-4" />
+                      <FiEye className="h-4 w-4" />
                     </Link>
                     <Link
                       to={`/contact/${contact._id}/reply`}
-                      className="btn-ghost btn-sm flex items-center gap-1"
+                      className="flex items-center justify-center rounded-lg bg-white p-2 text-teal-600 transition hover:bg-teal-50"
                       title="Reply to contact"
                     >
-                      <MdReply className="h-4 w-4" />
+                      <FiSend className="h-4 w-4" />
                     </Link>
                   </div>
                 </div>
@@ -283,14 +278,16 @@ const ContactList = () => {
       </div>
 
       {/* Pagination */}
-      {!isLoading && !isError && pagination.totalPages > 1 && (
-        <Pagination
-          currentPage={pagination.page || currentPage}
-          totalPages={pagination.totalPages || 1}
-          totalItems={pagination.total || 0}
-          pageSize={itemsPerPage}
-          onPageChange={setCurrentPage}
-        />
+      {!isLoading && !isError && (pagination.totalPages || 1) > 1 && (
+        <div className="mt-4">
+          <Pagination
+            currentPage={pagination.page || currentPage}
+            totalPages={pagination.totalPages || 1}
+            totalItems={pagination.total || 0}
+            pageSize={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdDelete, MdAdd, MdMarkEmailRead } from 'react-icons/md';
+import { MdAdd, MdMarkEmailRead } from 'react-icons/md';
+import { FiSearch, FiFilter, FiList, FiEye, FiTrash2 } from 'react-icons/fi';
 import {
   useGetNotifications,
   useMarkNotificationAsRead,
@@ -9,10 +10,9 @@ import {
 } from '../../../tanstack/useNotifications';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
+import StatusBadge from '../../../components/ui/StatusBadge';
 import {
   formatDateTime,
-  getCategoryBadgeClass,
-  getTypeDisplayName,
   isNotificationUnread,
 } from '../../../utils/notificationUtils';
 import type { INotification } from '../../../types/api.types';
@@ -222,56 +222,54 @@ const NotificationList = () => {
   return (
     <div className="space-y-6">
       {/* Page header with title and Create Notification button */}
-      <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
-        <div>
+      <header className="">
+        {/* title and description */}
+        <div className="mb-4">
           <h1 className="text-2xl font-semibold text-gray-900">Notifications</h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage and view all notifications
           </p>
         </div>
-        <Link to="/notifications/new" className="btn-primary flex items-center gap-2">
-          <span>Create Notification</span>
-          <MdAdd size={20} />
-        </Link>
-      </div>
 
-      {/* Filters and search toolbar */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
+        {/* search Bar and Add button */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           {/* Search input */}
-          <div className="relative w-full md:w-auto">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+          <div className="flex-1">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search notifications..."
+                className="input-search"
+              />
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search notifications..."
-              className="input-search"
-            />
+          </div>
+
+          {/* Add notification button */}
+          <Link to="/notifications/new" className="btn-primary flex items-center gap-2 w-full sm:w-auto">
+            <span>Create Notification</span>
+            <MdAdd size={24} />
+          </Link>
+        </div>
+
+        {/* notification count & filters */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          {/* notification count */}
+          <div className="">
+            <p className="text-sm text-gray-500">Showing {pagination.totalNotifications || 0} notifications</p>
           </div>
 
           {/* filters */}
-          <div className="flex flex-row gap-2 flex-wrap items-center w-full md:w-auto">
+          <div className="flex flex-wrap gap-2">
             {/* Category filter */}
-            <div>
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterCategory}
                 onChange={(e) => handleCategoryFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Categories</option>
                 <option value="general">General</option>
@@ -281,11 +279,12 @@ const NotificationList = () => {
             </div>
 
             {/* Type filter */}
-            <div>
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterType}
                 onChange={(e) => handleTypeFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Types</option>
                 <option value="email">Email</option>
@@ -295,11 +294,12 @@ const NotificationList = () => {
             </div>
 
             {/* Status filter */}
-            <div>
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterStatus}
                 onChange={(e) => handleStatusFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Status</option>
                 <option value="unread">Unread</option>
@@ -311,12 +311,14 @@ const NotificationList = () => {
             </div>
 
             {/* Items per page */}
-            <div>
+            <div className="relative">
+              <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={itemsPerPage}
                 onChange={(e) => handleItemsPerPageChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
+                <option value="5">5 per page</option>
                 <option value="10">10 per page</option>
                 <option value="25">25 per page</option>
                 <option value="50">50 per page</option>
@@ -336,7 +338,7 @@ const NotificationList = () => {
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Notifications cards */}
       <div className="space-y-4">
@@ -397,12 +399,11 @@ const NotificationList = () => {
                   {/* Left side: content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className={getCategoryBadgeClass(notification.category)}>
-                        {notification.category}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {getTypeDisplayName(notification.type)}
-                      </span>
+                      <StatusBadge status={notification.category} type="notification-category" />
+                      <StatusBadge status={notification.type} type="notification-type" />
+                      {notification.status && (
+                        <StatusBadge status={notification.status} type="notification-status" />
+                      )}
                       {isUnread && (
                         <span className="h-2 w-2 rounded-full bg-blue-500" />
                       )}
@@ -425,7 +426,7 @@ const NotificationList = () => {
                         type="button"
                         onClick={() => handleMarkAsRead(notification._id)}
                         disabled={markAsRead.isPending}
-                        className="btn-ghost btn-sm flex items-center gap-1"
+                        className="flex items-center justify-center rounded-lg bg-white p-2 text-teal-600 transition hover:bg-teal-50 disabled:opacity-50"
                         title="Mark as read"
                       >
                         <MdMarkEmailRead className="h-4 w-4" />
@@ -433,21 +434,21 @@ const NotificationList = () => {
                     )}
                     <Link
                       to={`/notifications/${notification._id}`}
-                      className="btn-ghost btn-sm flex items-center gap-1"
+                      className="flex items-center justify-center rounded-lg bg-white p-2 text-blue-600 transition hover:bg-blue-50"
                       title="View notification"
                     >
-                      <MdVisibility className="h-4 w-4" />
+                      <FiEye className="h-4 w-4" />
                     </Link>
                     <button
                       type="button"
                       onClick={() =>
                         handleDeleteClick(notification._id, notification.subject)
                       }
-                      className="btn-ghost btn-sm flex items-center gap-1 text-red-600 hover:text-red-700"
+                      className="flex items-center justify-center rounded-lg bg-white p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                       title="Delete notification"
                       disabled={deleteNotification.isPending}
                     >
-                      <MdDelete className="h-4 w-4" />
+                      <FiTrash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -458,13 +459,15 @@ const NotificationList = () => {
 
       {/* Pagination */}
       {!isLoading && !isError && pagination.totalPages > 1 && (
-        <Pagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.totalNotifications}
-          pageSize={itemsPerPage}
-          onPageChange={setCurrentPage}
-        />
+        <div className="mt-4">
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalNotifications}
+            pageSize={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       )}
 
       {/* Delete confirmation modal */}

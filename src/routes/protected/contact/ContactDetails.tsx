@@ -1,14 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { MdArrowBack, MdReply } from 'react-icons/md';
+import { FiArrowLeft, FiSend, FiUser, FiMail, FiPhone, FiFileText, FiMessageSquare, FiCalendar, FiCheckCircle, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
 import {
   useGetContactMessageById,
   useUpdateContactStatus,
 } from '../../../tanstack/useContact';
+import StatusBadge from '../../../components/ui/StatusBadge';
 import {
   formatDateTimeWithTime,
-  getStatusBadgeClass,
-  getStatusDisplayName,
 } from '../../../utils/contactUtils';
 import type { IContact, ContactStatus } from '../../../types/api.types';
 
@@ -62,11 +61,34 @@ const ContactDetails = () => {
   const errorMessage =
     (error as any)?.response?.data?.message || 'Failed to load contact.';
 
+  // Get user information if userId exists (must be called before any early returns)
+  const userInfo = useMemo(() => {
+    if (!contact) return null;
+    if (contact.userId && typeof contact.userId === 'object') {
+      return contact.userId;
+    }
+    return null;
+  }, [contact]);
+
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center text-sm text-gray-500">
-        Loading contact...
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-8 w-64 bg-gray-300 rounded mb-4" />
+          <div className="h-6 w-24 bg-gray-300 rounded-full" />
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4 animate-pulse" />
+          <div className="space-y-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded animate-pulse" />
+                <div className="h-4 w-48 bg-gray-300 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -74,8 +96,12 @@ const ContactDetails = () => {
   // Error state
   if (isError) {
     return (
-      <div className="space-y-4">
-        <div className="alert-error">{errorMessage}</div>
+      <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4">
+        <FiAlertTriangle className="h-16 w-16 text-red-500" />
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Error Loading Contact</h2>
+          <p className="mt-2 text-sm text-gray-500">{errorMessage}</p>
+        </div>
         <Link to="/contact" className="btn-secondary">
           Back to Contacts
         </Link>
@@ -86,22 +112,18 @@ const ContactDetails = () => {
   // No contact found
   if (!contact) {
     return (
-      <div className="space-y-4">
-        <div className="alert-error">Contact not found.</div>
+      <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4">
+        <FiXCircle className="h-16 w-16 text-gray-400" />
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Contact Not Found</h2>
+          <p className="mt-2 text-sm text-gray-500">The contact you're looking for doesn't exist.</p>
+        </div>
         <Link to="/contact" className="btn-secondary">
           Back to Contacts
         </Link>
       </div>
     );
   }
-
-  // Get user information if userId exists
-  const userInfo = useMemo(() => {
-    if (contact.userId && typeof contact.userId === 'object') {
-      return contact.userId;
-    }
-    return null;
-  }, [contact]);
 
   return (
     <div className="space-y-6">
@@ -114,7 +136,7 @@ const ContactDetails = () => {
               to="/contact"
               className="btn-ghost flex items-center gap-2"
             >
-              <MdArrowBack size={20} />
+              <FiArrowLeft size={20} />
               <span>Back</span>
             </Link>
             <div className="flex items-center gap-2">
@@ -122,7 +144,7 @@ const ContactDetails = () => {
                 to={`/contact/${contact._id}/reply`}
                 className="btn-primary flex items-center gap-2"
               >
-                <MdReply size={18} />
+                <FiSend size={18} />
                 <span>Reply</span>
               </Link>
             </div>
@@ -134,9 +156,7 @@ const ContactDetails = () => {
               {contact.subject}
             </h1>
             <div className="flex flex-wrap items-center gap-2">
-              <span className={getStatusBadgeClass(contact.status)}>
-                {getStatusDisplayName(contact.status)}
-              </span>
+              <StatusBadge status={contact.status} type="contact-status" />
             </div>
           </div>
         </div>
@@ -149,29 +169,41 @@ const ContactDetails = () => {
         </h2>
 
         {/* Contact Information */}
-        <div className="mb-6 space-y-3">
-          <div>
-            <p className="text-xs uppercase text-gray-400 mb-1">From</p>
-            <p className="text-sm text-gray-700">
-              {contact.name} &lt;{contact.email}&gt;
-            </p>
+        <div className="mb-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <FiUser className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">From</p>
+              <p className="text-sm text-gray-700">
+                {contact.name} &lt;{contact.email}&gt;
+              </p>
+            </div>
           </div>
           {contact.phone && (
-            <div>
-              <p className="text-xs uppercase text-gray-400 mb-1">Phone</p>
-              <p className="text-sm text-gray-700">{contact.phone}</p>
+            <div className="flex items-start gap-3">
+              <FiPhone className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase text-gray-400 mb-1">Phone</p>
+                <p className="text-sm text-gray-700">{contact.phone}</p>
+              </div>
             </div>
           )}
-          <div>
-            <p className="text-xs uppercase text-gray-400 mb-1">Subject</p>
-            <p className="text-sm text-gray-700">{contact.subject}</p>
+          <div className="flex items-start gap-3">
+            <FiFileText className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Subject</p>
+              <p className="text-sm text-gray-700">{contact.subject}</p>
+            </div>
           </div>
         </div>
 
         {/* Message */}
         <div className="mb-6">
-          <p className="text-xs uppercase text-gray-400 mb-2">Message</p>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+          <div className="flex items-start gap-3 mb-2">
+            <FiMessageSquare className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <p className="text-xs uppercase text-gray-400">Message</p>
+          </div>
+          <p className="text-sm text-gray-700 whitespace-pre-wrap ml-8">
             {contact.message}
           </p>
         </div>
@@ -179,8 +211,11 @@ const ContactDetails = () => {
         {/* User Information (if userId exists) */}
         {userInfo && (
           <div className="mb-6">
-            <p className="text-xs uppercase text-gray-400 mb-2">User Account</p>
-            <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="flex items-start gap-3 mb-2">
+              <FiUser className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs uppercase text-gray-400">User Account</p>
+            </div>
+            <div className="bg-gray-50 p-3 rounded-lg ml-8">
               <p className="text-sm text-gray-700">
                 <span className="font-medium">Name:</span>{' '}
                 {userInfo.firstName} {userInfo.lastName}
@@ -193,26 +228,31 @@ const ContactDetails = () => {
         )}
 
         {/* Timestamps */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <p className="text-xs uppercase text-gray-400">Created</p>
-            <p className="text-sm text-gray-700">
-              {formatDateTimeWithTime(contact.createdAt)}
-            </p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Created</p>
+              <p className="text-sm text-gray-700">
+                {formatDateTimeWithTime(contact.createdAt)}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400">Updated</p>
-            <p className="text-sm text-gray-700">
-              {formatDateTimeWithTime(contact.updatedAt)}
-            </p>
+          <div className="flex items-start gap-3">
+            <FiCalendar className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Updated</p>
+              <p className="text-sm text-gray-700">
+                {formatDateTimeWithTime(contact.updatedAt)}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase text-gray-400">Status</p>
-            <p className="text-sm text-gray-700">
-              <span className={getStatusBadgeClass(contact.status)}>
-                {getStatusDisplayName(contact.status)}
-              </span>
-            </p>
+          <div className="flex items-start gap-3">
+            <FiCheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Status</p>
+              <StatusBadge status={contact.status} type="contact-status" />
+            </div>
           </div>
         </div>
       </div>

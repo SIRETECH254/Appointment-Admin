@@ -399,9 +399,11 @@ const BreakList = () => {
               })}
           </tbody>
         </table>
+      </div>
 
-        {/* Pagination */}
-        {!isLoading && !isError && pagination.totalPages > 1 && (
+      {/* Pagination - separate from table container */}
+      {!isLoading && !isError && pagination.totalPages > 1 && (
+        <div className="mt-4">
           <Pagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
@@ -409,8 +411,8 @@ const BreakList = () => {
             pageSize={pagination.limit}
             onPageChange={setCurrentPage}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Delete confirmation modal */}
       <ConfirmModal

@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdAdd } from 'react-icons/md';
+import { MdAdd } from 'react-icons/md';
+import { FiSearch, FiFilter, FiList, FiEye } from 'react-icons/fi';
 import { useGetAllPayments } from '../../../tanstack/usePayments';
 import Pagination from '../../../components/ui/Pagination';
-import { formatPaymentStatus, getPaymentStatusVariant, formatPaymentMethod, formatPaymentType, formatCurrency, getPaymentCustomerName } from '../../../utils/paymentUtils';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatPaymentMethod, formatPaymentType, formatCurrency, getPaymentCustomerName } from '../../../utils/paymentUtils';
 import { formatDateTime } from '../../../utils/userUtils';
 import type { IPayment } from '../../../types/api.types';
 
@@ -46,60 +48,101 @@ const PaymentList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
-        <div>
+      {/* Page header with title and Add Payment button */}
+      <header className="">
+        {/* title and description */}
+        <div className="mb-4">
           <h1 className="text-2xl font-semibold text-gray-900">Payments</h1>
-          <p className="mt-1 text-sm text-gray-500">Track and manage payments</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Track and manage payments
+          </p>
         </div>
-        <Link to="/payments/service" className="btn-primary flex items-center gap-2">
-          <span>Service Payment</span>
-          <MdAdd size={24} />
-        </Link>
-      </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-y-4">
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+        {/* search Bar and Add button */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          {/* Search input */}
+          <div className="flex-1">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search payments..."
+                className="input-search"
+              />
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search payments..."
-              className="input-search"
-            />
           </div>
 
-          <div className="flex flex-row gap-2 flex-wrap items-center">
-            <div className="flex-1 min-w-[150px]">
-              <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }} className="input-select w-full">
+          {/* Add payment button */}
+          <Link to="/payments/service" className="btn-primary flex items-center gap-2 w-full sm:w-auto">
+            <span>Service Payment</span>
+            <MdAdd size={24} />
+          </Link>
+        </div>
+
+        {/* payment count & filters */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          {/* payment count */}
+          <div className="">
+            <p className="text-sm text-gray-500">Showing {pagination.total} payments</p>
+          </div>
+
+          {/* filters */}
+          <div className="flex flex-wrap gap-2">
+            {/* Status filter */}
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+              <select
+                value={filterStatus}
+                onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+                className="input-select pl-10"
+              >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="success">Success</option>
                 <option value="failed">Failed</option>
               </select>
             </div>
-            <div className="flex-1 min-w-[150px]">
-              <select value={filterMethod} onChange={(e) => { setFilterMethod(e.target.value); setCurrentPage(1); }} className="input-select w-full">
+
+            {/* Method filter */}
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+              <select
+                value={filterMethod}
+                onChange={(e) => { setFilterMethod(e.target.value); setCurrentPage(1); }}
+                className="input-select pl-10"
+              >
                 <option value="all">All Methods</option>
                 <option value="mpesa">M-Pesa</option>
                 <option value="card">Card</option>
                 <option value="cash">Cash</option>
               </select>
             </div>
-            <div className="flex-1 min-w-[150px]">
-              <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }} className="input-select w-full">
+
+            {/* Type filter */}
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+              <select
+                value={filterType}
+                onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
+                className="input-select pl-10"
+              >
                 <option value="all">All Types</option>
                 <option value="booking_fee">Booking Fee</option>
                 <option value="full_payment">Full Payment</option>
               </select>
             </div>
-            <div>
-              <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }} className="input-select w-full">
+
+            {/* Items per page */}
+            <div className="relative">
+              <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+              <select
+                value={itemsPerPage}
+                onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                className="input-select pl-10"
+              >
+                <option value="5">5 per page</option>
                 <option value="10">10 per page</option>
                 <option value="25">25 per page</option>
                 <option value="50">50 per page</option>
@@ -108,7 +151,7 @@ const PaymentList = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="table-container">
         <table className="table">
@@ -129,11 +172,32 @@ const PaymentList = () => {
               <>
                 {[...Array(5)].map((_, i) => (
                   <tr key={`skeleton-${i}`}>
-                    {[...Array(8)].map((_, j) => (
-                      <td key={j} className="table-cell">
-                        <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
-                      </td>
-                    ))}
+                    <td className="table-cell">
+                      <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-4 w-32 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-4 w-20 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-6 w-20 animate-pulse rounded-full bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="flex items-center justify-end">
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </>
@@ -156,7 +220,6 @@ const PaymentList = () => {
             )}
 
             {!isLoading && !isError && payments.map((payment: IPayment) => {
-              const statusVariant = getPaymentStatusVariant(payment.status);
               return (
                 <tr key={payment._id} className="table-row">
                   <td className="table-cell-text font-mono text-sm">{payment.paymentNumber || payment._id.slice(0, 8)}</td>
@@ -165,21 +228,30 @@ const PaymentList = () => {
                   <td className="table-cell-text">{formatPaymentMethod(payment.method)}</td>
                   <td className="table-cell-text">{formatPaymentType(payment.type)}</td>
                   <td className="table-cell">
-                    <span className={`badge badge-${statusVariant}`}>{formatPaymentStatus(payment.status)}</span>
+                    <StatusBadge status={payment.status} type="payment-status" />
                   </td>
                   <td className="table-cell-text">{formatDateTime(payment.createdAt)}</td>
                   <td className="table-cell">
-                    <Link to={`/payments/${payment._id}`} className="btn-ghost btn-sm flex items-center gap-1" title="View payment">
-                      <MdVisibility className="h-4 w-4" />
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        to={`/payments/${payment._id}`}
+                        className="flex items-center justify-center rounded-lg bg-white p-2 text-blue-600 transition hover:bg-blue-50"
+                        title="View payment"
+                      >
+                        <FiEye className="h-4 w-4" />
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      </div>
 
-        {!isLoading && !isError && pagination.totalPages > 1 && (
+      {/* Pagination - separate from table container */}
+      {!isLoading && !isError && pagination.totalPages > 1 && (
+        <div className="mt-4">
           <Pagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
@@ -187,8 +259,8 @@ const PaymentList = () => {
             pageSize={pagination.limit}
             onPageChange={setCurrentPage}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

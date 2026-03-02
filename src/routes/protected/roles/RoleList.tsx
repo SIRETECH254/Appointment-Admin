@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdEdit, MdDelete, MdAdd } from 'react-icons/md';
+import { MdAdd } from 'react-icons/md';
+import { FiSearch, FiFilter, FiList, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useGetAllRoles, useDeleteRole } from '../../../tanstack/useRoles';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
+import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatDateTime, getRoleInitials } from '../../../utils/roleUtils';
 import type { IRole } from '../../../types/api.types';
 
@@ -152,57 +154,54 @@ const RoleList = () => {
   return (
     <div className="space-y-6">
       {/* Page header with title and Add Role button */}
-      <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
-        <div>
+      <header className="">
+        {/* title and description */}
+        <div className="mb-4">
           <h1 className="text-2xl font-semibold text-gray-900">Roles</h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage role permissions and access levels
           </p>
         </div>
-        <Link to="/roles/new" className="btn-primary flex items-center gap-2">
-           <span className="">Add Role</span>
-           <MdAdd size={24}/>
-        </Link>
-      </div>
 
-      {/* Filters and search toolbar */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-y-2 items-start md:flex-row md:items-center md:justify-between">
+        {/* search Bar and Add button */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           {/* Search input */}
-          <div className="relative ">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+          <div className="flex-1">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search roles..."
+                className="input-search"
+              />
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search roles..."
-              className="input-search"
-            />
           </div>
-           
-           {/* filters */}
-          <div className="flex flex-row gap-2 flex-wrap items-center"> 
 
+          {/* Add role button */}
+          <Link to="/roles/new" className="btn-primary flex items-center gap-2 w-full sm:w-auto">
+            <span className="">Add Role</span>
+            <MdAdd size={24}/>
+          </Link>
+        </div>
+
+        {/* role count & filters */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          {/* role count */}
+          <div className="">
+            <p className="text-sm text-gray-500">Showing {pagination.total || roles.length} roles</p>
+          </div>
+
+          {/* filters */}
+          <div className="flex flex-wrap gap-2">
             {/* Status filter */}
-            <div>
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={filterStatus}
                 onChange={(e) => handleStatusFilterChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -211,23 +210,23 @@ const RoleList = () => {
             </div>
 
             {/* Items per page */}
-            <div>
+            <div className="relative">
+              <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select
                 value={itemsPerPage}
                 onChange={(e) => handleItemsPerPageChange(e.target.value)}
-                className="input-select w-full"
+                className="input-select pl-10"
               >
+                <option value="5">5 per page</option>
                 <option value="10">10 per page</option>
                 <option value="25">25 per page</option>
                 <option value="50">50 per page</option>
                 <option value="100">100 per page</option>
               </select>
             </div>
-
           </div>
-
         </div>
-      </div>
+      </header>
 
       {/* Roles table */}
       <div className="table-container">
@@ -272,7 +271,13 @@ const RoleList = () => {
                     <td className="table-cell">
                       <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
                     </td>
-                    <td className="table-cell" />
+                    <td className="table-cell">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </>
@@ -328,15 +333,7 @@ const RoleList = () => {
 
                   {/* Status */}
                   <td className="table-cell">
-                    <span
-                      className={
-                        role.isActive
-                          ? 'badge badge-success'
-                          : 'badge badge-error'
-                      }
-                    >
-                      {role.isActive ? 'Active' : 'Inactive'}
-                    </span>
+                    <StatusBadge status={role.isActive} type="service-status" />
                   </td>
 
                   {/* Created date */}
@@ -349,28 +346,28 @@ const RoleList = () => {
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         to={`/roles/${role._id}`}
-                        className="btn-ghost btn-sm flex items-center gap-1"
+                        className="flex items-center justify-center rounded-lg bg-white p-2 text-blue-600 transition hover:bg-blue-50"
                         title="View role"
                       >
-                        <MdVisibility className="h-4 w-4" />
+                        <FiEye className="h-4 w-4" />
                       </Link>
                       <Link
                         to={`/roles/${role._id}/edit`}
-                        className="btn-secondary btn-sm flex items-center gap-1"
+                        className="flex items-center justify-center rounded-lg bg-white p-2 text-teal-600 transition hover:bg-teal-50"
                         title="Edit role"
                       >
-                        <MdEdit className="h-4 w-4" />
+                        <FiEdit2 className="h-4 w-4" />
                       </Link>
                       <button
                         type="button"
                         onClick={() =>
                           handleDeleteClick(role._id, role.displayName || role.name)
                         }
-                        className="btn-ghost btn-sm flex items-center gap-1 text-red-600 hover:text-red-700"
+                        className="flex items-center justify-center rounded-lg bg-white p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                         title="Delete role"
                         disabled={deleteRole.isPending}
                       >
-                        <MdDelete className="h-4 w-4" />
+                        <FiTrash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
@@ -378,9 +375,11 @@ const RoleList = () => {
               ))}
           </tbody>
         </table>
+      </div>
 
-        {/* Pagination */}
-        {!isLoading && !isError && pagination.totalPages > 1 && (
+      {/* Pagination - separate from table container */}
+      {!isLoading && !isError && (pagination.totalPages || 1) > 1 && (
+        <div className="mt-4">
           <Pagination
             currentPage={pagination.page || currentPage}
             totalPages={pagination.totalPages || 1}
@@ -388,8 +387,8 @@ const RoleList = () => {
             pageSize={pagination.limit || itemsPerPage}
             onPageChange={setCurrentPage}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Delete confirmation modal */}
       <ConfirmModal

@@ -38,10 +38,11 @@ export type BadgeType =
   | 'notification-type'
   | 'notification-category'
   | 'notification-status'
-  | 'contact-status';
+  | 'contact-status'
+  | 'service-status';
 
 interface StatusBadgeProps {
-  status: string;
+  status: string | boolean;
   type: BadgeType;
   className?: string;
 }
@@ -61,8 +62,16 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   /**
    * Get icon component based on status and type
    */
-  const getIcon = (status: string, badgeType: BadgeType): React.ReactNode => {
-    const upperStatus = status.toUpperCase();
+  const getIcon = (status: string | boolean, badgeType: BadgeType): React.ReactNode => {
+    // Handle service-status with boolean
+    if (badgeType === 'service-status') {
+      if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE') {
+        return <FiCheckCircle className="h-3 w-3" />;
+      }
+      return <FiXCircle className="h-3 w-3" />;
+    }
+
+    const upperStatus = typeof status === 'string' ? status.toUpperCase() : String(status).toUpperCase();
 
     if (badgeType === 'user-role') {
       switch (upperStatus) {
@@ -189,6 +198,13 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       }
     }
 
+    if (badgeType === 'service-status') {
+      if (status === true || status === 'true' || upperStatus === 'ACTIVE') {
+        return <FiCheckCircle className="h-3 w-3" />;
+      }
+      return <FiXCircle className="h-3 w-3" />;
+    }
+
     return <FiHelpCircle className="h-3 w-3" />;
   };
 
@@ -196,10 +212,26 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
    * Get status variant (background and text colors) based on status and type
    */
   const getStatusVariant = (
-    status: string,
+    status: string | boolean,
     badgeType: BadgeType
   ): { bg: string; text: string; iconColor: string } => {
-    const upperStatus = status.toUpperCase();
+    // Handle service-status with boolean
+    if (badgeType === 'service-status') {
+      if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE') {
+        return {
+          bg: 'bg-green-100',
+          text: 'text-green-700',
+          iconColor: '#16A34A', // green-600
+        };
+      }
+      return {
+        bg: 'bg-gray-100',
+        text: 'text-gray-700',
+        iconColor: '#4B5563', // gray-600
+      };
+    }
+
+    const upperStatus = typeof status === 'string' ? status.toUpperCase() : String(status).toUpperCase();
 
     if (badgeType === 'user-role') {
       switch (upperStatus) {
@@ -241,9 +273,9 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           };
         case 'INACTIVE':
           return {
-            bg: 'bg-gray-100',
-            text: 'text-gray-700',
-            iconColor: '#4B5563', // gray-600
+            bg: 'bg-red-100',
+            text: 'text-red-700',
+            iconColor: '#DC2626', // red-600
           };
         case 'SUSPENDED':
           return {
@@ -464,10 +496,18 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   /**
    * Format status text for display
    */
-  const formatStatus = (status: string, badgeType: BadgeType): string => {
+  const formatStatus = (status: string | boolean, badgeType: BadgeType): string => {
+    // Handle service-status with boolean
+    if (badgeType === 'service-status') {
+      if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE') {
+        return 'Active';
+      }
+      return 'Inactive';
+    }
+
     // For notification types, use special formatting
     if (badgeType === 'notification-type') {
-      const upperStatus = status.toUpperCase();
+      const upperStatus = typeof status === 'string' ? status.toUpperCase() : String(status).toUpperCase();
       switch (upperStatus) {
         case 'IN_APP':
           return 'In-App';
@@ -478,14 +518,14 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         case 'PUSH':
           return 'Push';
         default:
-          return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replace(/_/g, ' ');
+          const statusStr = typeof status === 'string' ? status : String(status);
+          return statusStr.charAt(0).toUpperCase() + statusStr.slice(1).toLowerCase().replace(/_/g, ' ');
       }
     }
 
     // Replace all underscores with spaces and capitalize
-    return status
-      .charAt(0)
-      .toUpperCase() + status.slice(1).toLowerCase().replace(/_/g, ' ');
+    const statusStr = typeof status === 'string' ? status : String(status);
+    return statusStr.charAt(0).toUpperCase() + statusStr.slice(1).toLowerCase().replace(/_/g, ' ');
   };
 
   const variant = getStatusVariant(status, type);

@@ -16,11 +16,10 @@ import {
 } from '../../tanstack/useDashboard';
 import { StatCard } from '../../components/ui/StatCard';
 import { ActivitySection } from '../../components/ui/ActivitySection';
-import { formatCurrency, formatPaymentMethod, formatPaymentStatus } from '../../utils/paymentUtils';
+import StatusBadge from '../../components/ui/StatusBadge';
+import { formatCurrency, formatPaymentMethod } from '../../utils/paymentUtils';
 import {
   formatAppointmentDateTime,
-  formatAppointmentStatus,
-  getAppointmentStatusVariant,
   getAppointmentCustomerName,
   getAppointmentStaffName,
   getAppointmentServicesDisplay,
@@ -289,9 +288,7 @@ const Dashboard = () => {
                     </p>
                   )}
                 </div>
-                <span className={`badge badge-${getAppointmentStatusVariant(item.status)}`}>
-                  {formatAppointmentStatus(item.status)}
-                </span>
+                <StatusBadge status={item.status} type="appointment-status" />
               </div>
             )}
           />
@@ -316,9 +313,7 @@ const Dashboard = () => {
                     {formatPaymentMethod(item.method)} • {formatDateTime(item.createdAt)}
                   </p>
                 </div>
-                <span className={`badge badge-${item.status === 'SUCCESS' ? 'success' : item.status === 'FAILED' ? 'error' : 'soft'}`}>
-                  {formatPaymentStatus(item.status)}
-                </span>
+                <StatusBadge status={item.status} type="payment-status" />
               </div>
             )}
           />
@@ -349,9 +344,7 @@ const Dashboard = () => {
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className={`badge badge-${item.isActive ? 'success' : 'error'}`}>
-                    {item.isActive ? 'Active' : 'Inactive'}
-                  </span>
+                  <StatusBadge status={item.isActive ? 'active' : 'inactive'} type="user-status" />
                   {item.isEmailVerified && (
                     <span className="badge badge-soft text-xs">Verified</span>
                   )}
@@ -449,9 +442,7 @@ const Dashboard = () => {
                     </p>
                   )}
                 </div>
-                <span className={`badge badge-${getAppointmentStatusVariant(item.status)}`}>
-                  {formatAppointmentStatus(item.status)}
-                </span>
+                <StatusBadge status={item.status} type="appointment-status" />
               </div>
             )}
           />
@@ -476,9 +467,7 @@ const Dashboard = () => {
                     {formatPaymentMethod(item.method)} • {formatDateTime(item.createdAt)}
                   </p>
                 </div>
-                <span className={`badge badge-${item.status === 'SUCCESS' ? 'success' : item.status === 'FAILED' ? 'error' : 'soft'}`}>
-                  {formatPaymentStatus(item.status)}
-                </span>
+                <StatusBadge status={item.status} type="payment-status" />
               </div>
             )}
           />

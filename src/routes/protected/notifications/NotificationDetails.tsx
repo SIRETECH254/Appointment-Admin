@@ -1,16 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { MdArrowBack, MdDelete, MdMarkEmailRead } from 'react-icons/md';
+import { FiArrowLeft, FiTrash2, FiCheckCircle, FiMessageSquare, FiTag, FiCalendar, FiSend, FiCheck, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
 import {
   useGetNotification,
   useMarkNotificationAsRead,
   useDeleteNotification,
 } from '../../../tanstack/useNotifications';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
+import StatusBadge from '../../../components/ui/StatusBadge';
 import {
   formatDateTimeWithTime,
-  getCategoryBadgeClass,
-  getTypeDisplayName,
   isNotificationUnread,
 } from '../../../utils/notificationUtils';
 import type { INotification, INotificationAction } from '../../../types/api.types';
@@ -123,8 +122,25 @@ const NotificationDetails = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center text-sm text-gray-500">
-        Loading notification...
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+          <div className="h-8 w-64 bg-gray-300 rounded mb-4" />
+          <div className="flex gap-2">
+            <div className="h-6 w-24 bg-gray-300 rounded-full" />
+            <div className="h-6 w-20 bg-gray-300 rounded-full" />
+          </div>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="h-6 w-40 bg-gray-300 rounded mb-4 animate-pulse" />
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-24 bg-gray-300 rounded animate-pulse" />
+                <div className="h-4 w-48 bg-gray-300 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -132,8 +148,12 @@ const NotificationDetails = () => {
   // Error state
   if (isError) {
     return (
-      <div className="space-y-4">
-        <div className="alert-error">{errorMessage}</div>
+      <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4">
+        <FiAlertTriangle className="h-16 w-16 text-red-500" />
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Error Loading Notification</h2>
+          <p className="mt-2 text-sm text-gray-500">{errorMessage}</p>
+        </div>
         <Link to="/notifications" className="btn-secondary">
           Back to Notifications
         </Link>
@@ -144,8 +164,12 @@ const NotificationDetails = () => {
   // No notification found
   if (!notification) {
     return (
-      <div className="space-y-4">
-        <div className="alert-error">Notification not found.</div>
+      <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4">
+        <FiXCircle className="h-16 w-16 text-gray-400" />
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Notification Not Found</h2>
+          <p className="mt-2 text-sm text-gray-500">The notification you're looking for doesn't exist.</p>
+        </div>
         <Link to="/notifications" className="btn-secondary">
           Back to Notifications
         </Link>
@@ -164,7 +188,7 @@ const NotificationDetails = () => {
               to="/notifications"
               className="btn-ghost flex items-center gap-2"
             >
-              <MdArrowBack size={20} />
+              <FiArrowLeft size={20} />
               <span>Back</span>
             </Link>
             <div className="flex items-center gap-2">
@@ -175,7 +199,7 @@ const NotificationDetails = () => {
                   disabled={markAsRead.isPending}
                   className="btn-secondary flex items-center gap-2"
                 >
-                  <MdMarkEmailRead size={18} />
+                  <FiCheckCircle size={18} />
                   <span>Mark as Read</span>
                 </button>
               )}
@@ -185,7 +209,7 @@ const NotificationDetails = () => {
                 disabled={deleteNotification.isPending}
                 className="btn-ghost flex items-center gap-2 text-red-600 hover:text-red-700"
               >
-                <MdDelete size={18} />
+                <FiTrash2 size={18} />
                 <span>Delete</span>
               </button>
             </div>
@@ -197,16 +221,10 @@ const NotificationDetails = () => {
               {notification.subject}
             </h1>
             <div className="flex flex-wrap items-center gap-2">
-              <span className={getCategoryBadgeClass(notification.category)}>
-                {notification.category}
-              </span>
-              <span className="badge badge-soft">
-                {getTypeDisplayName(notification.type)}
-              </span>
-              {isUnread ? (
-                <span className="badge badge-soft bg-blue-100 text-blue-700">Unread</span>
-              ) : (
-                <span className="badge badge-soft">Read</span>
+              <StatusBadge status={notification.category} type="notification-category" />
+              <StatusBadge status={notification.type} type="notification-type" />
+              {notification.status && (
+                <StatusBadge status={notification.status} type="notification-status" />
               )}
             </div>
           </div>
@@ -221,8 +239,11 @@ const NotificationDetails = () => {
 
         {/* Message */}
         <div className="mb-6">
-          <p className="text-xs uppercase text-gray-400 mb-2">Message</p>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">
+          <div className="flex items-start gap-3 mb-2">
+            <FiMessageSquare className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <p className="text-xs uppercase text-gray-400">Message</p>
+          </div>
+          <p className="text-sm text-gray-700 whitespace-pre-wrap ml-8">
             {notification.message}
           </p>
         </div>
@@ -230,8 +251,11 @@ const NotificationDetails = () => {
         {/* Metadata */}
         {notification.metadata && Object.keys(notification.metadata).length > 0 && (
           <div className="mb-6">
-            <p className="text-xs uppercase text-gray-400 mb-2">Metadata</p>
-            <pre className="text-xs bg-gray-50 p-3 rounded-lg overflow-x-auto">
+            <div className="flex items-start gap-3 mb-2">
+              <FiTag className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs uppercase text-gray-400">Metadata</p>
+            </div>
+            <pre className="text-xs bg-gray-50 p-3 rounded-lg overflow-x-auto ml-8">
               {JSON.stringify(notification.metadata, null, 2)}
             </pre>
           </div>
@@ -240,8 +264,11 @@ const NotificationDetails = () => {
         {/* Context */}
         {notification.context && (
           <div className="mb-6">
-            <p className="text-xs uppercase text-gray-400 mb-2">Context</p>
-            <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="flex items-start gap-3 mb-2">
+              <FiTag className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs uppercase text-gray-400">Context</p>
+            </div>
+            <div className="bg-gray-50 p-3 rounded-lg ml-8">
               <p className="text-sm text-gray-700">
                 <span className="font-medium">Resource ID:</span>{' '}
                 {notification.context.resourceId}
@@ -264,32 +291,46 @@ const NotificationDetails = () => {
         )}
 
         {/* Timestamps */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <p className="text-xs uppercase text-gray-400">Created</p>
-            <p className="text-sm text-gray-700">
-              {formatDateTimeWithTime(notification.createdAt)}
-            </p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <FiCalendar className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Created</p>
+              <p className="text-sm text-gray-700">
+                {formatDateTimeWithTime(notification.createdAt)}
+              </p>
+            </div>
           </div>
           {notification.sentAt && (
-            <div>
-              <p className="text-xs uppercase text-gray-400">Sent</p>
-              <p className="text-sm text-gray-700">
-                {formatDateTimeWithTime(notification.sentAt)}
-              </p>
+            <div className="flex items-start gap-3">
+              <FiSend className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase text-gray-400 mb-1">Sent</p>
+                <p className="text-sm text-gray-700">
+                  {formatDateTimeWithTime(notification.sentAt)}
+                </p>
+              </div>
             </div>
           )}
           {notification.readAt && (
-            <div>
-              <p className="text-xs uppercase text-gray-400">Read</p>
-              <p className="text-sm text-gray-700">
-                {formatDateTimeWithTime(notification.readAt)}
-              </p>
+            <div className="flex items-start gap-3">
+              <FiCheck className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase text-gray-400 mb-1">Read</p>
+                <p className="text-sm text-gray-700">
+                  {formatDateTimeWithTime(notification.readAt)}
+                </p>
+              </div>
             </div>
           )}
-          <div>
-            <p className="text-xs uppercase text-gray-400">Status</p>
-            <p className="text-sm text-gray-700">{notification.status}</p>
+          <div className="flex items-start gap-3">
+            <FiCheckCircle className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase text-gray-400 mb-1">Status</p>
+              {notification.status && (
+                <StatusBadge status={notification.status} type="notification-status" />
+              )}
+            </div>
           </div>
         </div>
       </div>
