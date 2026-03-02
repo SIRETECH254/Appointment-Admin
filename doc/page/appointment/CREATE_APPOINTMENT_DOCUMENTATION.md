@@ -6,175 +6,382 @@
 - [UI Structure](#ui-structure)
 - [Tabbed Navigation Flow](#tabbed-navigation-flow)
 - [Planned Layout](#planned-layout)
-- [Sketch Wireframe](#sketch-wireframe)
-- [Form Inputs by Tab](#form-inputs-by-tab)
+- [Form Details by Tab](#form-details-by-tab)
 - [API Integration](#api-integration)
-- [Components Used](#components-used)
 - [Error Handling](#error-handling)
 - [Navigation Flow](#navigation-flow)
 - [Functions Involved](#functions-involved)
 
 ## Imports
 ```tsx
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 import { useCreateAppointment } from '../../../tanstack/useAppointments';
 import { useGetAllServices } from '../../../tanstack/useServices';
 import { useGetAllUsers } from '../../../tanstack/useUsers';
 import { useGetSlots } from '../../../tanstack/useAvailability';
-import type { ITimeSlot } from '../../../types/api.types';
-import { APPOINTMENT_TABS } from '../../../constants/appointmentTabs';
+import { formatCurrency } from '../../../utils/paymentUtils';
+import type { IUser, IService, ITimeSlot } from '../../../types/api.types';
 ```
 
 ## Context and State Management
-- **Create Mutation:** `useCreateAppointment()` handles appointment creation.
-- **Service Queries:** `useGetAllServices({ status: 'active' })` fetches all active services.
-- **Staff Queries:** `useGetAllUsers({ role: 'staff', status: 'active' })` fetches all active staff.
-- **Slots Query:** `useGetSlots(params)` fetches available time slots using TanStack Query.
+- **TanStack Query:**
+  - `useGetAllUsers({ role: 'staff', status: 'active' })` - Fetches all active staff members
+  - `useGetAllServices({ status: 'active' })` - Fetches all active services
+  - `useGetSlots()` - Fetches available time slots (only when `shouldFetchSlots` is true)
+  - `useCreateAppointment()` - Mutation for creating appointment
 - **Local State:**
-  - `staffId`: Selected staff member ID.
-  - `selectedServices`: Array of selected service IDs.
-  - `selectedDate`: Selected date (YYYY-MM-DD).
-  - `selectedSlot`: Selected time slot object.
-  - `notes`: Optional appointment notes.
-  - `activeTabId`: Currently active tab ID.
-  - `inlineMessage`: Success/error feedback messages.
-  - `isSubmitting`: Submission state.
+  - `activeTab`: 'staff' | 'services' | 'slots' | 'summary'
+  - `selectedStaff`: IUser object or null
+  - `selectedServices`: Array of service IDs
+  - `selectedDate`: Date object or null (starts as null, no auto-selection)
+  - `selectedSlot`: ITimeSlot object (startTime, endTime) or null
+  - `notes`: String
+  - `shouldFetchSlots`: Boolean to control when slots are fetched (only after clicking "Check Availability")
+  - `errorMessage`: String for tab-specific error messages
+
+**`useCreateAppointment` hook (from `tanstack/useAppointments.ts`):**
+```tsx
+export const useCreateAppointment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (appointmentData: CreateAppointmentPayload) => {
+      const response = await appointmentAPI.create(appointmentData);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      console.log('Appointment created successfully');
+    },
+    onError: (error: any) => {
+      console.error('Create appointment error:', error);
+    },
+  });
+};
+```
+
+**`useGetSlots` hook (from `tanstack/useAvailability.ts`):**
+```tsx
+export const useGetSlots = (params: GetSlotsParams, options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: ['slots', params],
+    queryFn: async () => {
+      const response = await availabilityAPI.getSlots(params);
+      return response.data.data;
+    },
+    enabled: options?.enabled !== false && !!params.staffId && !!params.date,
+    staleTime: DEFAULT_STALE_TIME,
+    gcTime: DEFAULT_GC_TIME,
+  });
+};
+```
 
 ## UI Structure
-- **Header:** Page title and description.
-- **Progress Stepper:** Visual indicator of current step (Staff -> Services -> Date & Time -> Notes -> Summary).
-- **Tab Content:** Dynamic area rendering the component for the active step.
-- **Action Footer:** Navigation buttons (Previous, Next, or Create Appointment).
+- **Header:** Step indicator with numbered circles (1-4), progress bar, current step label, and "Step X of 4" in header right
+- **Tabbed Navigation Flow:** Select Staff -> Select Services -> Slot Availability -> Summary
+- **Loading States:** Skeleton loaders with `animate-pulse` for staff (5 cards) and services (5 cards)
+- **Summary Cards:** Separate cards for each selection (Staff, Services, Date/Time, Price) with edit icons that navigate back to respective tabs
+- **Error Display:** Tab-specific error messages displayed in red box below header, only shown when clicking "Next" without selection
 
 ## Tabbed Navigation Flow
-1. **Staff:** Choose a staff member. Selecting a staff member auto-selects all services they provide by default.
-2. **Services:** Refine service selection. Only services provided by the selected staff can be chosen.
-3. **Date & Time:** Select a date and fetch available time slots. Select a specific slot.
-4. **Notes:** Optional field for additional information.
-5. **Summary:** Review all selections. Each section has an "Edit" button that navigates back to the respective tab.
+The appointment creation follows a 4-step process:
+1. **Staff Selection:** User selects a professional, services are auto-selected but user stays on tab
+2. **Service Selection:** User can modify selected services, must click "Next" to proceed
+3. **Slot Selection:** User selects date, clicks "Check Availability", then selects a time slot
+4. **Summary:** Review all selections with edit capability, notes input, then book appointment
 
 ## Planned Layout
 ```
-┌──────────────────────────────────────────────────────────┐
-│ Create Appointment                                       │
-│ [ (1) Staff ]──[ (2) Services ]──[ (3) Date ]──[ (4) Summary ] │
-├──────────────────────────────────────────────────────────┤
-│                                                          │
-│                 [ Active Tab Content ]                   │
-│                                                          │
-├──────────────────────────────────────────────────────────┤
-│ [ Previous ]                           [ Next / Create ] │
-└──────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│ Create Appointment                        │
+│ Step 1 of 4                               │
+├────────────────────────────────────────────┤
+│ [1] Staff  [2] Services  [3] Slots  [4] Summary │
+│ ────────────────────────                  │ (Progress Bar)
+├────────────────────────────────────────────┤
+│                                            │
+│             TAB CONTENT AREA               │
+│        (Scrollable form elements)          │
+│                                            │
+│                                            │
+├────────────────────────────────────────────┤
+│ [ < Previous ]                [ Next > ]   │ (Navigation)
+└────────────────────────────────────────────┘
 ```
 
-## Sketch Wireframe
+## Form Details by Tab
 
-### Step 1: Staff Selection
-```
-┌────────────────────────────────────────────────────┐
-│ Create Appointment                                │
-│ (1) Staff  -- (2) Services -- (3) Date -- (4) Sum. │
-├────────────────────────────────────────────────────┤
-│ Select Staff                                      │
-│                                                   │
-│ ┌───────────────┐ ┌───────────────┐ ┌───────────┐ │
-│ │ [👤] Jane S.  │ │ [👤] John D.  │ │ ...       │ │
-│ │ Services: 2   │ │ Services: 3   │ │           │ │
-│ └───────────────┘ └───────────────┘ └───────────┘ │
-│                                                   │
-│                                         [ Next ]  │
-└────────────────────────────────────────────────────┘
-```
+### Tab 1: Select Staff
+- Grid of staff cards showing:
+  - Avatar or initials
+  - Full name
+  - Role/display name
+  - Services provided (first 3, with "+X more" if applicable)
+- Selecting a staff member:
+  - Auto-selects all services provided by that staff
+  - Resets date, slot, and fetch flag
+  - Does NOT automatically navigate to next tab
 
-### Step 3: Date & Time Selection
-```
-┌────────────────────────────────────────────────────┐
-│ Create Appointment                                │
-│ (1) Staff  -- (2) Services -- (3) Date -- (4) Sum. │
-├────────────────────────────────────────────────────┤
-│ Select Date & Time                                │
-│                                                   │
-│ Date: [ 2026-02-18 ]                              │
-│ [ Check Available Slots ]                         │
-│                                                   │
-│ Available Slots:                                  │
-│ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │
-│ │ 09:00 AM│ │ 10:00 AM│ │ 11:00 AM│ │ ...     │   │
-│ └─────────┘ └─────────┘ └─────────┘ └─────────┘   │
-│                                                   │
-│ Selected: 10:00 AM - 10:45 AM                     │
-│                                                   │
-│ [ Previous ]                            [ Next ]  │
-└────────────────────────────────────────────────────┘
-```
+### Tab 2: Select Services
+- List of service cards with checkboxes
+- Each card shows:
+  - Service name
+  - Duration in minutes
+  - Price (formatted currency)
+- Services not provided by selected staff are disabled
+- Total duration and estimated price displayed at bottom
+- User can toggle services on/off
 
-### Step 5: Summary
-```
-┌────────────────────────────────────────────────────┐
-│ Create Appointment                                │
-│ (1) Staff  -- (2) Services -- (3) Date -- (4) Sum. │
-├────────────────────────────────────────────────────┤
-│ Appointment Summary                               │
-│                                                   │
-│ ┌──────────────────┐ ┌──────────────────────────┐ │
-│ │ Staff [Edit]     │ │ Services [Edit]          │ │
-│ │ Jane Smith       │ │ • Haircut                │ │
-│ └──────────────────┘ └──────────────────────────┘ │
-│ ┌──────────────────┐ ┌──────────────────────────┐ │
-│ │ Date & Time [Ed] │ │ Notes [Edit]             │ │
-│ │ Feb 18, 2026     │ │ No notes provided        │ │
-│ │ 10:00 - 10:45 AM │ │                          │ │
-│ └──────────────────┘ └──────────────────────────┘ │
-│                                                   │
-│ [ Previous ]                [ Create Appointment ] │
-└────────────────────────────────────────────────────┘
-```
+### Tab 3: Slot Availability
+- Date input (HTML date picker, min=today)
+- "Check Availability" button (disabled until date selected)
+- After clicking button:
+  - Shows loading spinner
+  - Displays API message if available
+  - Shows available time slots as clickable buttons
+  - Empty state if no slots available
+- Selected slot highlighted
 
-## Form Inputs by Tab
-- **Staff Tab:** Grid of staff cards. Each card shows name, roles, services provided, and working hours for the selected date.
-- **Services Tab:** Grid of service cards with checkboxes. Services not provided by the selected staff are disabled.
-- **Date & Time Tab:**
-  - Date input (`type="date"`, min=today).
-  - "Check Available Slots" button.
-  - Grid of time slot buttons.
-- **Notes Tab:** Textarea for optional notes.
-- **Summary Tab:** Non-interactive review cards with edit shortcuts.
+### Tab 4: Summary
+- **Staff Card:** Shows selected staff with avatar, name, role, and edit button
+- **Services Card:** Lists all selected services with prices, and edit button
+- **Date & Time Card:** Shows selected date and time slot, and edit button
+- **Price Summary Card:** Shows total duration and total price
+- **Notes Input:** Optional textarea for appointment notes
+- **Book Button:** Creates appointment (replaces "Next" button)
 
 ## API Integration
-
-### Appointment Creation
-- **Endpoint:** `POST /api/appointments` via `useCreateAppointment()`.
-- **Payload:**
-  ```typescript
+- **HTTP client:** `axios` instance from `api/config.ts` via `appointmentAPI.create` and `availabilityAPI.getSlots`.
+- **Slots Query Endpoint:** `GET /api/availability/slots` with query parameters.
+- **Query Parameters:**
+  - `staffId` - Required staff member ID
+  - `serviceId` - Array of service IDs (single or multiple)
+  - `date` - Date string in ISO format (YYYY-MM-DD)
+- **Slots Response Structure:**
+  ```json
   {
-    staffId: string,
-    services: string[],
-    startTime: string, // ISO format
-    endTime: string,   // ISO format
-    notes?: string
+    "success": true,
+    "data": {
+      "slots": [
+        {
+          "startTime": "2026-02-01T09:00:00.000Z",
+          "endTime": "2026-02-01T10:00:00.000Z",
+          "available": true
+        }
+      ],
+      "message": "Available slots retrieved successfully"
+    }
   }
   ```
-
-### Slot Availability
-- **Endpoint:** `GET /api/availability/slots` via `useGetSlots()`.
-- **Parameters:** `staffId`, `serviceId` (array of IDs), `date`.
+- **Create Mutation Endpoint:** `POST /api/appointments`.
+- **Headers:** Automatically includes `Authorization: Bearer <token>` from token store.
+- **Create Payload:**
+  ```json
+  {
+    "staffId": "...",
+    "services": ["serviceId1", "serviceId2"],
+    "startTime": "2026-02-01T09:00:00.000Z",
+    "endTime": "2026-02-01T10:00:00.000Z",
+    "notes": "Optional notes"
+  }
+  ```
+- **Create Response Structure:**
+  ```json
+  {
+    "success": true,
+    "message": "Appointment created successfully",
+    "data": {
+      "appointment": {
+        "_id": "...",
+        "status": "PENDING",
+        "bookingFeeAmount": 500,
+        "remainingAmount": 1000
+      }
+    }
+  }
+  ```
+- **Cache invalidation:** After successful creation, queries for `['appointments']` are invalidated.
 
 ## Error Handling
-- **Inline Messages:** Displays success/error alerts within the form container.
-- **Validation:**
-  - "Next" navigation depends on local validation (e.g., must select staff before moving to services).
-  - "Create Appointment" button disabled until all required fields (staff, services, date, slot) are present.
-- **Slot Availability:** Shows specific error if no slots are returned for the selected combination.
+
+### Validation Functions
+
+**`validateCurrentTab()`**
+- Returns tab-specific error message string or null
+- Validates current tab before allowing "Next" navigation
+- Error messages:
+  - Staff tab: "Please select a staff member."
+  - Services tab: "Please select at least one service."
+  - Slots tab: "Please select a date." / "Please click 'Check Availability' to see available slots." / "Please select a time slot."
+  - Summary tab: Validates all required fields
+
+**`validateTabNavigation()`**
+- Returns boolean indicating if navigation to target tab is allowed
+- Used for step indicator clicks (prevents navigation without showing errors)
+- Does NOT set error messages (errors only show when clicking "Next")
+
+### Error Display
+- Error messages shown in red box below header
+- Only displayed when clicking "Next" without valid selection
+- Automatically cleared when valid selection is made on current tab
+- Uses `errorMessage` state (string) instead of inline message object
+
+### Error Clearing
+- Errors automatically clear when:
+  - Staff is selected (on staff tab)
+  - At least one service is selected (on services tab)
+  - A slot is selected (on slots tab)
+- Errors also clear when navigating between tabs
 
 ## Navigation Flow
-- **Next/Previous:** Manages `activeTabId` based on `APPOINTMENT_TABS` constant.
-- **Edit in Summary:** Sets `activeTabId` to the specific step ID.
-- **Success:** Navigates to `/appointments/:id` after successful creation.
+- **Next Button:** Validates current tab, shows error if invalid, otherwise navigates to next tab
+- **Previous Button:** Navigates to previous tab and clears errors
+- **Step Indicators:** Clickable circles that allow navigation to completed/valid tabs (no error display)
+- **Edit Buttons (Summary):** Navigate back to respective tabs
+- **Success:** Navigates to `/appointments/:id` after successful creation
 
 ## Functions Involved
-- `handleStaffChange`: Updates `staffId` and auto-populates `selectedServices` based on staff capability.
-- `handleServiceToggle`: Manages multiple service selection.
-- `handleCheckSlots`: Triggers the TanStack Query to fetch availability.
-- `handleSubmit`: Orchestrates the final API call.
-- `goToNextTab` / `goToPreviousTab`: Utility functions for step-based navigation.
+
+### `handleStaffSelect(staff: IUser)`
+Updates `selectedStaff` and automatically populates `selectedServices` with all services provided by that staff member. Note: Does NOT automatically navigate to next tab - user must click "Next" button.
+```tsx
+const handleStaffSelect = useCallback((staff: IUser) => {
+  setSelectedStaff(staff);
+  // Autoselect services provided by this staff
+  const staffServices = (staff as any).services || [];
+  const staffServiceIds = staffServices.map((s: any) => typeof s === 'string' ? s : s._id);
+  setSelectedServices(staffServiceIds);
+  setSelectedSlot(null); // Reset slot if staff changes
+  setSelectedDate(null); // Reset date
+  setShouldFetchSlots(false); // Reset fetch flag
+  setErrorMessage('');
+}, []);
+```
+
+### `toggleService(serviceId: string)`
+Toggles service selection in the services array.
+```tsx
+const toggleService = useCallback((serviceId: string) => {
+  setSelectedServices(prev => 
+    prev.includes(serviceId) 
+      ? prev.filter(id => id !== serviceId)
+      : [...prev, serviceId]
+  );
+  setSelectedSlot(null); // Reset slot if services change
+  setSelectedDate(null); // Reset date
+  setShouldFetchSlots(false); // Reset fetch flag
+}, []);
+```
+
+### `isServiceDisabled(serviceId: string)`
+Logic to determine if a service should be disabled based on the selected staff's capabilities.
+```tsx
+const isServiceDisabled = useCallback((serviceId: string) => {
+  if (!selectedStaff) return false;
+  const staffServices = (selectedStaff as any).services || [];
+  const staffServiceIds = staffServices.map((s: any) => typeof s === 'string' ? s : s._id);
+  return !staffServiceIds.includes(serviceId);
+}, [selectedStaff]);
+```
+
+### `calculateTotals()`
+Computes the total price and duration for the summary tab.
+```tsx
+const totals = useMemo(() => {
+  return selectedServices.reduce((acc, id) => {
+    const service = allServices.find(s => s._id === id);
+    return {
+      price: acc.price + (service?.fullPrice || 0),
+      duration: acc.duration + (service?.duration || 0)
+    };
+  }, { price: 0, duration: 0 });
+}, [selectedServices, allServices]);
+```
+
+### `handleDateChange(dateString: string)`
+Updates `selectedDate` and resets the selected slot and fetch flag. Does NOT automatically fetch slots.
+```tsx
+const handleDateChange = useCallback((dateString: string) => {
+  const date = new Date(dateString);
+  setSelectedDate(date);
+  setSelectedSlot(null);
+  setShouldFetchSlots(false); // Reset fetch flag when date changes
+}, []);
+```
+
+### `handleCheckAvailability()`
+Manually triggers slot fetching when user clicks "Check Availability" button. Slots are NOT automatically fetched when date is selected.
+```tsx
+const handleCheckAvailability = useCallback(() => {
+  if (!selectedDate) {
+    setErrorMessage('Please select a date first.');
+    return;
+  }
+  setShouldFetchSlots(true);
+  setSelectedSlot(null); // Reset selected slot
+  refetchSlots();
+}, [selectedDate, refetchSlots]);
+```
+
+### `handleBooking()`
+Triggers the `useCreateAppointment` mutation with validation and navigation.
+```tsx
+const handleBooking = async () => {
+  if (!selectedStaff || selectedServices.length === 0 || !selectedSlot) {
+    setErrorMessage('Please complete all steps before booking.');
+    return;
+  }
+
+  try {
+    const result = await createMutation.mutateAsync({
+      staffId: selectedStaff._id,
+      services: selectedServices,
+      startTime: selectedSlot.startTime,
+      endTime: selectedSlot.endTime,
+      notes: notes.trim() || undefined,
+    });
+    navigate(`/appointments/${(result as any)._id}`);
+  } catch (error: any) {
+    setErrorMessage(error?.response?.data?.message || 'Failed to create appointment.');
+  }
+};
+```
+
+### `handleTabChange(tab: BookingTab)`
+Handles tab navigation from step indicator clicks. Only allows navigation if validation passes, doesn't show errors.
+```tsx
+const handleTabChange = useCallback((tab: BookingTab) => {
+  // Only allow navigation if validation passes
+  // Don't show errors here - errors only show when clicking "Next"
+  if (!validateTabNavigation(tab)) {
+    return;
+  }
+  setActiveTab(tab);
+  setErrorMessage(''); // Clear any existing errors when navigating
+}, [validateTabNavigation]);
+```
+
+### `renderStepHeader()`
+Renders the header section with:
+- Current step indicator (numbered circle with step number)
+- Current step label
+- Step numbers with checkmarks for completed steps
+- Progress bar showing completion percentage
+```tsx
+const renderStepHeader = () => {
+  const progress = (currentStep / TABS.length) * 100;
+  // Returns JSX with step indicators and progress bar
+};
+```
+
+## Implementation Notes
+- All tab content is rendered inline within a single file (`AppointmentAddTabs.tsx`)
+- No separate step component files are used
+- Error handling follows client-side pattern with tab-specific validation
+- Slots are only fetched after user clicks "Check Availability" button
+- Date is stored as Date object internally, converted to string for API calls
+- Staff is stored as IUser object, not just ID string
+- Uses `date-fns` for date formatting
+- Uses `formatCurrency` utility for price display
