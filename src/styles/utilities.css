@@ -1,0 +1,21 @@
+@layer utilities {
+  .page-container {
+    @apply mx-auto w-full max-w-6xl p-4;
+  }
+
+  .section {
+    @apply py-8;
+  }
+
+  .stack-4 {
+    @apply space-y-4;
+  }
+
+  .cluster-2 {
+    @apply flex items-center gap-2;
+  }
+
+  .divider {
+    @apply border-t border-gray-200;
+  }
+}

@@ -1,0 +1,9 @@
+@layer base {
+  body {
+    @apply bg-white text-slate-900 font-inter;
+  }
+
+  #root {
+    @apply min-h-screen bg-white;
+  }
+}

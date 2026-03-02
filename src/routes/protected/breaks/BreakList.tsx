@@ -1,0 +1,437 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { MdAdd } from 'react-icons/md';
+import { FiFilter, FiList, FiSearch, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { useGetAllBreaks, useDeleteBreak } from '../../../tanstack/useBreaks';
+import { useGetAllUsers } from '../../../tanstack/useUsers';
+import Pagination from '../../../components/ui/Pagination';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import { formatBreakDateTime, getStaffName, getStaffInitials } from '../../../utils/breakUtils';
+import type { IBreak, IUser } from '../../../types/api.types';
+
+/**
+ * BreakList Component
+ * 
+ * Displays a paginated table of all breaks with search, filtering, and CRUD actions.
+ * Features:
+ * - Search by staff name/reason with debounce
+ * - Filter by staff and date range
+ * - Pagination controls
+ * - View, Edit, Delete actions per break
+ * - Loading skeleton, error, and empty states
+ */
+const BreakList = () => {
+
+  // Search state with debounce
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Filter state
+  const [filterStaff, setFilterStaff] = useState<string>('all');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Delete modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [breakToDelete, setBreakToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  // TanStack Query hooks
+  const deleteBreak = useDeleteBreak();
+  
+  // Fetch staff users for filter dropdown
+  const { data: staffData } = useGetAllUsers({ role: 'staff' });
+  const staffUsers = (staffData as any)?.users || [];
+
+  /**
+   * Debounce search input to reduce API calls
+   * Updates debouncedSearch after 500ms of no typing
+   */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      // Reset to page 1 when search changes
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  /**
+   * Build API params from filters, search, and pagination
+   * Memoized to prevent unnecessary API calls
+   */
+  const params = useMemo(() => {
+    const apiParams: any = {
+      page: currentPage,
+      limit: itemsPerPage,
+    };
+
+    // Add search if provided
+    if (debouncedSearch.trim()) {
+      apiParams.search = debouncedSearch.trim();
+    }
+
+    // Add staff filter if not "all"
+    if (filterStaff !== 'all') {
+      apiParams.staffId = filterStaff;
+    }
+
+    return apiParams;
+  }, [debouncedSearch, filterStaff, currentPage, itemsPerPage]);
+
+  // Fetch breaks with current params
+  const { data, isLoading, isError, error } = useGetAllBreaks(params);
+
+  // Extract breaks and pagination from API response
+  const breaks = (data as any)?.breaks || [];
+  const paginationData = (data as any)?.pagination || {};
+  
+  // Map backend pagination structure to component expectations
+  const pagination = {
+    page: paginationData.currentPage || 1,
+    limit: itemsPerPage,
+    total: paginationData.totalBreaks || 0,
+    totalPages: paginationData.totalPages || 1,
+  };
+
+  /**
+   * Open delete confirmation modal
+   * Sets the break to delete and opens the modal
+   */
+  const handleDeleteClick = useCallback((breakId: string, staffName: string) => {
+    setBreakToDelete({ id: breakId, name: staffName });
+    setDeleteModalOpen(true);
+  }, []);
+
+  /**
+   * Close delete confirmation modal
+   * Clears the break to delete and closes the modal
+   */
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteModalOpen(false);
+    setBreakToDelete(null);
+  }, []);
+
+  /**
+   * Confirm and execute break deletion
+   * Calls the delete mutation and closes modal on success
+   */
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!breakToDelete) return;
+
+    try {
+      await deleteBreak.mutateAsync(breakToDelete.id);
+      // Close modal on success
+      setDeleteModalOpen(false);
+      setBreakToDelete(null);
+      // Cache invalidation handled by mutation onSuccess
+    } catch (deleteError) {
+      // Error handling is done in mutation's onError callback
+      console.error('Delete break error:', deleteError);
+      // Keep modal open on error so user can retry
+    }
+  }, [breakToDelete, deleteBreak]);
+
+  /**
+   * Handle filter changes
+   * Resets to page 1 when filters change
+   */
+  const handleStaffFilterChange = (value: string) => {
+    setFilterStaff(value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
+
+  /**
+   * Get error message from API response
+   */
+  const errorMessage =
+    (error as any)?.response?.data?.message || 'Failed to load breaks.';
+
+  return (
+    <div className="space-y-6">
+
+      {/* Page header with title and Add Break button */}
+      <header className="">
+
+        {/* title and description */}
+        <div className="mb-4">
+          <h1 className="text-2xl font-semibold text-gray-900">Breaks</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage staff breaks and schedules
+          </p>
+        </div>
+
+        {/* search Bar and Add button */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+
+          {/* Search input */}
+          <div className="flex-1">
+          <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search breaks..."
+              className="input-search"
+            />
+            </div>
+          </div>
+
+          {/* Add break button */}
+          <Link to="/breaks/new" className="btn-primary flex items-center gap-2 w-full sm:w-auto">
+            <span className="">Add Break</span>
+            <MdAdd size={24}/>
+          </Link>
+
+        </div>
+
+        {/* break count & filters */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          
+          {/* break count */}
+          <div className="">
+             <p className="text-sm text-gray-500">Showing {pagination.total} breaks</p>
+          </div>
+           
+          {/* filters */}
+          <div className="flex flex-wrap gap-2"> 
+
+            {/* Staff filter */}
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+              <select
+                value={filterStaff}
+                onChange={(e) => handleStaffFilterChange(e.target.value)}
+                className="input-select pl-10"
+              >
+                <option value="all">All Staff</option>
+                {staffUsers.map((staff: IUser) => (
+                  <option key={staff._id} value={staff._id}>
+                    {staff.firstName} {staff.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Items per page */}
+            <div className="relative">
+              <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+              <select
+                value={itemsPerPage}
+                onChange={(e) => handleItemsPerPageChange(e.target.value)}
+                className="input-select pl-10"
+              >
+                <option value="5">10 per page</option>
+                <option value="10">10 per page</option>
+                <option value="25">25 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+            </div>
+
+          </div>
+
+        </div>
+
+      </header>
+
+      {/* Breaks table */}
+      <div className="table-container">
+        <table className="table">
+          {/* Table header */}
+          <thead className="table-header">
+            <tr>
+              <th className="table-header-cell">
+                Staff
+              </th>
+              <th className="table-header-cell">
+                Start Time
+              </th>
+              <th className="table-header-cell">
+                End Time
+              </th>
+              <th className="table-header-cell-right">
+                Actions
+              </th>
+            </tr>
+          </thead>
+
+          {/* Table body */}
+          <tbody className="table-body">
+            {/* Loading state: skeleton rows */}
+            {isLoading && (
+              <>
+                {[...Array(5)].map((_, index) => (
+                  <tr key={`skeleton-${index}`}>
+                    <td className="table-cell">
+                      <div className="table-cell-content">
+                        <div className="h-10 w-10 animate-pulse rounded-full bg-gray-300" />
+                        <div className="h-4 w-32 animate-pulse rounded bg-gray-300" />
+                      </div>
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-4 w-40 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="h-4 w-40 animate-pulse rounded bg-gray-300" />
+                    </td>
+                    <td className="table-cell">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                        <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-300" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </>
+            )}
+
+            {/* Error state */}
+            {isError && !isLoading && (
+              <tr>
+                <td colSpan={4} className="table-cell-center">
+                  <div className="alert-error mx-auto max-w-md">{errorMessage}</div>
+                </td>
+              </tr>
+            )}
+
+            {/* Empty state */}
+            {!isLoading && !isError && breaks.length === 0 && (
+              <tr>
+                <td colSpan={4} className="table-cell-center">
+                  <p className="text-gray-500">No breaks found.</p>
+                  {debouncedSearch || filterStaff !== 'all' ? (
+                    <p className="mt-2 text-sm text-gray-400">
+                      Try adjusting your search or filters.
+                    </p>
+                  ) : null}
+                </td>
+              </tr>
+            )}
+
+            {/* Break rows */}
+            {!isLoading &&
+              !isError &&
+              breaks.map((breakItem: IBreak) => {
+                const staffName = getStaffName(breakItem);
+                const staffInitials = getStaffInitials(breakItem);
+                const staffUser = typeof breakItem.staffId === 'object' ? breakItem.staffId : null;
+
+                return (
+                  <tr
+                    key={breakItem._id}
+                    className="table-row"
+                  >
+                    {/* Staff */}
+                    <td className="table-cell">
+                      <div className="table-cell-content">
+                        {staffUser?.avatar ? (
+                          <img
+                            src={staffUser.avatar}
+                            alt={staffName}
+                            className="table-avatar"
+                          />
+                        ) : (
+                          <div className="table-avatar-initials">
+                            {staffInitials}
+                          </div>
+                        )}
+                        <div className="font-medium text-gray-900 whitespace-nowrap">
+                          {staffName}
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Start Time */}
+                    <td className="table-cell-text">
+                      {formatBreakDateTime(breakItem.startTime)}
+                    </td>
+
+                    {/* End Time */}
+                    <td className="table-cell-text">
+                      {formatBreakDateTime(breakItem.endTime)}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="table-cell">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          to={`/breaks/${breakItem._id}`}
+                          className="flex items-center justify-center rounded-lg bg-white p-2 text-blue-600 transition hover:bg-blue-50"
+                          title="View break"
+                        >
+                          <FiEye className="h-4 w-4" />
+                        </Link>
+                        <Link
+                          to={`/breaks/${breakItem._id}/edit`}
+                          className="flex items-center justify-center rounded-lg bg-white p-2 text-teal-600 transition hover:bg-teal-50"
+                          title="Edit break"
+                        >
+                          <FiEdit2 className="h-4 w-4" />
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDeleteClick(breakItem._id, staffName)
+                          }
+                          className="flex items-center justify-center rounded-lg bg-white p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                          title="Delete break"
+                          disabled={deleteBreak.isPending}
+                        >
+                          <FiTrash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination - separate from table container */}
+      {!isLoading && !isError && pagination.totalPages > 1 && (
+        <div className="mt-4">
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            pageSize={pagination.limit}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Break"
+        message={
+          breakToDelete
+            ? `Are you sure you want to delete the break for "${breakToDelete.name}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this break? This action cannot be undone.'
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmButtonClass="btn-primary bg-red-600 hover:bg-red-700"
+        isLoading={deleteBreak.isPending}
+      />
+    </div>
+  );
+};
+
+export default BreakList;
