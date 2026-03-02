@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { FiUser, FiMail, FiPhone, FiShield, FiCheckCircle, FiXCircle, FiCalendar, FiClock, FiAlertTriangle } from 'react-icons/fi';
 import { useGetUserById } from '../../../tanstack/useUsers';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { formatDateTimeWithTime, getUserInitials } from '../../../utils/userUtils';
+import { formatDateTimeWithTime, getUserInitials, getRoleDisplayName } from '../../../utils/userUtils';
 import type { IUser } from '../../../types/api.types';
 
 /**

@@ -35,6 +35,7 @@ export type BadgeType =
   | 'user-status'
   | 'appointment-status'
   | 'payment-status'
+  | 'payment-method'
   | 'notification-type'
   | 'notification-category'
   | 'notification-status'
@@ -136,6 +137,20 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       }
     }
 
+    if (badgeType === 'payment-method') {
+      switch (upperStatus) {
+        case 'MPESA':
+          return <FiSmartphone className="h-3 w-3" />;
+        case 'CARD':
+        case 'PAYSTACK':
+          return <FiCreditCard className="h-3 w-3" />;
+        case 'CASH':
+          return <FiTag className="h-3 w-3" />;
+        default:
+          return <FiHelpCircle className="h-3 w-3" />;
+      }
+    }
+
     if (badgeType === 'notification-type') {
       switch (upperStatus) {
         case 'EMAIL':
@@ -225,9 +240,9 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         };
       }
       return {
-        bg: 'bg-gray-100',
-        text: 'text-gray-700',
-        iconColor: '#4B5563', // gray-600
+        bg: 'bg-red-100',
+        text: 'text-red-700',
+        iconColor: '#DC2626', // red-600
       };
     }
 
@@ -362,6 +377,36 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
             bg: 'bg-orange-100',
             text: 'text-orange-700',
             iconColor: '#EA580C', // orange-600
+          };
+        default:
+          return {
+            bg: 'bg-gray-100',
+            text: 'text-gray-700',
+            iconColor: '#4B5563', // gray-600
+          };
+      }
+    }
+
+    if (badgeType === 'payment-method') {
+      switch (upperStatus) {
+        case 'MPESA':
+          return {
+            bg: 'bg-green-100',
+            text: 'text-green-700',
+            iconColor: '#16A34A', // green-600
+          };
+        case 'CARD':
+        case 'PAYSTACK':
+          return {
+            bg: 'bg-blue-100',
+            text: 'text-blue-700',
+            iconColor: '#2563EB', // blue-600
+          };
+        case 'CASH':
+          return {
+            bg: 'bg-gray-100',
+            text: 'text-gray-700',
+            iconColor: '#4B5563', // gray-600
           };
         default:
           return {
@@ -523,6 +568,23 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       }
     }
 
+    // For payment methods, use special formatting
+    if (badgeType === 'payment-method') {
+      const upperStatus = typeof status === 'string' ? status.toUpperCase() : String(status).toUpperCase();
+      switch (upperStatus) {
+        case 'MPESA':
+          return 'M-Pesa';
+        case 'CARD':
+        case 'PAYSTACK':
+          return 'Card';
+        case 'CASH':
+          return 'Cash';
+        default:
+          const statusStr = typeof status === 'string' ? status : String(status);
+          return statusStr.charAt(0).toUpperCase() + statusStr.slice(1).toLowerCase().replace(/_/g, ' ');
+      }
+    }
+
     // Replace all underscores with spaces and capitalize
     const statusStr = typeof status === 'string' ? status : String(status);
     return statusStr.charAt(0).toUpperCase() + statusStr.slice(1).toLowerCase().replace(/_/g, ' ');
@@ -533,7 +595,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${variant.bg} ${variant.text} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs whitespace-nowrap font-semibold ${variant.bg} ${variant.text} ${className}`}
     >
       <span style={{ color: variant.iconColor }}>{icon}</span>
       <span>{formatStatus(status, type)}</span>

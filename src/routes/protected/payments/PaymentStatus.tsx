@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import io, { Socket } from 'socket.io-client';
 import { useGetPaymentById, useQueryMpesaStatus } from '../../../tanstack/usePayments';
 import { API_BASE_URL } from '../../../api/config';
+import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatPaymentMethod, formatCurrency, isMpesaPayment } from '../../../utils/paymentUtils';
 import { formatDateTime } from '../../../utils/userUtils';
 
@@ -353,9 +354,9 @@ export default function PaymentStatus() {
               <p className="text-gray-600 mt-1">{paymentNumber}</p>
             </div>
             <div className="flex-row items-center gap-2">
-              <span className={`badge badge-${isMpesa ? 'info' : 'default'}`}>
-                {formatPaymentMethod(payment?.method || '')}
-              </span>
+              {payment?.method && (
+                <StatusBadge status={payment.method} type="payment-method" />
+              )}
               <span className={`badge badge-${statusConfig.variant}`}>
                 {statusConfig.label}
               </span>

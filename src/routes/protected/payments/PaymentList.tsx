@@ -225,7 +225,9 @@ const PaymentList = () => {
                   <td className="table-cell-text font-mono text-sm">{payment.paymentNumber || payment._id.slice(0, 8)}</td>
                   <td className="table-cell-text">{getPaymentCustomerName(payment)}</td>
                   <td className="table-cell-text">{formatCurrency(payment.amount, payment.currency || 'KES')}</td>
-                  <td className="table-cell-text">{formatPaymentMethod(payment.method)}</td>
+                  <td className="table-cell">
+                    <StatusBadge status={payment.method} type="payment-method" />
+                  </td>
                   <td className="table-cell-text">{formatPaymentType(payment.type)}</td>
                   <td className="table-cell">
                     <StatusBadge status={payment.status} type="payment-status" />

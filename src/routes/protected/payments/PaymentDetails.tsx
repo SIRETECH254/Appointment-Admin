@@ -15,7 +15,6 @@ const PaymentDetails = () => {
   const { data, isLoading, isError, error } = useGetPaymentById(id || '');
 
   const payment = (data as any)?.payment ?? (data as any)?.data?.payment ?? data;
-  const statusVariant = getPaymentStatusVariant(payment?.status || '');
   const appointmentId = getPaymentAppointmentId(payment);
 
   if (isLoading) {
@@ -68,7 +67,7 @@ const PaymentDetails = () => {
           </div>
           <div className="flex items-center gap-2">
             <StatusBadge status={payment.status} type="payment-status" />
-            <span className="badge badge-soft">{formatPaymentMethod(payment.method)}</span>
+            <StatusBadge status={payment.method} type="payment-method" />
           </div>
         </div>
       </div>
