@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { FiUser, FiMail, FiPhone, FiShield, FiCheckCircle, FiXCircle, FiCalendar, FiClock, FiAlertTriangle } from 'react-icons/fi';
+import { FiMail, FiPhone, FiShield, FiCheckCircle, FiXCircle, FiCalendar, FiClock, FiAlertTriangle } from 'react-icons/fi';
 import { useGetUserById } from '../../../tanstack/useUsers';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { formatDateTimeWithTime, getUserInitials, getRoleDisplayName } from '../../../utils/userUtils';
-import type { IUser } from '../../../types/api.types';
+import { formatDateTimeWithTime, getUserInitials } from '../../../utils/userUtils';
+import type { IUser, IRole } from '../../../types/api.types';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
@@ -44,7 +44,7 @@ const UserDetails = () => {
   // Check if user has staff role
   const hasStaffRole = useMemo(() => {
     if (!user?.roles) return false;
-    return user.roles.some((role) => role.name === 'staff' || role.name === 'Staff');
+    return user.roles.some((role: IRole) => role.name === 'staff' || role.name === 'Staff');
   }, [user]);
 
   // Get error message from API response
@@ -182,7 +182,7 @@ const UserDetails = () => {
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 {/* Display all roles */}
                 {user.roles && user.roles.length > 0 ? (
-                  user.roles.map((role) => (
+                  user.roles.map((role: IRole) => (
                     <StatusBadge key={role._id} status={role.name} type="user-role" />
                   ))
                 ) : null}
@@ -247,7 +247,7 @@ const UserDetails = () => {
               <p className="text-xs uppercase text-gray-400 mb-1">Role</p>
               <div className="flex flex-wrap gap-1">
                 {user.roles && user.roles.length > 0 ? (
-                  user.roles.map((role) => (
+                  user.roles.map((role: IRole) => (
                     <StatusBadge key={role._id} status={role.name} type="user-role" />
                   ))
                 ) : (
@@ -318,7 +318,7 @@ const UserDetails = () => {
                     <p className="text-sm font-medium text-gray-700 capitalize">{formatDayName(day)}</p>
                   </div>
                   <div className="flex-1 space-y-1">
-                    {dayHours.map((slot, index) => (
+                    {dayHours.map((slot: { start: string; end: string }, index: number) => (
                       <div key={index} className="flex items-center gap-2">
                         <span className="text-sm text-gray-700">
                           {slot.start} - {slot.end}

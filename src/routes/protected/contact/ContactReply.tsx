@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { MdArrowBack } from 'react-icons/md';
-import { FiMail, FiTag, FiMessageSquare, FiUser, FiCalendar, FiSend, FiFileText } from 'react-icons/fi';
+import { FiMail, FiTag, FiMessageSquare, FiUser, FiCalendar, FiSend } from 'react-icons/fi';
 import {
   useGetContactMessageById,
   useReplyToContactMessage,

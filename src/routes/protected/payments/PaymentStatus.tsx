@@ -4,7 +4,7 @@ import io, { Socket } from 'socket.io-client';
 import { useGetPaymentById, useQueryMpesaStatus } from '../../../tanstack/usePayments';
 import { API_BASE_URL } from '../../../api/config';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { formatPaymentMethod, formatCurrency, isMpesaPayment } from '../../../utils/paymentUtils';
+import { formatCurrency, isMpesaPayment } from '../../../utils/paymentUtils';
 import { formatDateTime } from '../../../utils/userUtils';
 
 type PaymentStatusType = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';

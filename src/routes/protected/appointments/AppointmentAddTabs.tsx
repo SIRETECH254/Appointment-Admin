@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useCreateAppointment } from '../../../tanstack/useAppointments';
@@ -403,7 +403,7 @@ const AppointmentAddTabs = () => {
               {isLoadingStaff ? (
                 <div>{renderStaffSkeleton()}</div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-x-4">
                   {allStaff.map((staff) => {
                     const staffServices = ((staff as any).services || []).map((s: any) => 
                       typeof s === 'string' ? s : s.name || s

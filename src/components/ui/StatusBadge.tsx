@@ -214,19 +214,14 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       }
     }
 
-    if (badgeType === 'service-status') {
-      if (status === true || status === 'true' || upperStatus === 'ACTIVE') {
-        return <FiCheckCircle className="h-3 w-3" />;
-      }
-      return <FiXCircle className="h-3 w-3" />;
-    }
-
     if (badgeType === 'verified-status') {
       if (status === true || status === 'true' || upperStatus === 'VERIFIED' || upperStatus === 'YES') {
         return <FiCheckCircle className="h-3 w-3" />;
       }
       return <FiXCircle className="h-3 w-3" />;
     }
+
+    // Default fallback for any unhandled badge types
 
     return <FiHelpCircle className="h-3 w-3" />;
   };

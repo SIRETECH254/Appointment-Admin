@@ -5,7 +5,7 @@ import { FiSearch, FiFilter, FiList, FiEye } from 'react-icons/fi';
 import { useGetAllPayments } from '../../../tanstack/usePayments';
 import Pagination from '../../../components/ui/Pagination';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { formatPaymentMethod, formatPaymentType, formatCurrency, getPaymentCustomerName } from '../../../utils/paymentUtils';
+import { formatPaymentType, formatCurrency, getPaymentCustomerName } from '../../../utils/paymentUtils';
 import { formatDateTime } from '../../../utils/userUtils';
 import type { IPayment } from '../../../types/api.types';
 

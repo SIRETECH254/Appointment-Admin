@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
-import { FiDollarSign, FiCreditCard, FiTag, FiCheckCircle, FiCalendar, FiHash, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
+import { FiDollarSign, FiCreditCard, FiTag, FiCheckCircle, FiCalendar, FiHash, FiAlertTriangle } from 'react-icons/fi';
 import { useGetPaymentById } from '../../../tanstack/usePayments';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { formatPaymentMethod, formatPaymentType, formatCurrency, getPaymentAppointmentId } from '../../../utils/paymentUtils';
+import { formatPaymentType, formatCurrency, getPaymentAppointmentId } from '../../../utils/paymentUtils';
 import { formatDateTimeWithTime } from '../../../utils/userUtils';
 
 /**
