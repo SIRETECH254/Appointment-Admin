@@ -63,6 +63,11 @@ import type {
   // Dashboard types
   GetRevenueStatsParams,
   GetStaffActivityStatsParams,
+  // Review types
+  CreateReviewPayload,
+  UpdateReviewPayload,
+  UpdateReviewStatusPayload,
+  GetReviewsParams,
   // Common types
   PaginationParams,
 } from '../types/api.types';
@@ -360,6 +365,23 @@ export const dashboardAPI = {
 
   // Get staff activity statistics
   getStaffActivityStats: (params?: GetStaffActivityStatsParams) => api.get('/api/dashboard/staff-activity', { params }),
+};
+
+// ============================================
+// Review API
+// ============================================
+export const reviewAPI = {
+  getAllReviews: (params?: GetReviewsParams) => api.get('/api/reviews', { params }),
+
+  getReview: (reviewId: string) => api.get(`/api/reviews/${reviewId}`),
+
+  createReview: (reviewData: CreateReviewPayload) => api.post('/api/reviews', reviewData),
+
+  updateReview: (reviewId: string, reviewData: UpdateReviewPayload) => api.put(`/api/reviews/${reviewId}`, reviewData),
+
+  deleteReview: (reviewId: string) => api.delete(`/api/reviews/${reviewId}`),
+
+  updateReviewStatus: (reviewId: string, statusData: UpdateReviewStatusPayload) => api.patch(`/api/reviews/${reviewId}/status`, statusData),
 };
 
 // Export the api instance for custom requests

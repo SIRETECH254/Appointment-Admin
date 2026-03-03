@@ -32,3 +32,6 @@ export * from './useStoreConfig';
 
 // Dashboard hooks
 export * from './useDashboard';
+
+// Review hooks
+export * from './useReviews';

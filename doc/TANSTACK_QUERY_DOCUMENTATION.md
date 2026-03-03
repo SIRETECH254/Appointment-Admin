@@ -751,6 +751,223 @@ const { data } = useGetSlots({
 
 ---
 
+## Review Hooks
+
+### useGetAllReviews
+
+Fetches all reviews with optional filtering and pagination.
+
+```typescript
+import { useGetAllReviews } from '../tanstack/useReviews';
+
+// Get all reviews
+const { data, isLoading } = useGetAllReviews();
+
+// Get reviews with filters
+const { data } = useGetAllReviews({
+  page: 1,
+  limit: 10,
+  status: 'APPROVED',
+  staffId: 'staff123',
+  serviceId: 'service456',
+  search: 'great service'
+});
+```
+
+**Parameters:**
+- `params.page?: number` - Page number (default: 1)
+- `params.limit?: number` - Items per page (default: 10)
+- `params.search?: string` - Search by user name, comment, or rating
+- `params.userId?: string` - Filter by user ID
+- `params.appointmentId?: string` - Filter by appointment ID
+- `params.staffId?: string` - Filter by staff ID (via appointment)
+- `params.serviceId?: string` - Filter by service ID (via appointment)
+- `params.status?: 'PENDING' | 'APPROVED' | 'REJECTED'` - Filter by status
+
+**Returns:**
+- `{ reviews: IReview[], pagination: {...}, averageRating: number }` - Review data with pagination and average rating
+
+**Note:** By default, only approved reviews are shown. Admins can filter by status.
+
+### useGetReviewById
+
+Fetches a single review by ID.
+
+```typescript
+import { useGetReviewById } from '../tanstack/useReviews';
+
+function ReviewDetails({ reviewId }: { reviewId: string }) {
+  const { data, isLoading } = useGetReviewById(reviewId);
+  const review = data?.review || data;
+  
+  return (
+    <div>
+      {review && (
+        <div>
+          <h1>Rating: {review.rating}</h1>
+          <p>{review.comment}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+**Parameters:**
+- `reviewId: string` - The review ID
+
+**Returns:**
+- `{ review: IReview }` - Review object with populated userId and appointmentId
+
+**Note:** This hook is automatically disabled if `reviewId` is empty.
+
+### useCreateReview
+
+Creates a new review for an appointment.
+
+```typescript
+import { useCreateReview } from '../tanstack/useReviews';
+
+function CreateReviewForm({ appointmentId }: { appointmentId: string }) {
+  const createReview = useCreateReview();
+  
+  const handleSubmit = async (rating: number, comment: string) => {
+    try {
+      await createReview.mutateAsync({
+        appointmentId,
+        rating,
+        comment
+      });
+      // Review created successfully
+    } catch (error) {
+      // Handle error
+    }
+  };
+  
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      handleSubmit(5, 'Great service!');
+    }}>
+      {/* Form fields */}
+    </form>
+  );
+}
+```
+
+**Parameters:**
+- `reviewData.appointmentId: string` - Appointment ID (required)
+- `reviewData.rating: number` - Rating from 1-5 (required)
+- `reviewData.comment?: string` - Optional comment (max 1000 characters)
+
+**Validation:**
+- Appointment must belong to user and have status "COMPLETED"
+- One review per appointment per user
+
+### useUpdateReview
+
+Updates an existing review's rating or comment.
+
+```typescript
+import { useUpdateReview } from '../tanstack/useReviews';
+
+function EditReview({ reviewId }: { reviewId: string }) {
+  const updateReview = useUpdateReview();
+  
+  const handleUpdate = async () => {
+    try {
+      await updateReview.mutateAsync({
+        reviewId,
+        reviewData: {
+          rating: 4,
+          comment: 'Updated comment'
+        }
+      });
+      // Review updated successfully
+    } catch (error) {
+      // Handle error
+    }
+  };
+  
+  return <button onClick={handleUpdate}>Update Review</button>;
+}
+```
+
+**Parameters:**
+- `reviewId: string` - The review ID
+- `reviewData.rating?: number` - New rating (1-5, optional)
+- `reviewData.comment?: string` - New comment (max 1000 characters, optional)
+
+**Note:** Only owner or admin can update reviews.
+
+### useDeleteReview
+
+Deletes a review.
+
+```typescript
+import { useDeleteReview } from '../tanstack/useReviews';
+
+function DeleteReviewButton({ reviewId }: { reviewId: string }) {
+  const deleteReview = useDeleteReview();
+  
+  const handleDelete = async () => {
+    if (confirm('Are you sure?')) {
+      try {
+        await deleteReview.mutateAsync(reviewId);
+        // Review deleted successfully
+      } catch (error) {
+        // Handle error
+      }
+    }
+  };
+  
+  return (
+    <button onClick={handleDelete} disabled={deleteReview.isPending}>
+      {deleteReview.isPending ? 'Deleting...' : 'Delete'}
+    </button>
+  );
+}
+```
+
+**Parameters:**
+- `reviewId: string` - The review ID to delete
+
+**Note:** Only owner or admin can delete reviews.
+
+### useUpdateReviewStatus
+
+Updates a review's status (admin only).
+
+```typescript
+import { useUpdateReviewStatus } from '../tanstack/useReviews';
+
+function ReviewModeration({ reviewId }: { reviewId: string }) {
+  const updateStatus = useUpdateReviewStatus();
+  
+  const handleApprove = async () => {
+    try {
+      await updateStatus.mutateAsync({
+        reviewId,
+        statusData: { status: 'APPROVED' }
+      });
+      // Status updated successfully
+    } catch (error) {
+      // Handle error
+    }
+  };
+  
+  return <button onClick={handleApprove}>Approve Review</button>;
+}
+```
+
+**Parameters:**
+- `reviewId: string` - The review ID
+- `statusData.status: 'PENDING' | 'APPROVED' | 'REJECTED'` - New status
+
+**Note:** Only admin can update review status.
+
+---
+
 **Last Updated:** February 2026  
 **Version:** 1.0.0
 

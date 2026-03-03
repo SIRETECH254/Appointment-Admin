@@ -955,6 +955,167 @@ The system uses a unified user model with roles:
 
 ---
 
+### Review Endpoints
+
+**Base:** `/api/reviews`
+
+#### Create Review
+- **Endpoint:** `POST /reviews`
+- **Description:** Create a review for an appointment
+- **Auth Required:** Yes
+- **Request Body:**
+  ```json
+  {
+    "appointmentId": "string",
+    "rating": 5,
+    "comment": "Great service!"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Review created successfully",
+    "data": {
+      "review": {
+        "_id": "string",
+        "userId": { /* IUser object */ },
+        "appointmentId": { /* IAppointment object with populated staffId and services */ },
+        "rating": 5,
+        "comment": "Great service!",
+        "status": "APPROVED",
+        "createdAt": "2026-01-23T10:00:00.000Z",
+        "updatedAt": "2026-01-23T10:00:00.000Z"
+      }
+    }
+  }
+  ```
+- **Validation:**
+  - `appointmentId` is required
+  - `rating` must be between 1 and 5
+  - `comment` is optional, max 1000 characters
+  - Appointment must belong to user and have status "COMPLETED"
+  - One review per appointment per user
+
+#### Get All Reviews
+- **Endpoint:** `GET /reviews`
+- **Description:** List reviews with filtering and pagination
+- **Auth Required:** No (public, optional auth for admin status filtering)
+- **Query Parameters:**
+  - `page` - Page number (default: 1)
+  - `limit` - Items per page (default: 10)
+  - `search` - Search by user name, comment, or rating
+  - `userId` - Filter by user ID
+  - `appointmentId` - Filter by appointment ID
+  - `staffId` - Filter by staff ID (via appointment)
+  - `serviceId` - Filter by service ID (via appointment)
+  - `status` - Filter by status (PENDING, APPROVED, REJECTED)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "reviews": [ /* IReview[] with populated userId and appointmentId */ ],
+      "pagination": {
+        "currentPage": 1,
+        "totalPages": 1,
+        "totalReviews": 1,
+        "hasNextPage": false,
+        "hasPrevPage": false
+      },
+      "averageRating": 5.0
+    }
+  }
+  ```
+- **Note:** By default, only approved reviews are shown. Admins can filter by status.
+
+#### Get Review by ID
+- **Endpoint:** `GET /reviews/:reviewId`
+- **Description:** Get a review by ID
+- **Auth Required:** No (public)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "review": {
+        "_id": "string",
+        "userId": { /* IUser object */ },
+        "appointmentId": { /* IAppointment object with populated staffId and services */ },
+        "rating": 5,
+        "comment": "Great service!",
+        "status": "APPROVED",
+        "createdAt": "2026-01-23T10:00:00.000Z",
+        "updatedAt": "2026-01-23T10:00:00.000Z"
+      }
+    }
+  }
+  ```
+
+#### Update Review
+- **Endpoint:** `PUT /reviews/:reviewId`
+- **Description:** Update review rating or comment
+- **Auth Required:** Yes (owner or admin)
+- **Request Body:**
+  ```json
+  {
+    "rating": 4,
+    "comment": "Updated comment"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Review updated successfully",
+    "data": {
+      "review": { /* Updated IReview object */ }
+    }
+  }
+  ```
+- **Validation:**
+  - `rating` is optional, must be between 1 and 5 if provided
+  - `comment` is optional, max 1000 characters if provided
+  - Only owner or admin can update
+
+#### Delete Review
+- **Endpoint:** `DELETE /reviews/:reviewId`
+- **Description:** Delete a review
+- **Auth Required:** Yes (owner or admin)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Review deleted successfully"
+  }
+  ```
+
+#### Update Review Status
+- **Endpoint:** `PATCH /reviews/:reviewId/status`
+- **Description:** Update review status (PENDING/APPROVED/REJECTED)
+- **Auth Required:** Yes (admin only)
+- **Request Body:**
+  ```json
+  {
+    "status": "REJECTED"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Review status updated successfully",
+    "data": {
+      "review": { /* Updated IReview object */ }
+    }
+  }
+  ```
+- **Validation:**
+  - `status` must be one of: PENDING, APPROVED, REJECTED
+  - Only admin can update status
+
+---
+
 ## Response Format
 
 ### Success Response

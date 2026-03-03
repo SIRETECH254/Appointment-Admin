@@ -25,6 +25,8 @@ import NotificationSettings from './routes/protected/notifications/NotificationS
 import NewsletterList from './routes/protected/newsletters/NewsletterList'
 import NewsletterDetails from './routes/protected/newsletters/NewsletterDetails'
 import SendNewsletter from './routes/protected/newsletters/SendNewsletter'
+import ReviewList from './routes/protected/reviews/ReviewList'
+import ReviewDetails from './routes/protected/reviews/ReviewDetails'
 import PaymentAdd from './routes/protected/payments/PaymentAdd'
 import PaymentDetails from './routes/protected/payments/PaymentDetails'
 import PaymentList from './routes/protected/payments/PaymentList'
@@ -159,6 +161,10 @@ function App() {
 
         {/* Availability */}
         <Route path="/availability" element={<AvailabilityView />} />
+
+        {/* Reviews */}
+        <Route path="/reviews" element={<ReviewList />} />
+        <Route path="/reviews/:id" element={<ReviewDetails />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

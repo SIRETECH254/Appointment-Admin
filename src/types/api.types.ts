@@ -901,3 +901,43 @@ export interface StaffActivityStatsResponse {
     completedCount: number;
   }>;
 }
+
+// ============================================
+// Review Types
+// ============================================
+
+export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface IReview {
+  _id: string;
+  userId: string | IUser; // Can be populated
+  appointmentId: string | IAppointment; // Can be populated
+  rating: number; // 1-5
+  comment?: string;
+  status: ReviewStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateReviewPayload {
+  appointmentId: string;
+  rating: number; // 1-5
+  comment?: string;
+}
+
+export interface UpdateReviewPayload {
+  rating?: number; // 1-5
+  comment?: string;
+}
+
+export interface UpdateReviewStatusPayload {
+  status: ReviewStatus;
+}
+
+export interface GetReviewsParams extends PaginationParams {
+  userId?: string;
+  appointmentId?: string;
+  staffId?: string;
+  serviceId?: string;
+  status?: ReviewStatus;
+}

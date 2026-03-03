@@ -11,6 +11,7 @@ import {
   MdMailOutline,
   MdNotificationsNone,
   MdRoomService,
+  MdStar,
   MdStorefront,
 } from 'react-icons/md'
 
@@ -34,6 +35,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Payments', path: '/payments', icon: MdLocalAtm, end: true },
   { label: 'Roles', path: '/roles', icon: MdAssignment, end: true },
   { label: 'Services', path: '/services', icon: MdRoomService, end: true },
+  { label: 'Reviews', path: '/reviews', icon: MdStar, end: true },
   { label: 'Contact', path: '/contact', icon: MdMailOutline, end: true },
   {
     label: 'Notifications',
