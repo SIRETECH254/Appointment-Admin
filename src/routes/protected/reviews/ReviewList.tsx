@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiFilter, FiList, FiSearch, FiEye, FiEdit2, FiTrash2, FiStar } from 'react-icons/fi';
+import { FiFilter, FiList, FiSearch, FiEye, FiTrash2, FiStar } from 'react-icons/fi';
 import { useGetAllReviews, useDeleteReview, useUpdateReviewStatus } from '../../../tanstack/useReviews';
 import { useGetAllUsers } from '../../../tanstack/useUsers';
 import { useGetAllServices } from '../../../tanstack/useServices';

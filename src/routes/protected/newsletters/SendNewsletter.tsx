@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiSend, FiX } from 'react-icons/fi';
 import { useSendNewsletter, useGetSubscriptionStats } from '../../../tanstack/useNewsletters';

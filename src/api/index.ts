@@ -54,7 +54,6 @@ import type {
   ReplyToContactPayload,
   GetContactsParams,
   // Newsletter types
-  SubscribeNewsletterPayload,
   SendNewsletterPayload,
   UpdateNewsletterStatusPayload,
   GetNewslettersParams,
