@@ -17,10 +17,10 @@
 ```tsx
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useGetPaymentById } from '@/tanstack/usePayments';
-import { formatPaymentStatus, getPaymentStatusVariant, formatPaymentMethod, formatPaymentType, formatCurrency } from '@/utils/paymentUtils';
-import { formatDateTimeWithTime } from '@/utils';
-import type { IPayment } from '@/types/api.types';
+import { useGetPaymentById } from '../../../tanstack/usePayments';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatPaymentType, formatCurrency, getPaymentAppointmentId } from '../../../utils/paymentUtils';
+import { formatDateTimeWithTime } from '../../../utils/userUtils';
 ```
 
 ## Context and State Management

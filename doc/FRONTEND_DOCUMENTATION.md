@@ -184,7 +184,15 @@ appointment-admin/
 │   │       ├── notifications/
 │   │       │   ├── NotificationList.tsx
 │   │       │   ├── NotificationDetails.tsx
+│   │       │   ├── NotificationAdd.tsx
 │   │       │   └── NotificationSettings.tsx
+│   │       ├── newsletters/
+│   │       │   ├── NewsletterList.tsx
+│   │       │   ├── NewsletterDetails.tsx
+│   │       │   └── SendNewsletter.tsx
+│   │       ├── reviews/
+│   │       │   ├── ReviewList.tsx
+│   │       │   └── ReviewDetails.tsx
 │   │       ├── staff/
 │   │       │   ├── StaffList.tsx
 │   │       │   ├── StaffDetails.tsx
@@ -226,24 +234,43 @@ appointment-admin/
 │   │       ├── useAppointments.ts
 │   │       └── ...
 │   │
+│   ├── tanstack/                  # TanStack Query hooks
+│   │   ├── index.ts
+│   │   ├── useUsers.ts
+│   │   ├── useRoles.ts
+│   │   ├── useServices.ts
+│   │   ├── useAppointments.ts
+│   │   ├── useBreaks.ts
+│   │   ├── useAvailability.ts
+│   │   ├── usePayments.ts
+│   │   ├── useNotifications.ts
+│   │   ├── useContact.ts
+│   │   ├── useDashboard.ts
+│   │   ├── useStoreConfig.ts
+│   │   ├── useNewsletters.ts
+│   │   └── useReviews.ts
+│   │
+│   ├── utils/                     # Utility functions
+│   │   ├── appointmentUtils.ts
+│   │   ├── breakUtils.ts
+│   │   ├── contactUtils.ts
+│   │   ├── notificationUtils.ts
+│   │   ├── paymentUtils.ts
+│   │   ├── reviewUtils.ts
+│   │   ├── roleUtils.ts
+│   │   ├── serviceUtils.ts
+│   │   ├── storeConfigUtils.ts
+│   │   └── userUtils.ts
+│   │
 │   ├── constants/
 │   │   └── theme.ts               # Brand colors (gold), typography, spacing
 │   │
 │   ├── api/                       # API client and domain modules
-│   │   ├── client.ts              # Axios instance + interceptors
-│   │   ├── auth.ts
-│   │   ├── users.ts
-│   │   ├── roles.ts
-│   │   ├── services.ts
-│   │   ├── storeConfig.ts
-│   │   ├── breaks.ts
-│   │   ├── appointments.ts
-│   │   ├── payments.ts
-│   │   ├── notifications.ts
-│   │   ├── contact.ts
-│   │   ├── staff.ts
-│   │   ├── availability.ts
-│   │   └── index.ts
+│   │   ├── config.ts              # Axios instance + interceptors
+│   │   ├── index.ts               # All API modules exported
+│   │   # API modules: auth, users, roles, services, storeConfig, breaks,
+│   │   # appointments, payments, notifications, contact, staff, availability,
+│   │   # newsletter, dashboard, review
 │   │
 │   ├── store/                     # Redux store (e.g. auth slice)
 │   │   ├── index.ts
@@ -907,7 +934,79 @@ appointment-admin/
 
 ---
 
-### 18. Staff Management
+### 18. Newsletter Management
+
+#### Newsletter List (`/newsletters`)
+**Purpose:** List all newsletter subscribers (admin).
+
+**Features:**
+- Table with email, status, subscribed date; filters (status, search).
+- Actions: view, edit status, delete.
+- "Send Newsletter" button.
+- Pagination.
+
+**Backend:** `GET /api/newsletter`
+
+**Route:** `/newsletters`
+
+---
+
+#### Newsletter Details (`/newsletters/:id`)
+**Purpose:** View single subscriber details (admin).
+
+**Features:**
+- Email, status, subscribed date, unsubscribed date.
+- Edit status and delete actions.
+
+**Backend:** `GET /api/newsletter/:subscriberId`
+
+**Route:** `/newsletters/:id`
+
+---
+
+#### Send Newsletter (`/newsletters/send`)
+**Purpose:** Send newsletter to subscribers (admin).
+
+**Features:**
+- Form: subject, message, status filter (SUBSCRIBED/ALL).
+- Preview count of recipients.
+- Submit and send newsletter.
+
+**Backend:** `POST /api/newsletter/send`, `GET /api/newsletter/stats`
+
+**Route:** `/newsletters/send`
+
+---
+
+### 19. Review Management
+
+#### Review List (`/reviews`)
+**Purpose:** List all reviews (admin/public).
+
+**Features:**
+- Table with user, appointment, rating, comment, status; filters (status, search).
+- Actions: view, approve/reject (admin), delete.
+
+**Backend:** `GET /api/reviews`
+
+**Route:** `/reviews`
+
+---
+
+#### Review Details (`/reviews/:id`)
+**Purpose:** View single review details.
+
+**Features:**
+- User info, appointment details, rating, comment, status.
+- Edit and delete actions (owner/admin).
+
+**Backend:** `GET /api/reviews/:reviewId`
+
+**Route:** `/reviews/:id`
+
+---
+
+### 20. Staff Management
 
 #### Staff List (`/staff`)
 **Purpose:** List staff (admin).
@@ -975,7 +1074,7 @@ appointment-admin/
 
 ---
 
-### 19. Availability (optional)
+### 21. Availability (optional)
 
 #### Availability View (`/availability`)
 **Purpose:** View available slots or day summary.
@@ -1083,7 +1182,7 @@ export const BrandColors = {
 ### Route Hierarchy
 
 - **Public:** `/login`, `/forgot-password`, `/reset-password/:token`, `/verify-otp`
-- **Protected (under layout):** `/dashboard`, `/profile`, `/profile/change-password`, `/users`, `/users/new`, `/users/:id`, `/users/:id/edit`, `/store`, `/store/edit`, `/breaks`, `/breaks/new`, `/breaks/:id`, `/breaks/:id/edit`, `/appointments`, `/appointments/new`, `/appointments/:id`, `/appointments/:id/edit`, `/payments`, `/payments/new`, `/payments/:id`, `/roles`, `/roles/new`, `/roles/:id`, `/roles/:id/edit`, `/services`, `/services/new`, `/services/:id`, `/services/:id/edit`, `/contact`, `/contact/:id`, `/contact/:id/reply`, `/notifications`, `/notifications/settings`, `/notifications/:id`, `/staff`, `/staff/new`, `/staff/:id`, `/staff/:id/edit`, `/staff/:id/schedule`, `/availability`
+- **Protected (under layout):** `/dashboard`, `/profile`, `/profile/edit`, `/profile/change-password`, `/users`, `/users/new`, `/users/:id`, `/users/:id/edit`, `/store`, `/store/edit`, `/breaks`, `/breaks/new`, `/breaks/:id`, `/breaks/:id/edit`, `/appointments`, `/appointments/new`, `/appointments/:id`, `/appointments/:id/edit`, `/appointments/:id/confirm`, `/appointments/:id/reschedule`, `/appointments/:id/finish-payment`, `/payments`, `/payments/new`, `/payments/:id`, `/payments/service`, `/payments/status`, `/roles`, `/roles/new`, `/roles/:id`, `/roles/:id/edit`, `/services`, `/services/new`, `/services/:id`, `/services/:id/edit`, `/contact`, `/contact/:id`, `/contact/:id/reply`, `/notifications`, `/notifications/new`, `/notifications/settings`, `/notifications/:id`, `/newsletters`, `/newsletters/send`, `/newsletters/:id`, `/reviews`, `/reviews/:id`, `/staff`, `/staff/new`, `/staff/:id`, `/staff/:id/edit`, `/staff/:id/schedule`, `/availability`
 - **Root:** `/` → redirect by auth
 - **404:** `*` → NotFound
 
@@ -1198,7 +1297,7 @@ The Appointment Admin UI uses a **gold** theme for primary actions and accents, 
 
 - **Redux (or similar):** Global app state; auth slice holds user and tokens. Persist to localStorage via redux-persist so sessions survive refresh. Serialize only safe fields (no raw password).
 - **AuthProvider:** Wraps app; reads/writes auth state (Redux or local); provides login, logout, refresh, user, isAuthenticated, isLoading. On mount, optionally validate token or refresh; redirect unauthenticated users from protected routes.
-- **TanStack Query:** Server state for all API-backed lists and details (users, roles, services, store config, breaks, appointments, payments, contact, notifications, staff). Use default staleTime (e.g. 5 min) and gcTime (e.g. 10 min); query keys per resource and filters; mutations invalidate relevant queries. Co-locate hooks with API modules or in `hooks/queries/`.
+- **TanStack Query:** Server state for all API-backed lists and details (users, roles, services, store config, breaks, appointments, payments, contact, notifications, newsletters, reviews, dashboard, staff, availability). All hooks are located in `src/tanstack/` directory. Use default staleTime (e.g. 5 min) and gcTime (e.g. 10 min); query keys per resource and filters; mutations invalidate relevant queries.
 - **Local state:** useState/useReducer for modals, filters, form draft, UI toggles.
 - **Navigation state:** React Router (location, params); no duplicate state for route data.
 
@@ -1208,7 +1307,7 @@ The Appointment Admin UI uses a **gold** theme for primary actions and accents, 
 
 ### API Client
 
-- **File:** `api/client.ts` (or `services/api.ts`).
+- **File:** `api/config.ts` - Axios instance with interceptors
 - **Base URL:** From `import.meta.env.VITE_API_URL` (e.g. `http://localhost:4500`).
 - **Request interceptor:** Attach `Authorization: Bearer <accessToken>` from Redux or AuthProvider.
 - **Response interceptor:** On 401, try refresh (e.g. `POST /api/auth/refresh-token` with refreshToken); on success update token and retry request; on failure clear auth and redirect to login. For other errors, optionally show toast or global error handler.
@@ -1226,6 +1325,9 @@ The Appointment Admin UI uses a **gold** theme for primary actions and accents, 
 - **payments:** getPayments, getPayment, initiatePayment (and service-payment if used).
 - **notifications:** getNotifications, getUnreadCount, getUnread, getByCategory, getNotification, markAsRead, markAllAsRead, deleteNotification, sendNotification, sendBulkNotification.
 - **contact:** getContacts, getContact, replyToContact, updateContactStatus.
+- **newsletter:** subscribeNewsletter, unsubscribeNewsletter, getAllSubscribers, getSubscriberById, updateSubscriberStatus, deleteSubscriber, sendNewsletter, getSubscriptionStats.
+- **review:** getAllReviews, getReview, createReview, updateReview, deleteReview, updateReviewStatus.
+- **dashboard:** getAdminDashboard, getClientDashboard, getRevenueStats, getAppointmentStats, getServiceDemandStats, getStaffActivityStats.
 - **staff:** getStaff, getStaffList, createStaff, updateStaff, setWorkingHours, setAvailabilityStatus, getStaffSchedule.
 - **availability:** getAvailableSlots, getDayAvailability.
 

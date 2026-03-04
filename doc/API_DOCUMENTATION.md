@@ -424,9 +424,9 @@ The system uses a unified user model with roles:
 - **Request Body:**
   ```json
   {
-    "paymentMethod": "MPESA" | "CARD",
-    "phoneNumber": "string",
-    "email": "string"
+    "method": "MPESA" | "CARD",
+    "phone": "string",  // Required for MPESA
+    "email": "string"   // Required for CARD
   }
   ```
 
@@ -1113,6 +1113,175 @@ The system uses a unified user model with roles:
 - **Validation:**
   - `status` must be one of: PENDING, APPROVED, REJECTED
   - Only admin can update status
+
+---
+
+### Newsletter Endpoints
+
+**Base:** `/api/newsletter`
+
+#### Subscribe to Newsletter
+- **Endpoint:** `POST /newsletter/subscribe`
+- **Description:** Subscribe an email to the newsletter
+- **Auth Required:** No
+- **Request Body:**
+  ```json
+  {
+    "email": "string"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Successfully subscribed to newsletter",
+    "data": {
+      "subscriber": {
+        "_id": "string",
+        "email": "string",
+        "status": "SUBSCRIBED",
+        "subscribedAt": "ISO8601 datetime",
+        "unsubscribedAt": "ISO8601 datetime | null"
+      }
+    }
+  }
+  ```
+
+#### Unsubscribe from Newsletter
+- **Endpoint:** `GET /newsletter/unsubscribe`
+- **Description:** Unsubscribe from newsletter using token or email
+- **Auth Required:** No
+- **Query Parameters:**
+  - `token` (optional) - Unsubscribe token from email link
+  - `email` (optional) - Email address to unsubscribe
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Successfully unsubscribed from newsletter"
+  }
+  ```
+
+#### Get All Subscribers
+- **Endpoint:** `GET /newsletter`
+- **Description:** Get all newsletter subscribers (admin only)
+- **Auth Required:** Yes (Admin)
+- **Query Parameters:**
+  - `page` - Page number (default: 1)
+  - `limit` - Items per page (default: 10)
+  - `search` - Search by email
+  - `status` - Filter by status (SUBSCRIBED, UNSUBSCRIBED)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "subscribers": [...],
+      "pagination": {
+        "page": 1,
+        "limit": 10,
+        "total": 100,
+        "totalPages": 10
+      }
+    }
+  }
+  ```
+
+#### Get Subscriber by ID
+- **Endpoint:** `GET /newsletter/:subscriberId`
+- **Description:** Get single subscriber details (admin only)
+- **Auth Required:** Yes (Admin)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "subscriber": {
+        "_id": "string",
+        "email": "string",
+        "status": "SUBSCRIBED" | "UNSUBSCRIBED",
+        "subscribedAt": "ISO8601 datetime",
+        "unsubscribedAt": "ISO8601 datetime | null",
+        "createdAt": "ISO8601 datetime",
+        "updatedAt": "ISO8601 datetime"
+      }
+    }
+  }
+  ```
+
+#### Update Subscriber Status
+- **Endpoint:** `PATCH /newsletter/:subscriberId/status`
+- **Description:** Update subscriber status (admin only)
+- **Auth Required:** Yes (Admin)
+- **Request Body:**
+  ```json
+  {
+    "status": "SUBSCRIBED" | "UNSUBSCRIBED"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Subscriber status updated successfully",
+    "data": {
+      "subscriber": { /* Updated subscriber object */ }
+    }
+  }
+  ```
+
+#### Delete Subscriber
+- **Endpoint:** `DELETE /newsletter/:subscriberId`
+- **Description:** Delete subscriber from newsletter (admin only)
+- **Auth Required:** Yes (Admin)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Subscriber deleted successfully"
+  }
+  ```
+
+#### Send Newsletter
+- **Endpoint:** `POST /newsletter/send`
+- **Description:** Send newsletter to subscribers (admin only)
+- **Auth Required:** Yes (Admin)
+- **Request Body:**
+  ```json
+  {
+    "subject": "string",
+    "message": "string",
+    "status": "SUBSCRIBED" | "ALL" (optional, default: "SUBSCRIBED")
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Newsletter sent successfully",
+    "data": {
+      "sentCount": 85,
+      "failedCount": 0
+    }
+  }
+  ```
+
+#### Get Subscription Statistics
+- **Endpoint:** `GET /newsletter/stats`
+- **Description:** Get newsletter subscription statistics (admin only)
+- **Auth Required:** Yes (Admin)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "totalSubscribers": 150,
+      "activeSubscribers": 120,
+      "unsubscribedCount": 30,
+      "subscriptionRate": 80.0
+    }
+  }
+  ```
 
 ---
 

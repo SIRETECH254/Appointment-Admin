@@ -18,13 +18,13 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdEmail, MdSend } from 'react-icons/md';
+import { MdSend } from 'react-icons/md';
 import { FiFilter, FiList, FiSearch, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import { useGetAllSubscribers, useDeleteSubscriber } from '@/tanstack/useNewsletters';
-import Pagination from '@/components/ui/Pagination';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import StatusBadge from '@/components/ui/StatusBadge';
-import type { INewsletter, IUser } from '@/types/api.types';
+import { useGetAllSubscribers, useDeleteSubscriber } from '../../../tanstack/useNewsletters';
+import Pagination from '../../../components/ui/Pagination';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import type { INewsletter, IUser } from '../../../types/api.types';
 ```
 
 ## Context and State Management
@@ -40,7 +40,7 @@ import type { INewsletter, IUser } from '@/types/api.types';
 
 ## UI Structure
 - **Toolbar:** Search input, status filter dropdown, items per page selector, "Send Newsletter" button.
-- **Table:** HTML `<table>` element with `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>` tags. Header row with columns (Email, Status, Subscribed At, Source, User, Actions), data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
+- **Table:** Uses `table-container`, `table`, `table-header`, `table-body`, `table-row`, `table-cell` classes. Header row with columns (Email, Status, Subscribed At, Actions). Uses `StatusBadge` component for status display. Data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
 - **Pagination:** Component at bottom showing current page, total pages, and navigation controls.
 - **Delete Modal:** Confirmation modal (`ConfirmModal`) for delete actions instead of browser alert.
 

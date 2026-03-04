@@ -19,9 +19,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { MdArrowBack } from 'react-icons/md';
-import { useGetContactMessageById, useReplyToContactMessage } from '@/tanstack/useContact';
-import { formatDateTimeWithTime } from '@/utils/contactUtils';
-import type { IContact } from '@/types/api.types';
+import { FiMail, FiTag, FiMessageSquare, FiUser, FiCalendar, FiSend } from 'react-icons/fi';
+import { useGetContactMessageById, useReplyToContactMessage } from '../../../tanstack/useContact';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatDateTimeWithTime, getRecipientEmail } from '../../../utils/contactUtils';
+import type { IContact } from '../../../types/api.types';
 ```
 
 ## Context and State Management

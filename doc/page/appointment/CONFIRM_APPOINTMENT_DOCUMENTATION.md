@@ -18,9 +18,9 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useGetAppointment, useConfirmAppointment } from '@/tanstack/useAppointments';
-import { formatAppointmentDateTime, formatCurrency } from '@/utils';
-import type { ConfirmAppointmentPayload } from '@/types/api.types';
+import { useGetAppointment, useConfirmAppointment } from '../../../tanstack/useAppointments';
+import { formatAppointmentDateTime } from '../../../utils/appointmentUtils';
+import { formatCurrency } from '../../../utils/paymentUtils';
 ```
 
 ## Context and State Management

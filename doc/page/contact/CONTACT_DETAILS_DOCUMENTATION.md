@@ -18,10 +18,11 @@
 ```tsx
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { MdArrowBack, MdReply } from 'react-icons/md';
-import { useGetContactMessageById, useUpdateContactStatus } from '@/tanstack/useContact';
-import { formatDateTimeWithTime, getStatusBadgeClass, getStatusDisplayName } from '@/utils/contactUtils';
-import type { IContact, ContactStatus } from '@/types/api.types';
+import { FiArrowLeft, FiSend, FiUser, FiPhone, FiFileText, FiMessageSquare, FiCalendar, FiCheckCircle, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
+import { useGetContactMessageById, useUpdateContactStatus } from '../../../tanstack/useContact';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatDateTimeWithTime } from '../../../utils/contactUtils';
+import type { IContact, ContactStatus } from '../../../types/api.types';
 ```
 
 ## Context and State Management

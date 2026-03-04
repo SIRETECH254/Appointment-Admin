@@ -17,11 +17,11 @@
 ```tsx
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { FiUser, FiMail, FiPhone, FiShield, FiCheckCircle, FiXCircle, FiCalendar, FiClock } from 'react-icons/fi';
-import { useGetUserById } from '@/tanstack/useUsers';
-import StatusBadge from '@/components/ui/StatusBadge';
-import { formatDateTimeWithTime, getUserInitials, getRoleDisplayName } from '@/utils/userUtils';
-import type { IUser } from '@/types/api.types';
+import { FiMail, FiPhone, FiShield, FiCheckCircle, FiXCircle, FiCalendar, FiClock, FiAlertTriangle } from 'react-icons/fi';
+import { useGetUserById } from '../../../tanstack/useUsers';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatDateTimeWithTime, getUserInitials } from '../../../utils/userUtils';
+import type { IUser, IRole } from '../../../types/api.types';
 ```
 
 ## Context and State Management
@@ -147,7 +147,7 @@ import type { IUser } from '@/types/api.types';
 - React Icons: `FiUser`, `FiMail`, `FiPhone`, `FiShield`, `FiCheckCircle`, `FiXCircle`, `FiCalendar`, `FiClock` for section icons.
 - TanStack Query: `useGetUserById` hook.
 - StatusBadge: For roles, status, and verification statuses.
-- Utility Functions: `formatDateTimeWithTime`, `getUserInitials`, `getRoleDisplayName` from `@/utils/userUtils`.
+- Utility Functions: `formatDateTimeWithTime`, `getUserInitials` from `../../../utils/userUtils`.
 - Tailwind CSS classes: `btn-primary`, `btn-secondary`, `rounded-2xl`, `border`, `shadow-sm`, `p-6`.
 
 ## Error Handling

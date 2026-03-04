@@ -18,12 +18,14 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdEdit, MdDelete, MdAdd } from 'react-icons/md';
-import { useGetAllRoles, useDeleteRole } from '@/tanstack/useRoles';
-import Pagination from '@/components/ui/Pagination';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { formatDateTime, getRoleInitials, formatPermissions } from '@/utils/roleUtils';
-import type { IRole } from '@/types/api.types';
+import { MdAdd } from 'react-icons/md';
+import { FiSearch, FiFilter, FiList, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { useGetAllRoles, useDeleteRole } from '../../../tanstack/useRoles';
+import Pagination from '../../../components/ui/Pagination';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatDateTime, getRoleInitials } from '../../../utils/roleUtils';
+import type { IRole } from '../../../types/api.types';
 ```
 
 ## Context and State Management
@@ -39,7 +41,7 @@ import type { IRole } from '@/types/api.types';
 
 ## UI Structure
 - **Toolbar:** Search input, status filter dropdown, items per page selector, "Add Role" button.
-- **Table:** HTML `<table>` element with `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>` tags. Header row with columns (Name, Display Name, Permissions, Status, System Role, Created, Actions), data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
+- **Table:** Uses `table-container`, `table`, `table-header`, `table-body`, `table-row`, `table-cell` classes. Header row with columns (Name, Display Name, Permissions, Status, System Role, Created, Actions). Uses `StatusBadge` component for status display. Data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
 - **Pagination:** Component at bottom showing current page, total pages, and navigation controls.
 - **Delete Modal:** Confirmation modal (`ConfirmModal`) for delete actions instead of browser alert.
 
@@ -104,7 +106,8 @@ import type { IRole } from '@/types/api.types';
 - React Icons: `MdVisibility`, `MdEdit`, `MdDelete`, `MdAdd` for action buttons.
 - TanStack Query: `useGetAllRoles`, `useDeleteRole` hooks.
 - Custom Components: `Pagination` component for pagination controls, `ConfirmModal` for delete confirmation.
-- Utility Functions: `formatDateTime`, `getRoleInitials`, `formatPermissions` from `@/utils/roleUtils`.
+- Utility Functions: `formatDateTime`, `getRoleInitials` from `../../../utils/roleUtils`.
+- Custom Components: `StatusBadge` for status display.
 - Tailwind CSS classes: `input-search`, `btn-primary`, `btn-secondary`, `btn-sm`, `btn-ghost`, `badge-soft`, `badge-success`, `badge-error`, `alert-error`.
 
 ## Error Handling

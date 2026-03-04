@@ -18,11 +18,12 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdReply, MdEdit } from 'react-icons/md';
-import { useGetAllContactMessages, useUpdateContactStatus } from '@/tanstack/useContact';
-import Pagination from '@/components/ui/Pagination';
-import { formatDateTime, getStatusBadgeClass, getStatusDisplayName } from '@/utils/contactUtils';
-import type { IContact, ContactStatus } from '@/types/api.types';
+import { FiSearch, FiFilter, FiList, FiEye, FiSend } from 'react-icons/fi';
+import { useGetAllContactMessages } from '../../../tanstack/useContact';
+import Pagination from '../../../components/ui/Pagination';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatDateTime } from '../../../utils/contactUtils';
+import type { IContact } from '../../../types/api.types';
 ```
 
 ## Context and State Management

@@ -18,9 +18,9 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSendNotification } from '@/tanstack/useNotifications';
-import { useGetAllUsers } from '@/tanstack/useUsers';
-import type { SendNotificationPayload } from '@/types/api.types';
+import { useSendNotification, useSendBulkNotification } from '../../../tanstack/useNotifications';
+import { useGetAllUsers } from '../../../tanstack/useUsers';
+import type { SendNotificationPayload, SendBulkNotificationPayload, IUser } from '../../../types/api.types';
 ```
 
 ## Context and State Management

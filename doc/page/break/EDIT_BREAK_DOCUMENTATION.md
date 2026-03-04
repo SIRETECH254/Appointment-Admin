@@ -18,10 +18,9 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useGetBreakById, useUpdateBreak } from '@/tanstack/useBreaks';
-import { useGetAllUsers } from '@/tanstack/useUsers';
-import { formatDateTimeLocal } from '@/utils/breakUtils';
-import type { IBreak, UpdateBreakPayload } from '@/types/api.types';
+import { useGetBreakById, useUpdateBreak } from '../../../tanstack/useBreaks';
+import { formatTimeInput, isTimeBefore } from '../../../utils/breakUtils';
+import type { IBreak, UpdateBreakPayload } from '../../../types/api.types';
 ```
 
 ## Context and State Management

@@ -20,11 +20,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ActivityIndicator } from 'react';
 import io, { Socket } from 'socket.io-client';
-import { useGetPaymentById, useQueryMpesaStatus } from '@/tanstack/usePayments';
-import { API_BASE_URL } from '@/api/config';
-import { formatPaymentStatus, getPaymentStatusVariant, formatCurrency } from '@/utils/paymentUtils';
-import { formatDateTime } from '@/utils';
-import type { IPayment } from '@/types/api.types';
+import { useGetPaymentById, useQueryMpesaStatus } from '../../../tanstack/usePayments';
+import { API_BASE_URL } from '../../../api/config';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatCurrency, isMpesaPayment } from '../../../utils/paymentUtils';
+import { formatDateTime } from '../../../utils/userUtils';
 ```
 
 ## Context and State Management

@@ -18,12 +18,14 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdAdd } from 'react-icons/md';
-import { useGetAllPayments } from '@/tanstack/usePayments';
-import Pagination from '@/components/ui/Pagination';
-import { formatPaymentStatus, getPaymentStatusVariant, formatPaymentMethod, formatPaymentType } from '@/utils/paymentUtils';
-import { formatDateTime } from '@/utils';
-import type { IPayment } from '@/types/api.types';
+import { MdAdd } from 'react-icons/md';
+import { FiSearch, FiFilter, FiList, FiEye } from 'react-icons/fi';
+import { useGetAllPayments } from '../../../tanstack/usePayments';
+import Pagination from '../../../components/ui/Pagination';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatPaymentType, formatCurrency, getPaymentCustomerName } from '../../../utils/paymentUtils';
+import { formatDateTime } from '../../../utils/userUtils';
+import type { IPayment } from '../../../types/api.types';
 ```
 
 ## Context and State Management
@@ -42,7 +44,7 @@ import type { IPayment } from '@/types/api.types';
 
 ## UI Structure
 - **Toolbar:** Search input, status filter dropdown, method filter dropdown, type filter dropdown, date range pickers, items per page selector, "Service Payment" button.
-- **Table:** HTML `<table>` element with `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>` tags. Header row with columns (Payment Number, Customer, Amount, Method, Type, Status, Date, Actions), data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
+- **Table:** Uses `table-container`, `table`, `table-header`, `table-body`, `table-row`, `table-cell` classes. Header row with columns (Payment Number, Customer, Amount, Method, Type, Status, Date, Actions). Uses `StatusBadge` component for status display. Data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
 - **Pagination:** Component at bottom showing current page, total pages, and navigation controls.
 
 ## Planned Layout

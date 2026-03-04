@@ -19,10 +19,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MdVisibility, MdAdd } from 'react-icons/md';
-import { useGetAllAppointments } from '@/tanstack/useAppointments';
-import Pagination from '@/components/ui/Pagination';
-import { formatAppointmentDateTime, formatAppointmentStatus, getAppointmentStatusVariant } from '@/utils/appointmentUtils';
-import { formatCurrency } from '@/utils/paymentUtils';
+import { useGetAllAppointments } from '../../../tanstack/useAppointments';
+import { useGetAllUsers } from '../../../tanstack/useUsers';
+import Pagination from '../../../components/ui/Pagination';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatAppointmentDateTime, getAppointmentCustomerName, getAppointmentStaffName } from '../../../utils/appointmentUtils';
+import { formatCurrency } from '../../../utils/paymentUtils';
 import type { IAppointment } from '@/types/api.types';
 ```
 
@@ -40,8 +42,8 @@ import type { IAppointment } from '@/types/api.types';
 - **Derived State:** `params` memo combines filters, search, and pagination for API call.
 
 ## UI Structure
-- **Toolbar:** Search input, status filter dropdown, staff filter dropdown, date range pickers, items per page selector, "Add Appointment" button.
-- **Table:** HTML `<table>` element with `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>` tags. Header row with columns (Customer, Staff, Services, Date/Time, Status, Amount, Actions), data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
+- **Toolbar:** Search input with search icon, status filter dropdown, staff filter dropdown, items per page selector, "Add Appointment" button.
+- **Table:** Uses `table-container`, `table`, `table-header`, `table-body`, `table-row`, `table-cell` classes. Header row with columns (Customer, Staff, Services, Date/Time, Status, Amount, Actions). Uses `StatusBadge` component for status display. Data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
 - **Pagination:** Component at bottom showing current page, total pages, and navigation controls.
 
 ## Planned Layout
@@ -102,11 +104,11 @@ import type { IAppointment } from '@/types/api.types';
 
 ## Components Used
 - React Router DOM: `Link` for navigation.
-- React Icons: `MdVisibility`, `MdAdd` for action buttons.
-- TanStack Query: `useGetAllAppointments` hook.
-- Custom Components: `Pagination` component for pagination controls.
-- Utility Functions: `formatAppointmentDateTime`, `formatAppointmentStatus`, `getAppointmentStatusVariant` from `@/utils/appointmentUtils`, `formatCurrency` from `@/utils/paymentUtils`.
-- Tailwind CSS classes: `input-search`, `btn-primary`, `btn-ghost`, `btn-sm`, `badge`, `badge-success`, `badge-error`, `badge-soft`, `alert-error`.
+- React Icons: `MdVisibility`, `MdAdd`, `FiSearch`, `FiFilter`, `FiList` for action buttons and icons.
+- TanStack Query: `useGetAllAppointments`, `useGetAllUsers` hooks.
+- Custom Components: `Pagination` component for pagination controls, `StatusBadge` component for status display.
+- Utility Functions: `formatAppointmentDateTime`, `getAppointmentCustomerName`, `getAppointmentStaffName` from `../../../utils/appointmentUtils`, `formatCurrency` from `../../../utils/paymentUtils`.
+- Tailwind CSS classes: `input-search`, `btn-primary`, `btn-ghost`, `btn-sm`, `table-container`, `table`, `table-header`, `table-body`, `table-row`, `table-cell`, `alert-error`.
 
 ## Error Handling
 - **Loading State:** Display 5 skeleton rows with `animate-pulse` effect in table body.
@@ -120,11 +122,10 @@ import type { IAppointment } from '@/types/api.types';
 - **Add Appointment Button:** Navigate to `/appointments/new` (AppointmentAdd page) with `MdAdd` icon.
 
 ## Functions Involved
-- **`formatAppointmentDateTime`** — Formats appointment date and time for display (from `@/utils/appointmentUtils`).
-  ```tsx
-  import { formatAppointmentDateTime } from '@/utils/appointmentUtils';
-  // Usage: formatAppointmentDateTime(appointment.startTime)
-  ```
+- **`formatAppointmentDateTime`** — Formats appointment date and time for display (from `../../../utils/appointmentUtils`).
+- **`getAppointmentCustomerName`** — Gets customer name from appointment (from `../../../utils/appointmentUtils`).
+- **`getAppointmentStaffName`** — Gets staff name from appointment (from `../../../utils/appointmentUtils`).
+- **`formatCurrency`** — Formats currency amounts for display (from `../../../utils/paymentUtils`).
 
 - **`formatAppointmentStatus`** — Formats appointment status for display (from `@/utils/appointmentUtils`).
   ```tsx

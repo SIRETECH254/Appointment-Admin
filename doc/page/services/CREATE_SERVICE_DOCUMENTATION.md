@@ -18,8 +18,8 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCreateService } from '@/tanstack/useServices';
-import type { CreateServicePayload } from '@/types/api.types';
+import { useCreateService } from '../../../tanstack/useServices';
+import type { CreateServicePayload, IService } from '../../../types/api.types';
 ```
 
 ## Context and State Management

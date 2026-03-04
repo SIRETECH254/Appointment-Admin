@@ -19,8 +19,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '@/contexts/AuthContext';
-import { useUpdateProfile, useGetProfile } from '@/tanstack/useUsers';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useUpdateProfile, useGetProfile } from '../../../tanstack/useUsers';
 ```
 
 ## Context and State Management

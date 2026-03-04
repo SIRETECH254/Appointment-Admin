@@ -133,7 +133,9 @@ src/
     ├── useNotifications.ts
     ├── useContact.ts
     ├── useDashboard.ts
-    └── useStoreConfig.ts
+    ├── useStoreConfig.ts
+    ├── useNewsletters.ts
+    └── useReviews.ts
 ```
 
 ### Hook Naming Convention
@@ -621,6 +623,7 @@ export const useGetAppointment = (appointmentId: string) => {
 
 ## Notes
 
+- Newsletter hooks exist in `src/tanstack/useNewsletters.ts` but are **NOT currently exported** in `src/tanstack/index.ts`. To use these hooks, import directly from the file: `import { useGetAllSubscribers } from '@/tanstack/useNewsletters'`
 - All hooks follow TypeScript typing conventions
 - Error handling uses console.error (toast notifications can be added later)
 - Cache invalidation follows consistent patterns
@@ -965,6 +968,268 @@ function ReviewModeration({ reviewId }: { reviewId: string }) {
 - `statusData.status: 'PENDING' | 'APPROVED' | 'REJECTED'` - New status
 
 **Note:** Only admin can update review status.
+
+---
+
+## Newsletter Hooks
+
+### useGetAllSubscribers
+
+Fetches all newsletter subscribers with optional filtering and pagination.
+
+```typescript
+import { useGetAllSubscribers } from '../tanstack/useNewsletters';
+
+// Get all subscribers
+const { data, isLoading } = useGetAllSubscribers();
+
+// Get subscribers with filters
+const { data } = useGetAllSubscribers({
+  page: 1,
+  limit: 10,
+  search: 'example@email.com',
+  status: 'SUBSCRIBED'
+});
+```
+
+**Parameters:**
+- `params.page?: number` - Page number (default: 1)
+- `params.limit?: number` - Items per page (default: 10)
+- `params.search?: string` - Search by email
+- `params.status?: 'SUBSCRIBED' | 'UNSUBSCRIBED'` - Filter by status
+
+**Returns:**
+- `{ subscribers: INewsletter[], pagination: {...} }` - Subscriber data with pagination
+
+**Note:** This hook is admin-only and requires authentication.
+
+### useGetSubscriberById
+
+Fetches a single subscriber by ID.
+
+```typescript
+import { useGetSubscriberById } from '../tanstack/useNewsletters';
+
+function SubscriberDetails({ subscriberId }: { subscriberId: string }) {
+  const { data, isLoading } = useGetSubscriberById(subscriberId);
+  const subscriber = data?.subscriber || data;
+  
+  return (
+    <div>
+      {subscriber && (
+        <div>
+          <h1>Email: {subscriber.email}</h1>
+          <p>Status: {subscriber.status}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+**Parameters:**
+- `subscriberId: string` - The subscriber ID
+
+**Returns:**
+- `{ subscriber: INewsletter }` - Subscriber object
+
+**Note:** This hook is automatically disabled if `subscriberId` is empty. Admin-only.
+
+### useGetSubscriptionStats
+
+Fetches newsletter subscription statistics.
+
+```typescript
+import { useGetSubscriptionStats } from '../tanstack/useNewsletters';
+
+function NewsletterStats() {
+  const { data, isLoading } = useGetSubscriptionStats();
+  const stats = data || {};
+  
+  return (
+    <div>
+      <p>Total Subscribers: {stats.totalSubscribers}</p>
+      <p>Active Subscribers: {stats.activeSubscribers}</p>
+    </div>
+  );
+}
+```
+
+**Returns:**
+- `{ totalSubscribers: number, activeSubscribers: number, unsubscribedCount: number, subscriptionRate: number }` - Subscription statistics
+
+**Note:** Admin-only hook.
+
+### useSubscribeNewsletter
+
+Subscribes an email to the newsletter.
+
+```typescript
+import { useSubscribeNewsletter } from '../tanstack/useNewsletters';
+
+function NewsletterSubscribe() {
+  const subscribeNewsletter = useSubscribeNewsletter();
+  
+  const handleSubscribe = async (email: string) => {
+    try {
+      await subscribeNewsletter.mutateAsync({ email });
+      // Subscription successful
+    } catch (error) {
+      // Handle error
+    }
+  };
+  
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      handleSubscribe('user@example.com');
+    }}>
+      {/* Form fields */}
+    </form>
+  );
+}
+```
+
+**Parameters:**
+- `payload.email: string` - Email address to subscribe
+
+**Note:** Public endpoint, no authentication required.
+
+### useUnsubscribeNewsletter
+
+Unsubscribes from the newsletter using token or email.
+
+```typescript
+import { useUnsubscribeNewsletter } from '../tanstack/useNewsletters';
+
+function NewsletterUnsubscribe() {
+  const unsubscribeNewsletter = useUnsubscribeNewsletter();
+  
+  const handleUnsubscribe = async (token?: string, email?: string) => {
+    try {
+      await unsubscribeNewsletter.mutateAsync({ token, email });
+      // Unsubscription successful
+    } catch (error) {
+      // Handle error
+    }
+  };
+  
+  return <button onClick={() => handleUnsubscribe(undefined, 'user@example.com')}>Unsubscribe</button>;
+}
+```
+
+**Parameters:**
+- `params.token?: string` - Unsubscribe token from email link
+- `params.email?: string` - Email address to unsubscribe
+
+**Note:** Public endpoint, no authentication required.
+
+### useUpdateSubscriberStatus
+
+Updates a subscriber's status (admin only).
+
+```typescript
+import { useUpdateSubscriberStatus } from '../tanstack/useNewsletters';
+
+function UpdateSubscriberStatus({ subscriberId }: { subscriberId: string }) {
+  const updateStatus = useUpdateSubscriberStatus();
+  
+  const handleUpdate = async () => {
+    try {
+      await updateStatus.mutateAsync({
+        subscriberId,
+        statusData: { status: 'UNSUBSCRIBED' }
+      });
+      // Status updated successfully
+    } catch (error) {
+      // Handle error
+    }
+  };
+  
+  return <button onClick={handleUpdate}>Update Status</button>;
+}
+```
+
+**Parameters:**
+- `subscriberId: string` - The subscriber ID
+- `statusData.status: 'SUBSCRIBED' | 'UNSUBSCRIBED'` - New status
+
+**Note:** Admin-only mutation.
+
+### useDeleteSubscriber
+
+Deletes a subscriber from the newsletter.
+
+```typescript
+import { useDeleteSubscriber } from '../tanstack/useNewsletters';
+
+function DeleteSubscriberButton({ subscriberId }: { subscriberId: string }) {
+  const deleteSubscriber = useDeleteSubscriber();
+  
+  const handleDelete = async () => {
+    if (confirm('Are you sure?')) {
+      try {
+        await deleteSubscriber.mutateAsync(subscriberId);
+        // Subscriber deleted successfully
+      } catch (error) {
+        // Handle error
+      }
+    }
+  };
+  
+  return (
+    <button onClick={handleDelete} disabled={deleteSubscriber.isPending}>
+      {deleteSubscriber.isPending ? 'Deleting...' : 'Delete'}
+    </button>
+  );
+}
+```
+
+**Parameters:**
+- `subscriberId: string` - The subscriber ID to delete
+
+**Note:** Admin-only mutation.
+
+### useSendNewsletter
+
+Sends a newsletter to subscribers.
+
+```typescript
+import { useSendNewsletter } from '../tanstack/useNewsletters';
+
+function SendNewsletterForm() {
+  const sendNewsletter = useSendNewsletter();
+  
+  const handleSend = async (subject: string, message: string, status?: 'SUBSCRIBED' | 'ALL') => {
+    try {
+      await sendNewsletter.mutateAsync({
+        subject,
+        message,
+        status: status || 'SUBSCRIBED'
+      });
+      // Newsletter sent successfully
+    } catch (error) {
+      // Handle error
+    }
+  };
+  
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      handleSend('Monthly Newsletter', 'This is the newsletter content...');
+    }}>
+      {/* Form fields */}
+    </form>
+  );
+}
+```
+
+**Parameters:**
+- `payload.subject: string` - Newsletter subject (required)
+- `payload.message: string` - Newsletter message content (required)
+- `payload.status?: 'SUBSCRIBED' | 'ALL'` - Target subscribers (default: 'SUBSCRIBED')
+
+**Note:** Admin-only mutation. Sends newsletter to all subscribers matching the status filter.
 
 ---
 

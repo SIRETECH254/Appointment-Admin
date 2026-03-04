@@ -18,13 +18,14 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdVisibility, MdEdit, MdDelete, MdAdd } from 'react-icons/md';
-import { useGetAllBreaks, useDeleteBreak } from '@/tanstack/useBreaks';
-import { useGetAllUsers } from '@/tanstack/useUsers';
-import Pagination from '@/components/ui/Pagination';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { formatBreakDateTime, formatBreakTimeRange, getStaffName, getStaffInitials } from '@/utils/breakUtils';
-import type { IBreak } from '@/types/api.types';
+import { MdAdd } from 'react-icons/md';
+import { FiFilter, FiList, FiSearch, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { useGetAllBreaks, useDeleteBreak } from '../../../tanstack/useBreaks';
+import { useGetAllUsers } from '../../../tanstack/useUsers';
+import Pagination from '../../../components/ui/Pagination';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import { formatBreakDateTime, getStaffName, getStaffInitials } from '../../../utils/breakUtils';
+import type { IBreak, IUser } from '../../../types/api.types';
 ```
 
 ## Context and State Management
@@ -43,7 +44,7 @@ import type { IBreak } from '@/types/api.types';
 
 ## UI Structure
 - **Toolbar:** Search input, staff filter dropdown, date range inputs (from/to), items per page selector, "Add Break" button.
-- **Table:** HTML `<table>` element with `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>` tags. Header row with columns (Staff, Start Time, End Time, Reason, Created, Actions), data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
+- **Table:** Uses `table-container`, `table`, `table-header`, `table-body`, `table-row`, `table-cell` classes. Header row with columns (Staff, Start Time, End Time, Reason, Created, Actions). Data rows, loading skeleton rows, error/empty states. Horizontal scroll enabled when content overflows.
 - **Pagination:** Component at bottom showing current page, total pages, and navigation controls.
 - **Delete Modal:** Confirmation modal (`ConfirmModal`) for delete actions instead of browser alert.
 
@@ -105,7 +106,7 @@ import type { IBreak } from '@/types/api.types';
 - React Icons: `MdVisibility`, `MdEdit`, `MdDelete`, `MdAdd` for action buttons.
 - TanStack Query: `useGetAllBreaks`, `useDeleteBreak`, `useGetAllUsers` hooks.
 - Custom Components: `Pagination` component for pagination controls, `ConfirmModal` for delete confirmation.
-- Utility Functions: `formatBreakDateTime`, `formatBreakTimeRange`, `getStaffName`, `getStaffInitials` from `@/utils/breakUtils`.
+- Utility Functions: `formatBreakDateTime`, `getStaffName`, `getStaffInitials` from `../../../utils/breakUtils`.
 - Tailwind CSS classes: `input-search`, `btn-primary`, `btn-secondary`, `btn-sm`, `btn-ghost`, `badge-soft`, `alert-error`.
 
 ## Error Handling

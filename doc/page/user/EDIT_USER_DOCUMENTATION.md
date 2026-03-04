@@ -18,8 +18,10 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useGetUserById, useUpdateUser } from '@/tanstack/useUsers';
-import type { IUser } from '@/types/api.types';
+import { useGetUserById, useUpdateUser } from '../../../tanstack/useUsers';
+import { useGetAllRoles } from '../../../tanstack/useRoles';
+import MultiSelect from '../../../components/ui/MultiSelect';
+import type { IUser, IRole } from '../../../types/api.types';
 ```
 
 ## Context and State Management

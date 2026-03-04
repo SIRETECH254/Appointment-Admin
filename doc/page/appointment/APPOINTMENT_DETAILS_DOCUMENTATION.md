@@ -18,19 +18,18 @@
 ```tsx
 import { useCallback, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useGetAppointment, useConfirmAppointment, useRescheduleAppointment, useCancelAppointment, useCheckInAppointment, useCompleteAppointment, useMarkNoShowAppointment } from '@/tanstack/useAppointments';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { formatAppointmentDateTime, formatAppointmentStatus, getAppointmentStatusVariant, canRescheduleAppointment, canCancelAppointment, canCheckInAppointment } from '@/utils/appointmentUtils';
-import { formatCurrency } from '@/utils/paymentUtils';
-import type { IAppointment } from '@/types/api.types';
+import { useGetAppointment, useCancelAppointment, useCheckInAppointment, useCompleteAppointment, useMarkNoShowAppointment } from '../../../tanstack/useAppointments';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatAppointmentDateTime, canRescheduleAppointment, canCancelAppointment, canCheckInAppointment, getAppointmentStaffName } from '../../../utils/appointmentUtils';
+import { formatCurrency } from '../../../utils/paymentUtils';
+import type { IUser, IAppointmentService } from '../../../types/api.types';
 ```
 
 ## Context and State Management
 - **Route Params:** `useParams()` extracts `id` from URL (route: `/appointments/:id`).
 - **TanStack Query:** `useGetAppointment(id)` fetches appointment data.
 - **Mutations:**
-  - `useConfirmAppointment()` - Confirm appointment with payment
-  - `useRescheduleAppointment()` - Reschedule appointment
   - `useCancelAppointment()` - Cancel appointment
   - `useCheckInAppointment()` - Check in customer
   - `useCompleteAppointment()` - Mark appointment as completed

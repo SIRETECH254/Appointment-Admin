@@ -19,7 +19,7 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useGetStoreConfiguration } from '@/tanstack/useStoreConfig';
+import { useGetStoreConfiguration } from '../../../tanstack/useStoreConfig';
 ```
 
 ## Context and State Management

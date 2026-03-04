@@ -73,6 +73,10 @@ Input and label classes:
 - `input-search`
 - `input-disabled`
 - `input-toggle-icon`
+- `input-select` - Select dropdown styling
+- `input-date` - Date picker trigger button
+- `input-multiselect` - MultiSelect dropdown container
+- `input-quill` - Rich text editor container
 
 ## Alerts
 
@@ -90,3 +94,27 @@ Use `badge` plus a variant:
 - `badge badge-success`
 - `badge badge-error`
 
+## Image Preview
+
+Image preview classes:
+
+- `image-preview-grid` - Container for image preview grid (flex wrap layout)
+- `image-preview-item` - Individual image preview card with border and shadow
+
+## Tables
+
+Table classes for data presentation:
+
+- `table-container` - Outer container with overflow, border, and shadow
+- `table` - Main table element with minimum width
+- `table-header` - Table header row with border and background
+- `table-header-cell` - Left-aligned header cell
+- `table-header-cell-right` - Right-aligned header cell
+- `table-body` - Table body with dividers
+- `table-row` - Table row with hover effect
+- `table-cell` - Standard table cell with padding
+- `table-cell-text` - Table cell for text content (no-wrap, smaller text)
+- `table-cell-center` - Center-aligned table cell
+- `table-cell-content` - Flex container for cell content with gap
+- `table-avatar` - Avatar image in table (circular, object-cover)
+- `table-avatar-initials` - Avatar placeholder with initials (circular, brand primary background)

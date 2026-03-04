@@ -18,10 +18,9 @@
 ```tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useInitiatePayment } from '@/tanstack/usePayments';
-import { useGetAllServices } from '@/tanstack/useServices';
-import { formatCurrency } from '@/utils/paymentUtils';
-import type { InitiatePaymentPayload } from '@/types/api.types';
+import { useInitiatePayment } from '../../../tanstack/usePayments';
+import { useGetAllServices } from '../../../tanstack/useServices';
+import { formatCurrency } from '../../../utils/paymentUtils';
 ```
 
 ## Context and State Management

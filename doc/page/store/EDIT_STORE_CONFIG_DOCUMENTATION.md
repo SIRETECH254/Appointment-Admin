@@ -19,7 +19,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { useGetStoreConfiguration, useUpdateStoreConfiguration } from '@/tanstack/useStoreConfig';
+import { useGetStoreConfiguration, useUpdateStoreConfiguration } from '../../../tanstack/useStoreConfig';
 ```
 
 ## Context and State Management

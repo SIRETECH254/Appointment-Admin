@@ -18,9 +18,9 @@
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FiUser, FiMail, FiClock, FiFileText, FiCalendar, FiAlertTriangle, FiXCircle, FiStar } from 'react-icons/fi';
-import { useGetReviewById } from '@/tanstack/useReviews';
-import { formatReviewDate, formatReviewDateTime, getUserName, getUserInitials, getStaffName, getServiceNames, getAppointmentDate } from '@/utils/reviewUtils';
-import type { IReview, IUser } from '@/types/api.types';
+import { useGetReviewById } from '../../../tanstack/useReviews';
+import { formatReviewDateTime, getUserName, getUserInitials, getStaffName, getServiceNames, getAppointmentDate } from '../../../utils/reviewUtils';
+import type { IReview } from '../../../types/api.types';
 ```
 
 ## Context and State Management

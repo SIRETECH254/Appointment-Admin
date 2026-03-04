@@ -18,8 +18,8 @@
 ```tsx
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAdminCreateUser } from '@/tanstack/useUsers';
-import type { AdminCreateUserPayload } from '@/types/api.types';
+import { useAdminCreateUser } from '../../../tanstack/useUsers';
+import type { AdminCreateUserPayload } from '../../../types/api.types';
 ```
 
 ## Context and State Management

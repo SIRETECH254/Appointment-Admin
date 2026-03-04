@@ -18,11 +18,12 @@
 ```tsx
 import { useCallback, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { MdArrowBack, MdDelete, MdMarkEmailRead } from 'react-icons/md';
-import { useGetNotification, useMarkNotificationAsRead, useDeleteNotification } from '@/tanstack/useNotifications';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { formatDateTimeWithTime, getCategoryBadgeClass, getTypeDisplayName } from '@/utils/notificationUtils';
-import type { INotification } from '@/types/api.types';
+import { FiArrowLeft, FiTrash2, FiCheckCircle, FiMessageSquare, FiTag, FiCalendar, FiSend, FiCheck, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
+import { useGetNotification, useMarkNotificationAsRead, useDeleteNotification } from '../../../tanstack/useNotifications';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
+import StatusBadge from '../../../components/ui/StatusBadge';
+import { formatDateTimeWithTime, isNotificationUnread } from '../../../utils/notificationUtils';
+import type { INotification, INotificationAction } from '../../../types/api.types';
 ```
 
 ## Context and State Management
