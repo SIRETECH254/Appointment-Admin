@@ -27,8 +27,8 @@ const RoleDetails = () => {
   // Fetch role data
   const { data, isLoading, isError, error } = useGetRoleById(id || '');
 
-  // Extract role from API response (handle different response shapes)
-  const role = (data as any)?.role ?? (data as IRole);
+  // Extract role from API response
+  const role = data?.role;
 
   // Build initials for avatar fallback
   const initials = useMemo(() => {
@@ -37,8 +37,7 @@ const RoleDetails = () => {
   }, [role]);
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load role.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

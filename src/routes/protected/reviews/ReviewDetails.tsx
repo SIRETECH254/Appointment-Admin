@@ -45,8 +45,8 @@ const ReviewDetails = () => {
   // Fetch review data
   const { data, isLoading, isError, error } = useGetReviewById(id || '');
 
-  // Extract review from API response (handle different response shapes)
-  const review = (data as any)?.review ?? (data as IReview);
+  // Extract review from API response
+  const review = data?.review;
 
   // Build user info for display
   const userName = useMemo(() => {
@@ -80,8 +80,7 @@ const ReviewDetails = () => {
   }, [review]);
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load review.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state with skeleton divided into sections
   if (isLoading) {

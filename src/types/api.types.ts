@@ -15,6 +15,48 @@ export interface PaginationParams {
   search?: string;
 }
 
+// Base pagination structure from backend
+export interface BasePagination {
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+// Resource-specific pagination types
+export interface AppointmentsPagination extends BasePagination {
+  totalAppointments: number;
+}
+
+export interface UsersPagination extends BasePagination {
+  totalUsers: number;
+}
+
+export interface ServicesPagination extends BasePagination {
+  totalServices: number;
+}
+
+export interface RolesPagination extends BasePagination {
+  totalRoles: number;
+}
+
+export interface BreaksPagination extends BasePagination {
+  totalBreaks: number;
+}
+
+export interface ContactsPagination extends BasePagination {
+  totalContacts: number;
+}
+
+export interface PaymentsPagination extends BasePagination {
+  totalPayments: number;
+}
+
+export interface ReviewsPagination extends BasePagination {
+  totalReviews: number;
+}
+
+// Legacy pagination (for backward compatibility if needed)
 export interface PaginationMeta {
   page: number;
   limit: number;
@@ -169,6 +211,20 @@ export interface GetUsersParams extends PaginationParams {
   status?: 'active' | 'inactive';
 }
 
+// User Response Types
+export interface UsersListResponse {
+  users: IUser[];
+  pagination: UsersPagination;
+}
+
+export interface UserDetailResponse {
+  user: IUser;
+}
+
+export interface ProfileResponse {
+  user: IUser;
+}
+
 // ============================================
 // Role Types
 // ============================================
@@ -199,6 +255,16 @@ export interface UpdateRolePayload {
   description?: string;
   permissions?: string[];
   isActive?: boolean;
+}
+
+// Role Response Types
+export interface RolesListResponse {
+  roles: IRole[];
+  pagination: RolesPagination;
+}
+
+export interface RoleDetailResponse {
+  role: IRole;
 }
 
 // ============================================
@@ -244,6 +310,16 @@ export interface AssignServicesToStaffPayload {
 
 export interface GetServicesParams extends PaginationParams {
   status?: 'active' | 'inactive';
+}
+
+// Service Response Types
+export interface ServicesListResponse {
+  services: IService[];
+  pagination: ServicesPagination;
+}
+
+export interface ServiceDetailResponse {
+  service: IService;
 }
 
 // ============================================
@@ -326,6 +402,16 @@ export interface GetMyAppointmentsParams extends PaginationParams {
   upcoming?: boolean;
 }
 
+// Appointment Response Types
+export interface AppointmentsListResponse {
+  appointments: IAppointment[];
+  pagination: AppointmentsPagination;
+}
+
+export interface AppointmentDetailResponse {
+  appointment: IAppointment;
+}
+
 // ============================================
 // Availability Types
 // ============================================
@@ -387,6 +473,16 @@ export interface UpdateBreakPayload {
 
 export interface GetBreaksParams extends PaginationParams {
   staffId?: string;
+}
+
+// Break Response Types
+export interface BreaksListResponse {
+  breaks: IBreak[];
+  pagination: BreaksPagination;
+}
+
+export interface BreakDetailResponse {
+  break: IBreak;
 }
 
 // ============================================
@@ -460,6 +556,16 @@ export interface GetPaymentsParams extends PaginationParams {
   type?: PaymentType;
   startDate?: string;
   endDate?: string;
+}
+
+// Payment Response Types
+export interface PaymentsListResponse {
+  payments: IPayment[];
+  pagination: PaymentsPagination;
+}
+
+export interface PaymentDetailResponse {
+  payment: IPayment;
 }
 
 // M-Pesa Status Query Types
@@ -551,15 +657,18 @@ export interface GetNotificationsParams extends PaginationParams {
   status?: NotificationStatus | 'read' | 'unread';
 }
 
+// Notification Response Types
+export interface NotificationsPagination extends BasePagination {
+  totalNotifications: number;
+}
+
 export interface NotificationPaginationResponse {
   notifications: INotification[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalNotifications: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-  };
+  pagination: NotificationsPagination;
+}
+
+export interface NotificationDetailResponse {
+  notification: INotification;
 }
 
 export interface UnreadCountResponse {
@@ -613,6 +722,16 @@ export interface GetContactsParams extends PaginationParams {
   status?: ContactStatus;
 }
 
+// Contact Response Types
+export interface ContactsListResponse {
+  contacts: IContact[];
+  pagination: ContactsPagination;
+}
+
+export interface ContactDetailResponse {
+  contact: IContact;
+}
+
 // ============================================
 // Newsletter Types
 // ============================================
@@ -652,6 +771,20 @@ export interface GetNewslettersParams extends PaginationParams {
   status?: NewsletterStatus;
   search?: string;
   sort?: string;
+}
+
+// Newsletter Response Types
+export interface NewslettersPagination extends BasePagination {
+  totalSubscribers: number;
+}
+
+export interface NewslettersListResponse {
+  subscribers: INewsletter[];
+  pagination: NewslettersPagination;
+}
+
+export interface NewsletterDetailResponse {
+  subscriber: INewsletter;
 }
 
 export interface NewsletterStatsResponse {
@@ -729,6 +862,11 @@ export interface UpdateStoreConfigurationPayload {
   businessHours?: Partial<IBusinessHours>;
   businessHoursTimezone?: string;
   notificationSettings?: Partial<INotificationSettings>;
+}
+
+// Store Configuration Response Types
+export interface StoreConfigurationResponse {
+  storeConfiguration: IStoreConfiguration;
 }
 
 // ============================================
@@ -940,4 +1078,14 @@ export interface GetReviewsParams extends PaginationParams {
   staffId?: string;
   serviceId?: string;
   status?: ReviewStatus;
+}
+
+// Review Response Types
+export interface ReviewsListResponse {
+  reviews: IReview[];
+  pagination: ReviewsPagination;
+}
+
+export interface ReviewDetailResponse {
+  review: IReview;
 }

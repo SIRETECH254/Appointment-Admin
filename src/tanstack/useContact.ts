@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { contactAPI } from '../api';
-import type { GetContactsParams, ReplyToContactPayload, SubmitContactPayload, UpdateContactStatusPayload } from '../types/api.types';
+import type { GetContactsParams, ReplyToContactPayload, SubmitContactPayload, UpdateContactStatusPayload, ContactsListResponse, ContactDetailResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Submit contact message
 export const useSubmitContactMessage = () => {
-  return useMutation({
+  return useMutation<ContactDetailResponse, Error, SubmitContactPayload>({
     mutationFn: async (messageData: SubmitContactPayload) => {
       const response = await contactAPI.submitMessage(messageData);
       return response.data.data;
@@ -17,7 +17,7 @@ export const useSubmitContactMessage = () => {
     },
     onError: (error: any) => {
       console.error('Submit contact message error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to submit contact message';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -25,7 +25,7 @@ export const useSubmitContactMessage = () => {
 
 // Get all contact messages
 export const useGetAllContactMessages = (params: GetContactsParams = {}) => {
-  return useQuery({
+  return useQuery<ContactsListResponse>({
     queryKey: ['contact', 'messages', params],
     queryFn: async () => {
       const response = await contactAPI.getAllMessages(params);
@@ -38,7 +38,7 @@ export const useGetAllContactMessages = (params: GetContactsParams = {}) => {
 
 // Get single contact message
 export const useGetContactMessageById = (contactId: string) => {
-  return useQuery({
+  return useQuery<ContactDetailResponse>({
     queryKey: ['contact', contactId],
     queryFn: async () => {
       const response = await contactAPI.getMessage(contactId);
@@ -54,7 +54,7 @@ export const useGetContactMessageById = (contactId: string) => {
 export const useUpdateContactStatus = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ContactDetailResponse, Error, { contactId: string; statusData: UpdateContactStatusPayload }>({
     mutationFn: async ({ contactId, statusData }: { contactId: string; statusData: UpdateContactStatusPayload }) => {
       const response = await contactAPI.updateStatus(contactId, statusData);
       return response.data.data;
@@ -66,7 +66,7 @@ export const useUpdateContactStatus = () => {
     },
     onError: (error: any) => {
       console.error('Update contact status error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update contact status';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -76,7 +76,7 @@ export const useUpdateContactStatus = () => {
 export const useReplyToContactMessage = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ContactDetailResponse, Error, { contactId: string; replyData: ReplyToContactPayload }>({
     mutationFn: async ({ contactId, replyData }: { contactId: string; replyData: ReplyToContactPayload }) => {
       const response = await contactAPI.replyToMessage(contactId, replyData);
       return response.data.data;
@@ -88,7 +88,7 @@ export const useReplyToContactMessage = () => {
     },
     onError: (error: any) => {
       console.error('Reply to contact error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to reply to contact message';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

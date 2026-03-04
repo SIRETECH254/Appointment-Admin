@@ -19,7 +19,7 @@ const StoreConfigEdit = () => {
   const updateStoreConfiguration = useUpdateStoreConfiguration()
 
   // Extract storeConfiguration from API response
-  const storeConfig = (data as any)?.storeConfiguration ?? data
+  const storeConfig = data?.storeConfiguration
 
   // Form field state
   const [appointmentFeeType, setAppointmentFeeType] = useState<'fixed' | 'percentage'>('fixed')
@@ -178,9 +178,7 @@ const StoreConfigEdit = () => {
           navigate('/store', { replace: true })
         }, 1200)
       } catch (submitError: any) {
-        const errorMessage =
-          submitError?.response?.data?.message ||
-          'Unable to update store configuration.'
+        const errorMessage = submitError?.response?.data?.message ?? 'An error occurred'
         setInlineMessage({ type: 'error', text: errorMessage })
       } finally {
         setIsSubmitting(false)

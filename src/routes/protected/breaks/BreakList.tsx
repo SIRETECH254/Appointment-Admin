@@ -88,15 +88,13 @@ const BreakList = () => {
   const { data, isLoading, isError, error } = useGetAllBreaks(params);
 
   // Extract breaks and pagination from API response
-  const breaks = (data as any)?.breaks || [];
-  const paginationData = (data as any)?.pagination || {};
-  
-  // Map backend pagination structure to component expectations
-  const pagination = {
-    page: paginationData.currentPage || 1,
-    limit: itemsPerPage,
-    total: paginationData.totalBreaks || 0,
-    totalPages: paginationData.totalPages || 1,
+  const breaks = data?.breaks ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
+    totalPages: 1,
+    totalBreaks: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -201,7 +199,7 @@ const BreakList = () => {
           
           {/* break count */}
           <div className="">
-             <p className="text-sm text-gray-500">Showing {pagination.total} breaks</p>
+             <p className="text-sm text-gray-500">Showing {pagination.totalBreaks} breaks</p>
           </div>
            
           {/* filters */}
@@ -405,10 +403,10 @@ const BreakList = () => {
       {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page}
+            currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            pageSize={pagination.limit}
+            totalItems={pagination.totalBreaks}
+            currentPageCount={breaks.length}
             onPageChange={setCurrentPage}
           />
         </div>

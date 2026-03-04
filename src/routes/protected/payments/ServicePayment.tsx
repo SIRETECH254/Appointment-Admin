@@ -18,7 +18,7 @@ const ServicePayment = () => {
   const { data: servicesData } = useGetAllServices({ status: 'active' });
   const initiatePayment = useInitiatePayment();
 
-  const allServices = (servicesData as any)?.services || (servicesData as any)?.data?.services || [];
+  const allServices = servicesData?.services ?? [];
   const [services, setServices] = useState<string[]>([]);
   const [method, setMethod] = useState<'MPESA' | 'CARD'>('MPESA');
   const [phone, setPhone] = useState('');
@@ -65,7 +65,7 @@ const ServicePayment = () => {
       const checkoutId = result.gateway?.checkoutRequestId;
       navigate(`/payments/status?paymentId=${paymentId}${checkoutId ? `&checkoutId=${checkoutId}` : ''}`);
     } catch (error: any) {
-      setInlineMessage({ type: 'error', text: error?.response?.data?.message || 'Failed to initiate payment.' });
+      setInlineMessage({ type: 'error', text: error?.response?.data?.message ?? 'An error occurred' });
     } finally {
       setIsSubmitting(false);
     }

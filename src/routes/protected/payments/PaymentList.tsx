@@ -41,10 +41,16 @@ const PaymentList = () => {
   }, [debouncedSearch, filterStatus, filterMethod, filterType, currentPage, itemsPerPage]);
 
   const { data, isLoading, isError, error } = useGetAllPayments(params);
-  const payments = (data as any)?.payments || (data as any)?.data?.payments || [];
-  const pagination = (data as any)?.pagination || { page: 1, limit: 10, total: 0, totalPages: 1 };
+  const payments = data?.payments ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
+    totalPages: 1,
+    totalPayments: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
+  };
 
-  const errorMessage = (error as any)?.response?.data?.message || 'Failed to load payments.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -85,7 +91,7 @@ const PaymentList = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* payment count */}
           <div className="">
-            <p className="text-sm text-gray-500">Showing {pagination.total} payments</p>
+            <p className="text-sm text-gray-500">Showing {pagination.totalPayments} payments</p>
           </div>
 
           {/* filters */}
@@ -255,10 +261,10 @@ const PaymentList = () => {
       {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page}
+            currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            pageSize={pagination.limit}
+            totalItems={pagination.totalPayments}
+            currentPageCount={payments.length}
             onPageChange={setCurrentPage}
           />
         </div>

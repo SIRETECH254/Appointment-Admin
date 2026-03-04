@@ -31,8 +31,8 @@ const ServiceEdit = () => {
   const { data, isLoading, isError, error } = useGetServiceById(id || '');
   const updateService = useUpdateService();
 
-  // Extract service from API response (handle different response shapes)
-  const service = (data as any)?.service ?? (data as IService);
+  // Extract service from API response
+  const service = data?.service;
 
   // Form state
   const [name, setName] = useState('');
@@ -179,8 +179,7 @@ const ServiceEdit = () => {
         }, 1200);
       } catch (submitError: any) {
         // Extract error message from API response
-        const errorMessage =
-          submitError?.response?.data?.message || 'Failed to update service.';
+        const errorMessage = submitError?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);

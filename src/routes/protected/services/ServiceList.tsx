@@ -84,12 +84,13 @@ const ServiceList = () => {
   const { data, isLoading, isError, error } = useGetAllServices(params);
 
   // Extract services and pagination from API response
-  const services = (data as any)?.services || [];
-  const pagination = (data as any)?.pagination || {
-    page: 1,
-    limit: 10,
-    total: 0,
+  const services = data?.services ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
     totalPages: 1,
+    totalServices: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -189,7 +190,7 @@ const ServiceList = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* service count */}
           <div className="">
-            <p className="text-sm text-gray-500">Showing {pagination.total} services</p>
+            <p className="text-sm text-gray-500">Showing {pagination.totalServices} services</p>
           </div>
 
           {/* filters */}
@@ -386,10 +387,10 @@ const ServiceList = () => {
       {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page}
+            currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            pageSize={pagination.limit}
+            totalItems={pagination.totalServices}
+            currentPageCount={services.length}
             onPageChange={setCurrentPage}
           />
         </div>

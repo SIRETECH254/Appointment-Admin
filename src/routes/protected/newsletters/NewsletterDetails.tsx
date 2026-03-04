@@ -27,8 +27,8 @@ const NewsletterDetails = () => {
   // Fetch subscriber data
   const { data, isLoading, isError, error } = useGetSubscriberById(id || '');
 
-  // Extract subscriber from API response (handle different response shapes)
-  const subscriber = (data as any)?.subscriber ?? (data as INewsletter);
+  // Extract subscriber from API response
+  const subscriber = data?.subscriber;
 
   // Build user info for display
   const userInfo = useMemo(() => {
@@ -38,8 +38,7 @@ const NewsletterDetails = () => {
   }, [subscriber]);
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load subscriber.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   /**
    * Format date for display

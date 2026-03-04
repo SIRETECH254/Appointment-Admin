@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { reviewAPI } from '../api';
-import type { CreateReviewPayload, GetReviewsParams, UpdateReviewPayload, UpdateReviewStatusPayload } from '../types/api.types';
+import type { CreateReviewPayload, GetReviewsParams, UpdateReviewPayload, UpdateReviewStatusPayload, ReviewsListResponse, ReviewDetailResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get all reviews
 export const useGetAllReviews = (params: GetReviewsParams = {}) => {
-  return useQuery({
+  return useQuery<ReviewsListResponse>({
     queryKey: ['reviews', params],
     queryFn: async () => {
       const response = await reviewAPI.getAllReviews(params);
@@ -20,7 +20,7 @@ export const useGetAllReviews = (params: GetReviewsParams = {}) => {
 
 // Get single review
 export const useGetReviewById = (reviewId: string) => {
-  return useQuery({
+  return useQuery<ReviewDetailResponse>({
     queryKey: ['review', reviewId],
     queryFn: async () => {
       const response = await reviewAPI.getReview(reviewId);
@@ -36,7 +36,7 @@ export const useGetReviewById = (reviewId: string) => {
 export const useCreateReview = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ReviewDetailResponse, Error, CreateReviewPayload>({
     mutationFn: async (reviewData: CreateReviewPayload) => {
       const response = await reviewAPI.createReview(reviewData);
       return response.data.data;
@@ -47,7 +47,7 @@ export const useCreateReview = () => {
     },
     onError: (error: any) => {
       console.error('Create review error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to create review';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -57,7 +57,7 @@ export const useCreateReview = () => {
 export const useUpdateReview = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ReviewDetailResponse, Error, { reviewId: string; reviewData: UpdateReviewPayload }>({
     mutationFn: async ({ reviewId, reviewData }: { reviewId: string; reviewData: UpdateReviewPayload }) => {
       const response = await reviewAPI.updateReview(reviewId, reviewData);
       return response.data.data;
@@ -69,7 +69,7 @@ export const useUpdateReview = () => {
     },
     onError: (error: any) => {
       console.error('Update review error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update review';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -79,7 +79,7 @@ export const useUpdateReview = () => {
 export const useDeleteReview = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (reviewId: string) => {
       const response = await reviewAPI.deleteReview(reviewId);
       return response.data.data;
@@ -90,7 +90,7 @@ export const useDeleteReview = () => {
     },
     onError: (error: any) => {
       console.error('Delete review error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete review';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -100,7 +100,7 @@ export const useDeleteReview = () => {
 export const useUpdateReviewStatus = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ReviewDetailResponse, Error, { reviewId: string; statusData: UpdateReviewStatusPayload }>({
     mutationFn: async ({ reviewId, statusData }: { reviewId: string; statusData: UpdateReviewStatusPayload }) => {
       const response = await reviewAPI.updateReviewStatus(reviewId, statusData);
       return response.data.data;
@@ -112,7 +112,7 @@ export const useUpdateReviewStatus = () => {
     },
     onError: (error: any) => {
       console.error('Update review status error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update review status';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

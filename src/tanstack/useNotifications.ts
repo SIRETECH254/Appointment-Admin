@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notificationAPI } from '../api';
-import type { GetNotificationsParams, SendNotificationPayload, SendBulkNotificationPayload } from '../types/api.types';
+import type { GetNotificationsParams, SendNotificationPayload, SendBulkNotificationPayload, NotificationPaginationResponse, NotificationDetailResponse, UnreadCountResponse, UnreadNotificationsResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get notifications
 export const useGetNotifications = (params: GetNotificationsParams = {}) => {
-  return useQuery({
+  return useQuery<NotificationPaginationResponse>({
     queryKey: ['notifications', params],
     queryFn: async () => {
       const response = await notificationAPI.getNotifications(params);
@@ -20,7 +20,7 @@ export const useGetNotifications = (params: GetNotificationsParams = {}) => {
 
 // Get single notification
 export const useGetNotification = (notificationId: string) => {
-  return useQuery({
+  return useQuery<NotificationDetailResponse>({
     queryKey: ['notifications', notificationId],
     queryFn: async () => {
       const response = await notificationAPI.getNotification(notificationId);
@@ -34,7 +34,7 @@ export const useGetNotification = (notificationId: string) => {
 
 // Get unread count
 export const useGetUnreadNotificationCount = () => {
-  return useQuery({
+  return useQuery<UnreadCountResponse>({
     queryKey: ['notifications', 'unread-count'],
     queryFn: async () => {
       const response = await notificationAPI.getUnreadCount();
@@ -47,7 +47,7 @@ export const useGetUnreadNotificationCount = () => {
 
 // Get unread notifications
 export const useGetUnreadNotifications = (params?: { limit?: number }) => {
-  return useQuery({
+  return useQuery<UnreadNotificationsResponse>({
     queryKey: ['notifications', 'unread', params],
     queryFn: async () => {
       const response = await notificationAPI.getUnreadNotifications(params);
@@ -60,7 +60,7 @@ export const useGetUnreadNotifications = (params?: { limit?: number }) => {
 
 // Get notifications by category
 export const useGetNotificationsByCategory = (category: string) => {
-  return useQuery({
+  return useQuery<NotificationPaginationResponse>({
     queryKey: ['notifications', 'category', category],
     queryFn: async () => {
       const response = await notificationAPI.getNotificationsByCategory(category);
@@ -76,7 +76,7 @@ export const useGetNotificationsByCategory = (category: string) => {
 export const useSendNotification = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<NotificationDetailResponse, Error, SendNotificationPayload>({
     mutationFn: async (notificationData: SendNotificationPayload) => {
       const response = await notificationAPI.sendNotification(notificationData);
       return response.data.data;
@@ -87,7 +87,7 @@ export const useSendNotification = () => {
     },
     onError: (error: any) => {
       console.error('Send notification error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to send notification';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -97,7 +97,7 @@ export const useSendNotification = () => {
 export const useMarkNotificationAsRead = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<NotificationDetailResponse, Error, string>({
     mutationFn: async (notificationId: string) => {
       const response = await notificationAPI.markAsRead(notificationId);
       return response.data.data;
@@ -110,7 +110,7 @@ export const useMarkNotificationAsRead = () => {
     },
     onError: (error: any) => {
       console.error('Mark as read error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to mark notification as read';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -120,7 +120,7 @@ export const useMarkNotificationAsRead = () => {
 export const useMarkAllNotificationsAsRead = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<{ count: number }, Error, void>({
     mutationFn: async () => {
       const response = await notificationAPI.markAllAsRead();
       return response.data.data;
@@ -133,7 +133,7 @@ export const useMarkAllNotificationsAsRead = () => {
     },
     onError: (error: any) => {
       console.error('Mark all as read error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to mark all notifications as read';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -143,7 +143,7 @@ export const useMarkAllNotificationsAsRead = () => {
 export const useDeleteNotification = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (notificationId: string) => {
       const response = await notificationAPI.deleteNotification(notificationId);
       return response.data.data;
@@ -156,7 +156,7 @@ export const useDeleteNotification = () => {
     },
     onError: (error: any) => {
       console.error('Delete notification error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete notification';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -166,7 +166,7 @@ export const useDeleteNotification = () => {
 export const useSendBulkNotification = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<{ success: number; failed: number }, Error, SendBulkNotificationPayload>({
     mutationFn: async (bulkData: SendBulkNotificationPayload) => {
       const response = await notificationAPI.sendBulkNotification(bulkData);
       return response.data.data;
@@ -179,7 +179,7 @@ export const useSendBulkNotification = () => {
     },
     onError: (error: any) => {
       console.error('Send bulk notification error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to send bulk notification';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

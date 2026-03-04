@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { newsletterAPI } from '../api';
-import type { GetNewslettersParams, SendNewsletterPayload, SubscribeNewsletterPayload, UpdateNewsletterStatusPayload } from '../types/api.types';
+import type { GetNewslettersParams, SendNewsletterPayload, SubscribeNewsletterPayload, UpdateNewsletterStatusPayload, NewslettersListResponse, NewsletterDetailResponse, NewsletterStatsResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get all subscribers
 export const useGetAllSubscribers = (params: GetNewslettersParams = {}) => {
-  return useQuery({
+  return useQuery<NewslettersListResponse>({
     queryKey: ['newsletters', params],
     queryFn: async () => {
       const response = await newsletterAPI.getAllSubscribers(params);
@@ -20,7 +20,7 @@ export const useGetAllSubscribers = (params: GetNewslettersParams = {}) => {
 
 // Get single subscriber
 export const useGetSubscriberById = (subscriberId: string) => {
-  return useQuery({
+  return useQuery<NewsletterDetailResponse>({
     queryKey: ['newsletter', subscriberId],
     queryFn: async () => {
       const response = await newsletterAPI.getSubscriberById(subscriberId);
@@ -34,7 +34,7 @@ export const useGetSubscriberById = (subscriberId: string) => {
 
 // Get subscription statistics
 export const useGetSubscriptionStats = () => {
-  return useQuery({
+  return useQuery<NewsletterStatsResponse>({
     queryKey: ['newsletter-stats'],
     queryFn: async () => {
       const response = await newsletterAPI.getSubscriptionStats();
@@ -49,7 +49,7 @@ export const useGetSubscriptionStats = () => {
 export const useSubscribeNewsletter = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<NewsletterDetailResponse, Error, SubscribeNewsletterPayload>({
     mutationFn: async (payload: SubscribeNewsletterPayload) => {
       const response = await newsletterAPI.subscribeNewsletter(payload.email);
       return response.data.data;
@@ -61,7 +61,7 @@ export const useSubscribeNewsletter = () => {
     },
     onError: (error: any) => {
       console.error('Subscribe newsletter error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to subscribe to newsletter';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -71,7 +71,7 @@ export const useSubscribeNewsletter = () => {
 export const useUnsubscribeNewsletter = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, { token?: string; email?: string }>({
     mutationFn: async (params: { token?: string; email?: string }) => {
       const response = await newsletterAPI.unsubscribeNewsletter(params);
       return response.data.data;
@@ -83,7 +83,7 @@ export const useUnsubscribeNewsletter = () => {
     },
     onError: (error: any) => {
       console.error('Unsubscribe newsletter error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to unsubscribe from newsletter';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -93,7 +93,7 @@ export const useUnsubscribeNewsletter = () => {
 export const useUpdateSubscriberStatus = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<NewsletterDetailResponse, Error, { subscriberId: string; statusData: UpdateNewsletterStatusPayload }>({
     mutationFn: async ({ subscriberId, statusData }: { subscriberId: string; statusData: UpdateNewsletterStatusPayload }) => {
       const response = await newsletterAPI.updateSubscriberStatus(subscriberId, statusData);
       return response.data.data;
@@ -106,7 +106,7 @@ export const useUpdateSubscriberStatus = () => {
     },
     onError: (error: any) => {
       console.error('Update subscriber status error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update subscriber status';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -116,7 +116,7 @@ export const useUpdateSubscriberStatus = () => {
 export const useDeleteSubscriber = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (subscriberId: string) => {
       const response = await newsletterAPI.deleteSubscriber(subscriberId);
       return response.data.data;
@@ -128,7 +128,7 @@ export const useDeleteSubscriber = () => {
     },
     onError: (error: any) => {
       console.error('Delete subscriber error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete subscriber';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -138,7 +138,7 @@ export const useDeleteSubscriber = () => {
 export const useSendNewsletter = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<{ success: number; failed: number }, Error, SendNewsletterPayload>({
     mutationFn: async (payload: SendNewsletterPayload) => {
       const response = await newsletterAPI.sendNewsletter(payload);
       return response.data.data;
@@ -150,7 +150,7 @@ export const useSendNewsletter = () => {
     },
     onError: (error: any) => {
       console.error('Send newsletter error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to send newsletter';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

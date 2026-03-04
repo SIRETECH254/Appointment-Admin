@@ -24,12 +24,11 @@ const ServiceDetails = () => {
   // Fetch service data
   const { data, isLoading, isError, error } = useGetServiceById(id || '');
 
-  // Extract service from API response (handle different response shapes)
-  const service = (data as any)?.service ?? (data as IService);
+  // Extract service from API response
+  const service = data?.service;
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load service.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

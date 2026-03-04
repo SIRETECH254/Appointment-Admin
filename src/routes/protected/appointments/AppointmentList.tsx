@@ -36,7 +36,7 @@ const AppointmentList = () => {
 
   // Fetch staff users for filter dropdown
   const { data: staffData } = useGetAllUsers({ role: 'staff', status: 'active' });
-  const staffUsers = (staffData as any)?.users || [];
+  const staffUsers = staffData?.users ?? [];
 
   /**
    * Debounce search input to reduce API calls
@@ -84,12 +84,13 @@ const AppointmentList = () => {
   const { data, isLoading, isError, error } = useGetAllAppointments(params);
 
   // Extract appointments and pagination from API response
-  const appointments = (data as any)?.appointments || (data as any)?.data?.appointments || [];
-  const pagination = (data as any)?.pagination || {
-    page: 1,
-    limit: 10,
-    total: 0,
+  const appointments = data?.appointments ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
     totalPages: 1,
+    totalAppointments: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -114,8 +115,7 @@ const AppointmentList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load appointments.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -156,7 +156,7 @@ const AppointmentList = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* appointment count */}
           <div className="">
-            <p className="text-sm text-gray-500">Showing {pagination.total} appointments</p>
+            <p className="text-sm text-gray-500">Showing {pagination.totalAppointments} appointments</p>
           </div>
 
           {/* filters */}
@@ -342,10 +342,10 @@ const AppointmentList = () => {
       {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page}
+            currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            pageSize={pagination.limit}
+            totalItems={pagination.totalAppointments}
+            currentPageCount={appointments.length}
             onPageChange={setCurrentPage}
           />
         </div>

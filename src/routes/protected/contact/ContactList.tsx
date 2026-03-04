@@ -76,12 +76,13 @@ const ContactList = () => {
   const { data, isLoading, isError, error } = useGetAllContactMessages(params);
 
   // Extract contacts and pagination from API response
-  const contacts = (data as any)?.contacts || [];
-  const pagination = (data as any)?.pagination || {
-    page: 1,
-    limit: itemsPerPage,
-    total: 0,
+  const contacts = data?.contacts ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
     totalPages: 1,
+    totalContacts: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -101,8 +102,7 @@ const ContactList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load contacts.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -137,7 +137,7 @@ const ContactList = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* contact count */}
           <div className="">
-            <p className="text-sm text-gray-500">Showing {pagination.total} contacts</p>
+            <p className="text-sm text-gray-500">Showing {pagination.totalContacts} contacts</p>
           </div>
 
           {/* filters */}
@@ -278,13 +278,13 @@ const ContactList = () => {
       </div>
 
       {/* Pagination */}
-      {!isLoading && !isError && (pagination.totalPages || 1) > 1 && (
+      {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page || currentPage}
-            totalPages={pagination.totalPages || 1}
-            totalItems={pagination.total || 0}
-            pageSize={itemsPerPage}
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalContacts}
+            currentPageCount={contacts.length}
             onPageChange={setCurrentPage}
           />
         </div>

@@ -32,8 +32,8 @@ const UserDetails = () => {
   // Fetch user data
   const { data, isLoading, isError, error } = useGetUserById(id || '');
 
-  // Extract user from API response (handle different response shapes)
-  const user = (data as any)?.user ?? (data as IUser);
+  // Extract user from API response
+  const user = data?.user;
 
   // Build initials for avatar fallback
   const initials = useMemo(() => {
@@ -48,8 +48,7 @@ const UserDetails = () => {
   }, [user]);
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load user.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { breakAPI } from '../api';
-import type { CreateBreakPayload, GetBreaksParams, UpdateBreakPayload } from '../types/api.types';
+import type { CreateBreakPayload, GetBreaksParams, UpdateBreakPayload, BreaksListResponse, BreakDetailResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get all breaks
 export const useGetAllBreaks = (params: GetBreaksParams = {}) => {
-  return useQuery({
+  return useQuery<BreaksListResponse>({
     queryKey: ['breaks', params],
     queryFn: async () => {
       const response = await breakAPI.getAllBreaks(params);
@@ -20,7 +20,7 @@ export const useGetAllBreaks = (params: GetBreaksParams = {}) => {
 
 // Get single break
 export const useGetBreakById = (breakId: string) => {
-  return useQuery({
+  return useQuery<BreakDetailResponse>({
     queryKey: ['break', breakId],
     queryFn: async () => {
       const response = await breakAPI.getBreak(breakId);
@@ -36,7 +36,7 @@ export const useGetBreakById = (breakId: string) => {
 export const useCreateBreak = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<BreakDetailResponse, Error, CreateBreakPayload>({
     mutationFn: async (breakData: CreateBreakPayload) => {
       const response = await breakAPI.createBreak(breakData);
       return response.data.data;
@@ -47,7 +47,7 @@ export const useCreateBreak = () => {
     },
     onError: (error: any) => {
       console.error('Create break error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to create break';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -57,7 +57,7 @@ export const useCreateBreak = () => {
 export const useUpdateBreak = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<BreakDetailResponse, Error, { breakId: string; breakData: UpdateBreakPayload }>({
     mutationFn: async ({ breakId, breakData }: { breakId: string; breakData: UpdateBreakPayload }) => {
       const response = await breakAPI.updateBreak(breakId, breakData);
       return response.data.data;
@@ -69,7 +69,7 @@ export const useUpdateBreak = () => {
     },
     onError: (error: any) => {
       console.error('Update break error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update break';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -79,7 +79,7 @@ export const useUpdateBreak = () => {
 export const useDeleteBreak = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (breakId: string) => {
       const response = await breakAPI.deleteBreak(breakId);
       return response.data.data;
@@ -90,7 +90,7 @@ export const useDeleteBreak = () => {
     },
     onError: (error: any) => {
       console.error('Delete break error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete break';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

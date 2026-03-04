@@ -175,8 +175,7 @@ const UserAdd = () => {
         }
       } catch (submitError: any) {
         // Extract error message from API response
-        const errorMessage =
-          submitError?.response?.data?.message || 'Failed to create user.';
+        const errorMessage = submitError?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);

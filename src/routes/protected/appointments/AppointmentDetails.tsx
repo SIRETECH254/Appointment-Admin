@@ -26,7 +26,7 @@ const AppointmentDetails = () => {
   const completeAppointment = useCompleteAppointment();
   const markNoShowAppointment = useMarkNoShowAppointment();
 
-  const appointment = (data as any)?.appointment ?? data;
+  const appointment = data?.appointment;
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [actionToConfirm, setActionToConfirm] = useState<'cancel' | 'no-show' | null>(null);
   const [inlineMessage, setInlineMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -103,7 +103,7 @@ const AppointmentDetails = () => {
       setConfirmModalOpen(false);
       setActionToConfirm(null);
     } catch (error: any) {
-      setInlineMessage({ type: 'error', text: error?.response?.data?.message || 'Action failed.' });
+      setInlineMessage({ type: 'error', text: error?.response?.data?.message ?? 'An error occurred' });
     }
   }, [id, actionToConfirm, cancelAppointment, markNoShowAppointment]);
 
@@ -113,7 +113,7 @@ const AppointmentDetails = () => {
       await checkInAppointment.mutateAsync(id);
       setInlineMessage({ type: 'success', text: 'Customer checked in successfully.' });
     } catch (error: any) {
-      setInlineMessage({ type: 'error', text: error?.response?.data?.message || 'Failed to check in.' });
+      setInlineMessage({ type: 'error', text: error?.response?.data?.message ?? 'An error occurred' });
     }
   }, [id, checkInAppointment]);
 
@@ -123,7 +123,7 @@ const AppointmentDetails = () => {
       await completeAppointment.mutateAsync(id);
       setInlineMessage({ type: 'success', text: 'Appointment completed successfully.' });
     } catch (error: any) {
-      setInlineMessage({ type: 'error', text: error?.response?.data?.message || 'Failed to complete appointment.' });
+      setInlineMessage({ type: 'error', text: error?.response?.data?.message ?? 'An error occurred' });
     }
   }, [id, completeAppointment]);
 
@@ -176,7 +176,7 @@ const AppointmentDetails = () => {
   }
 
   if (isError) {
-    const errorMessage = (error as any)?.response?.data?.message || 'Failed to load appointment.';
+    const errorMessage = error?.response?.data?.message ?? 'An error occurred';
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center">
         <div className="text-center">

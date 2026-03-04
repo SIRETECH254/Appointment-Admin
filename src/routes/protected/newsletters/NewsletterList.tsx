@@ -83,15 +83,13 @@ const NewsletterList = () => {
   const { data, isLoading, isError, error } = useGetAllSubscribers(params);
 
   // Extract subscribers and pagination from API response
-  const subscribers = (data as any)?.subscribers || [];
-  const paginationData = (data as any)?.pagination || {};
-  
-  // Map backend pagination structure to component expectations
-  const pagination = {
-    page: paginationData.currentPage || 1,
-    limit: itemsPerPage,
-    total: paginationData.totalSubscribers || 0,
-    totalPages: paginationData.totalPages || 1,
+  const subscribers = data?.subscribers ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
+    totalPages: 1,
+    totalSubscribers: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -149,8 +147,7 @@ const NewsletterList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load subscribers.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   /**
    * Format date for display
@@ -219,7 +216,7 @@ const NewsletterList = () => {
           
           {/* subscriber count */}
           <div className="">
-             <p className="text-sm text-gray-500">Showing {pagination.total} subscribers</p>
+             <p className="text-sm text-gray-500">Showing {pagination.totalSubscribers} subscribers</p>
           </div>
            
           {/* filters */}
@@ -425,10 +422,10 @@ const NewsletterList = () => {
       {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page}
+            currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            pageSize={pagination.limit}
+            totalItems={pagination.totalSubscribers}
+            currentPageCount={subscribers.length}
             onPageChange={setCurrentPage}
           />
         </div>

@@ -46,10 +46,10 @@ const UserEdit = () => {
   const updateUser = useUpdateUser();
   const { data: rolesData } = useGetAllRoles();
 
-  const allRoles = (rolesData as any)?.roles || [];
+  const allRoles = rolesData?.roles ?? [];
 
-  // Extract user from API response (handle different response shapes)
-  const user = (data as any)?.user ?? (data as IUser);
+  // Extract user from API response
+  const user = data?.user;
 
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -166,8 +166,7 @@ const UserEdit = () => {
         }, 1200);
       } catch (submitError: any) {
         // Extract error message from API response
-        const errorMessage =
-          submitError?.response?.data?.message || 'Failed to update user.';
+        const errorMessage = submitError?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);
@@ -177,8 +176,7 @@ const UserEdit = () => {
   );
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load user.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

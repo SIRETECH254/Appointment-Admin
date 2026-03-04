@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { paymentAPI } from '../api';
-import type { GetPaymentsParams, InitiatePaymentPayload, ServicePaymentPayload } from '../types/api.types';
+import type { GetPaymentsParams, InitiatePaymentPayload, ServicePaymentPayload, PaymentsListResponse, PaymentDetailResponse, InitiatePaymentResponse, QueryMpesaStatusResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get all payments
 export const useGetAllPayments = (params: GetPaymentsParams = {}) => {
-  return useQuery({
+  return useQuery<PaymentsListResponse>({
     queryKey: ['payments', params],
     queryFn: async () => {
       const response = await paymentAPI.getAllPayments(params);
@@ -20,7 +20,7 @@ export const useGetAllPayments = (params: GetPaymentsParams = {}) => {
 
 // Get single payment
 export const useGetPaymentById = (paymentId: string) => {
-  return useQuery({
+  return useQuery<PaymentDetailResponse>({
     queryKey: ['payment', paymentId],
     queryFn: async () => {
       const response = await paymentAPI.getPayment(paymentId);
@@ -36,7 +36,7 @@ export const useGetPaymentById = (paymentId: string) => {
 export const useInitiatePayment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<InitiatePaymentResponse, Error, InitiatePaymentPayload>({
     mutationFn: async (paymentData: InitiatePaymentPayload) => {
       const response = await paymentAPI.initiatePayment(paymentData);
       return response.data.data;
@@ -47,7 +47,7 @@ export const useInitiatePayment = () => {
     },
     onError: (error: any) => {
       console.error('Initiate payment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to initiate payment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -57,7 +57,7 @@ export const useInitiatePayment = () => {
 export const useServicePayment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<PaymentDetailResponse, Error, ServicePaymentPayload>({
     mutationFn: async (paymentData: ServicePaymentPayload) => {
       const response = await paymentAPI.servicePayment(paymentData);
       return response.data.data;
@@ -69,7 +69,7 @@ export const useServicePayment = () => {
     },
     onError: (error: any) => {
       console.error('Service payment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to complete service payment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -79,12 +79,11 @@ export const useServicePayment = () => {
 // Backend endpoint: GET /api/payments/status/:checkoutRequestId
 // Returns: { success: true, data: { payment: {...}, status: { ok, resultCode, resultDesc, error, details } } }
 export const useQueryMpesaStatus = (checkoutRequestId: string, options?: { enabled?: boolean }) => {
-  return useQuery({
+  return useQuery<{ payment: any; status: QueryMpesaStatusResponse }>({
     queryKey: ['payment', 'mpesa-status', checkoutRequestId],
     queryFn: async () => {
       const response = await paymentAPI.queryMpesaStatus(checkoutRequestId);
-      // Backend returns: { success: true, data: { payment: {...}, status: {...} } }
-      return response.data.data || response.data;
+      return response.data.data;
     },
     enabled: (options?.enabled ?? false) && !!checkoutRequestId,
     staleTime: 0, // Always fetch fresh data

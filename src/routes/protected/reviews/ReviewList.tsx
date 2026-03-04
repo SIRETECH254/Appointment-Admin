@@ -131,15 +131,13 @@ const ReviewList = () => {
   const { data, isLoading, isError, error } = useGetAllReviews(params);
 
   // Extract reviews and pagination from API response
-  const reviews = (data as any)?.reviews || [];
-  const paginationData = (data as any)?.pagination || {};
-  
-  // Map backend pagination structure to component expectations
-  const pagination = {
-    page: paginationData.currentPage || 1,
-    limit: itemsPerPage,
-    total: paginationData.totalReviews || 0,
-    totalPages: paginationData.totalPages || 1,
+  const reviews = data?.reviews ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
+    totalPages: 1,
+    totalReviews: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -248,8 +246,7 @@ const ReviewList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load reviews.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -284,7 +281,7 @@ const ReviewList = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* review count */}
           <div className="">
-            <p className="text-sm text-gray-500">Showing {pagination.total} reviews</p>
+            <p className="text-sm text-gray-500">Showing {pagination.totalReviews} reviews</p>
           </div>
            
           {/* filters */}
@@ -584,10 +581,10 @@ const ReviewList = () => {
       {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page}
+            currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            pageSize={pagination.limit}
+            totalItems={pagination.totalReviews}
+            currentPageCount={reviews.length}
             onPageChange={setCurrentPage}
           />
         </div>

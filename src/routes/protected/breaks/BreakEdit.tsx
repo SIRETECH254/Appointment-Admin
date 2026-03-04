@@ -32,8 +32,8 @@ const BreakEdit = () => {
   const { data, isLoading, isError, error } = useGetBreakById(id || '');
   const updateBreak = useUpdateBreak();
 
-  // Extract break from API response (handle different response shapes)
-  const breakItem = (data as any)?.break ?? (data as IBreak);
+  // Extract break from API response
+  const breakItem = data?.break;
 
   // Form state
   const [startTime, setStartTime] = useState('');
@@ -173,7 +173,7 @@ const BreakEdit = () => {
       } catch (submitError: any) {
         // Extract error message from API response
         const errorMessage =
-          submitError?.response?.data?.message || 'Failed to update break.';
+          submitError?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);
@@ -183,8 +183,7 @@ const BreakEdit = () => {
   );
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load break.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

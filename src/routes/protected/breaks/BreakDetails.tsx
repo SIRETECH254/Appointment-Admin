@@ -24,8 +24,8 @@ const BreakDetails = () => {
   // Fetch break data
   const { data, isLoading, isError, error } = useGetBreakById(id || '');
 
-  // Extract break from API response (handle different response shapes)
-  const breakItem = (data as any)?.break ?? (data as IBreak);
+  // Extract break from API response
+  const breakItem = data?.break;
 
   // Build staff info for display
   const staffName = useMemo(() => {
@@ -49,8 +49,7 @@ const BreakDetails = () => {
   }, [breakItem]);
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load break.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

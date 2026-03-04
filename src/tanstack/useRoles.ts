@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { roleAPI } from '../api';
-import type { CreateRolePayload, PaginationParams, UpdateRolePayload } from '../types/api.types';
+import type { CreateRolePayload, PaginationParams, UpdateRolePayload, RolesListResponse, RoleDetailResponse, UsersListResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get all roles
 export const useGetAllRoles = (params: PaginationParams = {}) => {
-  return useQuery({
+  return useQuery<RolesListResponse>({
     queryKey: ['roles', params],
     queryFn: async () => {
       const response = await roleAPI.getAllRoles(params);
@@ -20,7 +20,7 @@ export const useGetAllRoles = (params: PaginationParams = {}) => {
 
 // Get single role
 export const useGetRoleById = (roleId: string) => {
-  return useQuery({
+  return useQuery<RoleDetailResponse>({
     queryKey: ['role', roleId],
     queryFn: async () => {
       const response = await roleAPI.getRole(roleId);
@@ -36,7 +36,7 @@ export const useGetRoleById = (roleId: string) => {
 export const useCreateRole = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<RoleDetailResponse, Error, CreateRolePayload>({
     mutationFn: async (roleData: CreateRolePayload) => {
       const response = await roleAPI.createRole(roleData);
       return response.data.data;
@@ -47,7 +47,7 @@ export const useCreateRole = () => {
     },
     onError: (error: any) => {
       console.error('Create role error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to create role';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -57,7 +57,7 @@ export const useCreateRole = () => {
 export const useUpdateRole = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<RoleDetailResponse, Error, { roleId: string; roleData: UpdateRolePayload }>({
     mutationFn: async ({ roleId, roleData }: { roleId: string; roleData: UpdateRolePayload }) => {
       const response = await roleAPI.updateRole(roleId, roleData);
       return response.data.data;
@@ -69,7 +69,7 @@ export const useUpdateRole = () => {
     },
     onError: (error: any) => {
       console.error('Update role error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update role';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -79,7 +79,7 @@ export const useUpdateRole = () => {
 export const useDeleteRole = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (roleId: string) => {
       const response = await roleAPI.deleteRole(roleId);
       return response.data.data;
@@ -90,7 +90,7 @@ export const useDeleteRole = () => {
     },
     onError: (error: any) => {
       console.error('Delete role error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete role';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -98,7 +98,7 @@ export const useDeleteRole = () => {
 
 // Get users by role
 export const useGetUsersByRole = (roleId: string, params: PaginationParams = {}) => {
-  return useQuery({
+  return useQuery<UsersListResponse>({
     queryKey: ['roles', roleId, 'users', params],
     queryFn: async () => {
       const response = await roleAPI.getUsersByRole(roleId, params);
@@ -112,7 +112,7 @@ export const useGetUsersByRole = (roleId: string, params: PaginationParams = {})
 
 // Get customer users
 export const useGetCustomerUsers = (params: PaginationParams = {}) => {
-  return useQuery({
+  return useQuery<UsersListResponse>({
     queryKey: ['roles', 'customers', params],
     queryFn: async () => {
       const response = await roleAPI.getCustomerUsers(params);

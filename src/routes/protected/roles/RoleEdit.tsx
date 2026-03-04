@@ -45,8 +45,8 @@ const RoleEdit = () => {
   const { data, isLoading, isError, error } = useGetRoleById(id || '');
   const updateRole = useUpdateRole();
 
-  // Extract role from API response (handle different response shapes)
-  const role = (data as any)?.role ?? (data as IRole);
+  // Extract role from API response
+  const role = data?.role;
 
   // Form state
   const [name, setName] = useState('');
@@ -158,8 +158,7 @@ const RoleEdit = () => {
         }, 1200);
       } catch (submitError: any) {
         // Extract error message from API response
-        const errorMessage =
-          submitError?.response?.data?.message || 'Failed to update role.';
+        const errorMessage = submitError?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);

@@ -90,12 +90,13 @@ const UserList = () => {
   const { data, isLoading, isError, error } = useGetAllUsers(params);
 
   // Extract users and pagination from API response
-  const users = (data as any)?.users || [];
-  const pagination = (data as any)?.pagination || {
-    page: 1,
-    limit: 10,
-    total: 0,
+  const users = data?.users ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
     totalPages: 1,
+    totalUsers: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -158,8 +159,7 @@ const UserList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load users.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -200,7 +200,7 @@ const UserList = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* user count */}
           <div className="">
-            <p className="text-sm text-gray-500">Showing {pagination.total} users</p>
+            <p className="text-sm text-gray-500">Showing {pagination.totalUsers} users</p>
           </div>
 
           {/* filters */}
@@ -439,10 +439,10 @@ const UserList = () => {
       {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page}
+            currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            pageSize={pagination.limit}
+            totalItems={pagination.totalUsers}
+            currentPageCount={users.length}
             onPageChange={setCurrentPage}
           />
         </div>

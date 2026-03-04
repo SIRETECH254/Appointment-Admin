@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { serviceAPI, userAPI } from '../api';
-import type { AssignServicesToStaffPayload, CreateServicePayload, GetServicesParams, UpdateServicePayload, IService } from '../types/api.types';
+import type { AssignServicesToStaffPayload, CreateServicePayload, GetServicesParams, UpdateServicePayload, IService, ServicesListResponse, ServiceDetailResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get all services
 export const useGetAllServices = (params: GetServicesParams = {}) => {
-  return useQuery({
+  return useQuery<ServicesListResponse>({
     queryKey: ['services', params],
     queryFn: async () => {
       const response = await serviceAPI.getAllServices(params);
@@ -20,7 +20,7 @@ export const useGetAllServices = (params: GetServicesParams = {}) => {
 
 // Get services by staff member
 export const useGetServicesByStaff = (staffId: string) => {
-  return useQuery({
+  return useQuery<{ services: IService[] }>({
     queryKey: ['services', 'staff', staffId],
     queryFn: async () => {
       // First, get the staff user to get their services array
@@ -38,7 +38,7 @@ export const useGetServicesByStaff = (staffId: string) => {
 
       // Fetch all services and filter to only those assigned to this staff
       const allServicesResponse = await serviceAPI.getAllServices({ status: 'active' });
-      const allServices = allServicesResponse.data.data.services || [];
+      const allServices = allServicesResponse.data.data.services ?? [];
       
       const staffServices = allServices.filter((service: IService) => 
         serviceIds.includes(service._id)
@@ -54,7 +54,7 @@ export const useGetServicesByStaff = (staffId: string) => {
 
 // Get single service
 export const useGetServiceById = (serviceId: string) => {
-  return useQuery({
+  return useQuery<ServiceDetailResponse>({
     queryKey: ['service', serviceId],
     queryFn: async () => {
       const response = await serviceAPI.getService(serviceId);
@@ -70,7 +70,7 @@ export const useGetServiceById = (serviceId: string) => {
 export const useCreateService = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ServiceDetailResponse, Error, CreateServicePayload>({
     mutationFn: async (serviceData: CreateServicePayload) => {
       const response = await serviceAPI.createService(serviceData);
       return response.data.data;
@@ -81,7 +81,7 @@ export const useCreateService = () => {
     },
     onError: (error: any) => {
       console.error('Create service error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to create service';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -91,7 +91,7 @@ export const useCreateService = () => {
 export const useUpdateService = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ServiceDetailResponse, Error, { serviceId: string; serviceData: UpdateServicePayload }>({
     mutationFn: async ({ serviceId, serviceData }: { serviceId: string; serviceData: UpdateServicePayload }) => {
       const response = await serviceAPI.updateService(serviceId, serviceData);
       return response.data.data;
@@ -103,7 +103,7 @@ export const useUpdateService = () => {
     },
     onError: (error: any) => {
       console.error('Update service error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update service';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -113,7 +113,7 @@ export const useUpdateService = () => {
 export const useDeleteService = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (serviceId: string) => {
       const response = await serviceAPI.deleteService(serviceId);
       return response.data.data;
@@ -124,7 +124,7 @@ export const useDeleteService = () => {
     },
     onError: (error: any) => {
       console.error('Delete service error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete service';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -134,7 +134,7 @@ export const useDeleteService = () => {
 export const useToggleServiceStatus = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ServiceDetailResponse, Error, string>({
     mutationFn: async (serviceId: string) => {
       const response = await serviceAPI.toggleServiceStatus(serviceId);
       return response.data.data;
@@ -146,7 +146,7 @@ export const useToggleServiceStatus = () => {
     },
     onError: (error: any) => {
       console.error('Toggle service status error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to toggle service status';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -156,7 +156,7 @@ export const useToggleServiceStatus = () => {
 export const useAssignServicesToStaff = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UserDetailResponse, Error, { userId: string; data: AssignServicesToStaffPayload }>({
     mutationFn: async ({ userId, data }: { userId: string; data: AssignServicesToStaffPayload }) => {
       const response = await serviceAPI.assignServicesToStaff(userId, data);
       return response.data.data;
@@ -168,7 +168,7 @@ export const useAssignServicesToStaff = () => {
     },
     onError: (error: any) => {
       console.error('Assign services error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to assign services to staff';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

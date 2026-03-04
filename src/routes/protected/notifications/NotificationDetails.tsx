@@ -45,7 +45,7 @@ const NotificationDetails = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   // Extract notification from API response
-  const notification = (data as any)?.notification ?? (data as INotification);
+  const notification = data?.notification;
 
   // Check if notification is unread
   const isUnread = useMemo(() => {
@@ -116,8 +116,7 @@ const NotificationDetails = () => {
   );
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load notification.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

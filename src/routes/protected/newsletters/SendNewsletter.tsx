@@ -107,7 +107,7 @@ const SendNewsletter = () => {
         navigate('/newsletters');
       }, 2000);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || 'Failed to send newsletter.';
+      const errorMessage = error?.response?.data?.message ?? 'An error occurred';
       setInlineMessage({ type: 'error', text: errorMessage });
     } finally {
       setIsSubmitting(false);

@@ -35,7 +35,7 @@ const ContactDetails = () => {
   const updateStatus = useUpdateContactStatus();
 
   // Extract contact from API response
-  const contact = (data as any)?.contact ?? (data as IContact);
+  const contact = data?.contact;
 
   // Status update state
   const [selectedStatus, setSelectedStatus] = useState<ContactStatus | ''>('');
@@ -58,8 +58,7 @@ const ContactDetails = () => {
   }, [contact, selectedStatus, updateStatus]);
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Failed to load contact.';
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
 
   // Get user information if userId exists (must be called before any early returns)
   const userInfo = useMemo(() => {

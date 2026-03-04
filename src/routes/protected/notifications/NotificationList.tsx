@@ -112,8 +112,8 @@ const NotificationList = () => {
   const { data, isLoading, isError, error } = useGetNotifications(params);
 
   // Extract notifications and pagination from API response
-  const notifications = (data as any)?.notifications || [];
-  const pagination = (data as any)?.pagination || {
+  const notifications = data?.notifications ?? [];
+  const pagination = data?.pagination ?? {
     currentPage: 1,
     totalPages: 1,
     totalNotifications: 0,

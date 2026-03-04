@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { storeConfigurationAPI } from '../api';
-import type { UpdateStoreConfigurationPayload } from '../types/api.types';
+import type { UpdateStoreConfigurationPayload, StoreConfigurationResponse } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get store configuration
 export const useGetStoreConfiguration = () => {
-  return useQuery({
+  return useQuery<StoreConfigurationResponse>({
     queryKey: ['store-configuration'],
     queryFn: async () => {
       const response = await storeConfigurationAPI.getConfiguration();
@@ -22,7 +22,7 @@ export const useGetStoreConfiguration = () => {
 export const useUpdateStoreConfiguration = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<StoreConfigurationResponse, Error, UpdateStoreConfigurationPayload>({
     mutationFn: async (configData: UpdateStoreConfigurationPayload) => {
       const response = await storeConfigurationAPI.updateConfiguration(configData);
       return response.data.data;
@@ -33,7 +33,7 @@ export const useUpdateStoreConfiguration = () => {
     },
     onError: (error: any) => {
       console.error('Update store configuration error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update store configuration';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

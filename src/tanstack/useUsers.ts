@@ -10,6 +10,9 @@ import type {
   UpdateNotificationPreferencesPayload,
   UpdateProfilePayload,
   UpdateUserStatusPayload,
+  UsersListResponse,
+  UserDetailResponse,
+  ProfileResponse,
 } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
@@ -17,7 +20,7 @@ const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get own profile
 export const useGetProfile = () => {
-  return useQuery({
+  return useQuery<ProfileResponse>({
     queryKey: ['user', 'profile'],
     queryFn: async () => {
       const response = await userAPI.getProfile();
@@ -32,7 +35,7 @@ export const useGetProfile = () => {
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<ProfileResponse, Error, UpdateProfilePayload | FormData>({
     mutationFn: async (profileData: UpdateProfilePayload | FormData) => {
       const response = await userAPI.updateProfile(profileData);
       return response.data.data;
@@ -43,7 +46,7 @@ export const useUpdateProfile = () => {
     },
     onError: (error: any) => {
       console.error('Update profile error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update profile';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -51,7 +54,7 @@ export const useUpdateProfile = () => {
 
 // Change password
 export const useChangePassword = () => {
-  return useMutation({
+  return useMutation<void, Error, ChangePasswordPayload>({
     mutationFn: async (passwordData: ChangePasswordPayload) => {
       const response = await userAPI.changePassword(passwordData);
       return response.data.data;
@@ -61,7 +64,7 @@ export const useChangePassword = () => {
     },
     onError: (error: any) => {
       console.error('Change password error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to change password';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -69,7 +72,7 @@ export const useChangePassword = () => {
 
 // Get notification preferences
 export const useGetNotificationPreferences = () => {
-  return useQuery({
+  return useQuery<{ notificationPreferences: any }>({
     queryKey: ['user', 'notification-preferences'],
     queryFn: async () => {
       const response = await userAPI.getNotificationPreferences();
@@ -84,7 +87,7 @@ export const useGetNotificationPreferences = () => {
 export const useUpdateNotificationPreferences = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<{ notificationPreferences: any }, Error, UpdateNotificationPreferencesPayload>({
     mutationFn: async (preferences: UpdateNotificationPreferencesPayload) => {
       const response = await userAPI.updateNotificationPreferences(preferences);
       return response.data.data;
@@ -95,7 +98,7 @@ export const useUpdateNotificationPreferences = () => {
     },
     onError: (error: any) => {
       console.error('Update notification preferences error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update notification preferences';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -103,7 +106,7 @@ export const useUpdateNotificationPreferences = () => {
 
 // Get all users (admin)
 export const useGetAllUsers = (params: GetUsersParams = {}) => {
-  return useQuery({
+  return useQuery<UsersListResponse>({
     queryKey: ['users', params],
     queryFn: async () => {
       const response = await userAPI.getAllUsers(params);
@@ -116,7 +119,7 @@ export const useGetAllUsers = (params: GetUsersParams = {}) => {
 
 // Get single user (admin)
 export const useGetUserById = (userId: string) => {
-  return useQuery({
+  return useQuery<UserDetailResponse>({
     queryKey: ['user', userId],
     queryFn: async () => {
       const response = await userAPI.getUserById(userId);
@@ -132,7 +135,7 @@ export const useGetUserById = (userId: string) => {
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UserDetailResponse, Error, { userId: string; userData: Partial<AdminCreateUserPayload> }>({
     mutationFn: async ({ userId, userData }: { userId: string; userData: Partial<AdminCreateUserPayload> }) => {
       const response = await userAPI.updateUser(userId, userData);
       return response.data.data;
@@ -144,7 +147,7 @@ export const useUpdateUser = () => {
     },
     onError: (error: any) => {
       console.error('Update user error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update user';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -154,7 +157,7 @@ export const useUpdateUser = () => {
 export const useAdminCreateUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UserDetailResponse, Error, AdminCreateUserPayload>({
     mutationFn: async (userData: AdminCreateUserPayload) => {
       const response = await userAPI.adminCreateUser(userData);
       return response.data.data;
@@ -165,7 +168,7 @@ export const useAdminCreateUser = () => {
     },
     onError: (error: any) => {
       console.error('Create user error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to create user';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -175,7 +178,7 @@ export const useAdminCreateUser = () => {
 export const useUpdateUserStatus = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UserDetailResponse, Error, { userId: string; statusData: UpdateUserStatusPayload }>({
     mutationFn: async ({ userId, statusData }: { userId: string; statusData: UpdateUserStatusPayload }) => {
       const response = await userAPI.updateUserStatus(userId, statusData);
       return response.data.data;
@@ -187,7 +190,7 @@ export const useUpdateUserStatus = () => {
     },
     onError: (error: any) => {
       console.error('Update user status error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update user status';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -197,7 +200,7 @@ export const useUpdateUserStatus = () => {
 export const useSetUserAdmin = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UserDetailResponse, Error, { userId: string; adminData: SetUserAdminPayload }>({
     mutationFn: async ({ userId, adminData }: { userId: string; adminData: SetUserAdminPayload }) => {
       const response = await userAPI.setUserAdmin(userId, adminData);
       return response.data.data;
@@ -209,7 +212,7 @@ export const useSetUserAdmin = () => {
     },
     onError: (error: any) => {
       console.error('Set user admin error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update user admin role';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -217,7 +220,7 @@ export const useSetUserAdmin = () => {
 
 // Get user roles (admin)
 export const useGetUserRoles = (userId: string) => {
-  return useQuery({
+  return useQuery<{ roles: any[] }>({
     queryKey: ['user', userId, 'roles'],
     queryFn: async () => {
       const response = await userAPI.getUserRoles(userId);
@@ -233,7 +236,7 @@ export const useGetUserRoles = (userId: string) => {
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (userId: string) => {
       const response = await userAPI.deleteUser(userId);
       return response.data.data;
@@ -244,7 +247,7 @@ export const useDeleteUser = () => {
     },
     onError: (error: any) => {
       console.error('Delete user error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete user';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -252,7 +255,7 @@ export const useDeleteUser = () => {
 
 // Get customers (users with customer role)
 export const useGetCustomers = (params: GetCustomersParams = {}) => {
-  return useQuery({
+  return useQuery<UsersListResponse>({
     queryKey: ['users', 'customers', params],
     queryFn: async () => {
       const response = await userAPI.getCustomers(params);
@@ -267,7 +270,7 @@ export const useGetCustomers = (params: GetCustomersParams = {}) => {
 export const useAssignRole = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UserDetailResponse, Error, { userId: string; roleData: AssignRolePayload }>({
     mutationFn: async ({ userId, roleData }: { userId: string; roleData: AssignRolePayload }) => {
       const response = await userAPI.assignRole(userId, roleData);
       return response.data.data;
@@ -280,7 +283,7 @@ export const useAssignRole = () => {
     },
     onError: (error: any) => {
       console.error('Assign role error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to assign role';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -290,7 +293,7 @@ export const useAssignRole = () => {
 export const useRemoveRole = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UserDetailResponse, Error, { userId: string; roleId: string }>({
     mutationFn: async ({ userId, roleId }: { userId: string; roleId: string }) => {
       const response = await userAPI.removeRole(userId, roleId);
       return response.data.data;
@@ -303,7 +306,7 @@ export const useRemoveRole = () => {
     },
     onError: (error: any) => {
       console.error('Remove role error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to remove role';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -311,12 +314,12 @@ export const useRemoveRole = () => {
 
 // Get staff members who provide a specific service
 export const useGetStaffByService = (serviceId: string) => {
-  return useQuery({
+  return useQuery<{ users: any[] }>({
     queryKey: ['users', 'staff', 'service', serviceId],
     queryFn: async () => {
       // Get all staff users
       const response = await userAPI.getAllUsers({ role: 'staff', status: 'active' });
-      const allStaff = response.data.data.users || [];
+      const allStaff = response.data.data.users ?? [];
       
       // Filter staff where their services array includes the serviceId
       const staffWithService = allStaff.filter((staff: any) => {

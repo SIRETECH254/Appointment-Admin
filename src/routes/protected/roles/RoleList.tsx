@@ -85,12 +85,13 @@ const RoleList = () => {
   const { data, isLoading, isError, error } = useGetAllRoles(params);
 
   // Extract roles and pagination from API response
-  const roles = (data as any)?.roles || [];
-  const pagination = (data as any)?.pagination || {
-    page: 1,
-    limit: 10,
-    total: roles.length,
+  const roles = data?.roles ?? [];
+  const pagination = data?.pagination ?? {
+    currentPage: 1,
     totalPages: 1,
+    totalRoles: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   /**
@@ -190,7 +191,7 @@ const RoleList = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           {/* role count */}
           <div className="">
-            <p className="text-sm text-gray-500">Showing {pagination.total || roles.length} roles</p>
+            <p className="text-sm text-gray-500">Showing {pagination.totalRoles} roles</p>
           </div>
 
           {/* filters */}
@@ -378,13 +379,13 @@ const RoleList = () => {
       </div>
 
       {/* Pagination - separate from table container */}
-      {!isLoading && !isError && (pagination.totalPages || 1) > 1 && (
+      {!isLoading && !isError && pagination.totalPages > 1 && (
         <div className="mt-4">
           <Pagination
-            currentPage={pagination.page || currentPage}
-            totalPages={pagination.totalPages || 1}
-            totalItems={pagination.total || roles.length}
-            pageSize={pagination.limit || itemsPerPage}
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalRoles}
+            currentPageCount={roles.length}
             onPageChange={setCurrentPage}
           />
         </div>

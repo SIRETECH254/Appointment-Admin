@@ -13,11 +13,10 @@ const StoreConfig = () => {
   const { data, isLoading, isError, error } = useGetStoreConfiguration()
 
   // Extract storeConfiguration from API response
-  const storeConfig = (data as any)?.storeConfiguration ?? data
+  const storeConfig = data?.storeConfiguration
 
   // Get error message from API response
-  const errorMessage =
-    (error as any)?.response?.data?.message || 'Unable to load store configuration.'
+  const errorMessage = error?.response?.data?.message ?? 'An error occurred'
 
   // Loading state
   if (isLoading) {

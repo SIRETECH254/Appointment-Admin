@@ -7,6 +7,8 @@ import type {
   GetAppointmentsParams,
   GetMyAppointmentsParams,
   RescheduleAppointmentPayload,
+  AppointmentsListResponse,
+  AppointmentDetailResponse,
 } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
@@ -14,7 +16,7 @@ const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Get all appointments
 export const useGetAllAppointments = (params: GetAppointmentsParams = {}) => {
-  return useQuery({
+  return useQuery<AppointmentsListResponse>({
     queryKey: ['appointments', params],
     queryFn: async () => {
       const response = await appointmentAPI.getAllAppointments(params);
@@ -27,7 +29,7 @@ export const useGetAllAppointments = (params: GetAppointmentsParams = {}) => {
 
 // Get my appointments
 export const useGetMyAppointments = (params: GetMyAppointmentsParams = {}) => {
-  return useQuery({
+  return useQuery<AppointmentsListResponse>({
     queryKey: ['appointments', 'my', params],
     queryFn: async () => {
       const response = await appointmentAPI.getMyAppointments(params);
@@ -40,7 +42,7 @@ export const useGetMyAppointments = (params: GetMyAppointmentsParams = {}) => {
 
 // Get single appointment
 export const useGetAppointment = (appointmentId: string) => {
-  return useQuery({
+  return useQuery<AppointmentDetailResponse>({
     queryKey: ['appointment', appointmentId],
     queryFn: async () => {
       const response = await appointmentAPI.getAppointment(appointmentId);
@@ -56,7 +58,7 @@ export const useGetAppointment = (appointmentId: string) => {
 export const useCreateAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<AppointmentDetailResponse, Error, CreateAppointmentPayload>({
     mutationFn: async (appointmentData: CreateAppointmentPayload) => {
       const response = await appointmentAPI.create(appointmentData);
       return response.data.data;
@@ -67,7 +69,7 @@ export const useCreateAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Create appointment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to create appointment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -77,7 +79,7 @@ export const useCreateAppointment = () => {
 export const useConfirmAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<AppointmentDetailResponse, Error, { appointmentId: string; paymentData: ConfirmAppointmentPayload }>({
     mutationFn: async ({ appointmentId, paymentData }: { appointmentId: string; paymentData: ConfirmAppointmentPayload }) => {
       const response = await appointmentAPI.confirm(appointmentId, paymentData);
       return response.data.data;
@@ -89,7 +91,7 @@ export const useConfirmAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Confirm appointment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to confirm appointment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -99,7 +101,7 @@ export const useConfirmAppointment = () => {
 export const useRescheduleAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<AppointmentDetailResponse, Error, { appointmentId: string; data: RescheduleAppointmentPayload }>({
     mutationFn: async ({ appointmentId, data }: { appointmentId: string; data: RescheduleAppointmentPayload }) => {
       const response = await appointmentAPI.reschedule(appointmentId, data);
       return response.data.data;
@@ -111,7 +113,7 @@ export const useRescheduleAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Reschedule appointment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to reschedule appointment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -121,7 +123,7 @@ export const useRescheduleAppointment = () => {
 export const useCancelAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<AppointmentDetailResponse, Error, { appointmentId: string; data?: CancelAppointmentPayload }>({
     mutationFn: async ({ appointmentId, data }: { appointmentId: string; data?: CancelAppointmentPayload }) => {
       const response = await appointmentAPI.cancel(appointmentId, data);
       return response.data.data;
@@ -133,7 +135,7 @@ export const useCancelAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Cancel appointment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to cancel appointment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -143,7 +145,7 @@ export const useCancelAppointment = () => {
 export const useCheckInAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<AppointmentDetailResponse, Error, string>({
     mutationFn: async (appointmentId: string) => {
       const response = await appointmentAPI.checkIn(appointmentId);
       return response.data.data;
@@ -155,7 +157,7 @@ export const useCheckInAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Check-in error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to check in appointment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -165,7 +167,7 @@ export const useCheckInAppointment = () => {
 export const useCompleteAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<AppointmentDetailResponse, Error, string>({
     mutationFn: async (appointmentId: string) => {
       const response = await appointmentAPI.complete(appointmentId);
       return response.data.data;
@@ -177,7 +179,7 @@ export const useCompleteAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Complete appointment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to complete appointment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -187,7 +189,7 @@ export const useCompleteAppointment = () => {
 export const useMarkNoShowAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<AppointmentDetailResponse, Error, string>({
     mutationFn: async (appointmentId: string) => {
       const response = await appointmentAPI.markNoShow(appointmentId);
       return response.data.data;
@@ -199,7 +201,7 @@ export const useMarkNoShowAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Mark no-show error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to mark appointment as no-show';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });
@@ -209,7 +211,7 @@ export const useMarkNoShowAppointment = () => {
 export const useDeleteAppointment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (appointmentId: string) => {
       const response = await appointmentAPI.deleteAppointment(appointmentId);
       return response.data.data;
@@ -220,7 +222,7 @@ export const useDeleteAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Delete appointment error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to delete appointment';
+      const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },
   });

@@ -14,7 +14,7 @@ const PaymentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError, error } = useGetPaymentById(id || '');
 
-  const payment = (data as any)?.payment ?? (data as any)?.data?.payment ?? data;
+  const payment = data?.payment;
   const appointmentId = getPaymentAppointmentId(payment);
 
   if (isLoading) {
