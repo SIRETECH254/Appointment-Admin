@@ -12,7 +12,7 @@ import {
   formatDateTimeWithTime,
   isNotificationUnread,
 } from '../../../utils/notificationUtils';
-import type { INotification, INotificationAction } from '../../../types/api.types';
+import type { INotificationAction } from '../../../types/api.types';
 
 /**
  * NotificationDetails Component
@@ -116,7 +116,7 @@ const NotificationDetails = () => {
   );
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

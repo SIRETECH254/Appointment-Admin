@@ -176,7 +176,7 @@ const AppointmentDetails = () => {
   }
 
   if (isError) {
-    const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+    const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center">
         <div className="text-center">

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useGetBreakById, useUpdateBreak } from '../../../tanstack/useBreaks';
 import { formatTimeInput, isTimeBefore } from '../../../utils/breakUtils';
-import type { IBreak, UpdateBreakPayload } from '../../../types/api.types';
+import type { UpdateBreakPayload } from '../../../types/api.types';
 
 /**
  * Inline message type for form feedback
@@ -173,7 +173,7 @@ const BreakEdit = () => {
       } catch (submitError: any) {
         // Extract error message from API response
         const errorMessage =
-          submitError?.response?.data?.message ?? 'An error occurred';
+          (submitError as any)?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);
@@ -183,7 +183,7 @@ const BreakEdit = () => {
   );
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

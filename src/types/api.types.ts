@@ -279,6 +279,7 @@ export interface IService {
   fullPrice: number;
   depositAmount?: number;
   icon?: string;
+  sortOrder?: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

@@ -16,7 +16,7 @@ const StoreConfig = () => {
   const storeConfig = data?.storeConfiguration
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred'
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred'
 
   // Loading state
   if (isLoading) {

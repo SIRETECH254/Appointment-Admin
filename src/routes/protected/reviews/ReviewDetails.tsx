@@ -3,7 +3,6 @@ import { Link, useParams } from 'react-router-dom';
 import { FiUser, FiMail, FiClock, FiFileText, FiCalendar, FiAlertTriangle, FiXCircle, FiStar } from 'react-icons/fi';
 import { useGetReviewById } from '../../../tanstack/useReviews';
 import { formatReviewDateTime, getUserName, getUserInitials, getStaffName, getServiceNames, getAppointmentDate } from '../../../utils/reviewUtils';
-import type { IReview } from '../../../types/api.types';
 
 /**
  * Star Rating Component
@@ -80,7 +79,7 @@ const ReviewDetails = () => {
   }, [review]);
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state with skeleton divided into sections
   if (isLoading) {

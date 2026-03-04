@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiSearch, FiFilter, FiList, FiEye, FiSend } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiList, FiEye, FiSend, FiAlertTriangle } from 'react-icons/fi';
 import {
   useGetAllContactMessages,
 } from '../../../tanstack/useContact';
@@ -102,7 +102,7 @@ const ContactList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -202,8 +202,9 @@ const ContactList = () => {
 
         {/* Error state */}
         {isError && !isLoading && (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="alert-error">{errorMessage}</div>
+          <div className="flex flex-col items-center justify-center min-h-[400px] py-12">
+            <FiAlertTriangle className="text-brand-accent mb-4" size={48} />
+            <p className="text-sm font-medium text-gray-700">{errorMessage}</p>
           </div>
         )}
 

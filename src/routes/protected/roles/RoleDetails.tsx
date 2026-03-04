@@ -4,7 +4,6 @@ import { FiShield, FiTag, FiFileText, FiKey, FiCheckCircle, FiXCircle, FiCalenda
 import { useGetRoleById } from '../../../tanstack/useRoles';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatDateTimeWithTime, getRoleInitials } from '../../../utils/roleUtils';
-import type { IRole } from '../../../types/api.types';
 
 /**
  * RoleDetails Component
@@ -37,7 +36,7 @@ const RoleDetails = () => {
   }, [role]);
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MdAdd, MdMarkEmailRead } from 'react-icons/md';
-import { FiSearch, FiFilter, FiList, FiEye, FiTrash2 } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiList, FiEye, FiTrash2, FiAlertTriangle } from 'react-icons/fi';
 import {
   useGetNotifications,
   useMarkNotificationAsRead,
@@ -365,8 +365,9 @@ const NotificationList = () => {
 
         {/* Error state */}
         {isError && !isLoading && (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="alert-error">{errorMessage}</div>
+          <div className="flex flex-col items-center justify-center min-h-[400px] py-12">
+            <FiAlertTriangle className="text-brand-accent mb-4" size={48} />
+            <p className="text-sm font-medium text-gray-700">{errorMessage}</p>
           </div>
         )}
 

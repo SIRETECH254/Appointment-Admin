@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FiClock, FiPlus, FiX } from 'react-icons/fi';
 import { useGetUserById, useUpdateUser } from '../../../tanstack/useUsers';
 import { useGetAllRoles } from '../../../tanstack/useRoles';
-import type { IUser, IRole } from '../../../types/api.types';
+import type { IRole } from '../../../types/api.types';
 import MultiSelect from '../../../components/ui/MultiSelect';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
@@ -79,7 +79,7 @@ const UserEdit = () => {
     setEmail(user.email ?? '');
     setPhone(user.phone ?? '');
     setSelectedRoles(user.roles?.map((r: IRole) => r._id) ?? []);
-    setWorkingHours(user.workingHours ?? {});
+    setWorkingHours((user.workingHours as unknown as WorkingHours) ?? {});
     setIsActive(user.isActive ?? true);
   }, [user]);
 
@@ -166,7 +166,7 @@ const UserEdit = () => {
         }, 1200);
       } catch (submitError: any) {
         // Extract error message from API response
-        const errorMessage = submitError?.response?.data?.message ?? 'An error occurred';
+        const errorMessage = (submitError as any)?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);
@@ -176,7 +176,7 @@ const UserEdit = () => {
   );
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

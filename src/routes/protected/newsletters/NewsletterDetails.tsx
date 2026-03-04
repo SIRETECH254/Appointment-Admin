@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { FiMail, FiUser, FiCalendar, FiClock, FiAlertTriangle, FiXCircle, FiTag } from 'react-icons/fi';
 import { useGetSubscriberById } from '../../../tanstack/useNewsletters';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import type { INewsletter, IUser } from '../../../types/api.types';
+import type { IUser } from '../../../types/api.types';
 
 /**
  * NewsletterDetails Component
@@ -38,7 +38,7 @@ const NewsletterDetails = () => {
   }, [subscriber]);
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   /**
    * Format date for display

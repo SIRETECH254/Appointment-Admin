@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiFilter, FiList, FiSearch, FiEye, FiTrash2, FiStar } from 'react-icons/fi';
+import { FiFilter, FiList, FiSearch, FiEye, FiTrash2, FiStar, FiAlertTriangle } from 'react-icons/fi';
 import { useGetAllReviews, useDeleteReview, useUpdateReviewStatus } from '../../../tanstack/useReviews';
 import { useGetAllUsers } from '../../../tanstack/useUsers';
 import { useGetAllServices } from '../../../tanstack/useServices';
@@ -246,7 +246,7 @@ const ReviewList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -444,8 +444,11 @@ const ReviewList = () => {
             {/* Error state */}
             {isError && !isLoading && (
               <tr>
-                <td colSpan={7} className="table-cell-center">
-                  <div className="alert-error mx-auto max-w-md">{errorMessage}</div>
+                <td colSpan={7} className="table-cell-center py-12">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <FiAlertTriangle className="text-brand-accent" size={48} />
+                    <p className="text-sm font-medium text-gray-700">{errorMessage}</p>
+                  </div>
                 </td>
               </tr>
             )}

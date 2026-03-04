@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useGetServiceById, useUpdateService } from '../../../tanstack/useServices';
-import type { IService } from '../../../types/api.types';
 
 /**
  * Inline message type for form feedback
@@ -179,7 +178,7 @@ const ServiceEdit = () => {
         }, 1200);
       } catch (submitError: any) {
         // Extract error message from API response
-        const errorMessage = submitError?.response?.data?.message ?? 'An error occurred';
+        const errorMessage = (submitError as any)?.response?.data?.message ?? 'An error occurred';
         setInlineMessage({ type: 'error', text: errorMessage });
       } finally {
         setIsSubmitting(false);

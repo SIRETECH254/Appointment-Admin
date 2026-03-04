@@ -3,7 +3,6 @@ import { FiTag, FiFileText, FiClock, FiDollarSign, FiList, FiCheckCircle, FiXCir
 import { useGetServiceById } from '../../../tanstack/useServices';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatDateTimeWithTime, formatPrice, formatDuration } from '../../../utils/serviceUtils';
-import type { IService } from '../../../types/api.types';
 
 /**
  * ServiceDetails Component
@@ -28,7 +27,7 @@ const ServiceDetails = () => {
   const service = data?.service;
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

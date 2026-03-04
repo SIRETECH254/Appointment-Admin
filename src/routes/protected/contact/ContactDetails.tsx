@@ -9,7 +9,7 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import {
   formatDateTimeWithTime,
 } from '../../../utils/contactUtils';
-import type { IContact, ContactStatus } from '../../../types/api.types';
+import type { ContactStatus } from '../../../types/api.types';
 
 /**
  * ContactDetails Component
@@ -58,7 +58,7 @@ const ContactDetails = () => {
   }, [contact, selectedStatus, updateStatus]);
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Get user information if userId exists (must be called before any early returns)
   const userInfo = useMemo(() => {

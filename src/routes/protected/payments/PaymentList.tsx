@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MdAdd } from 'react-icons/md';
-import { FiSearch, FiFilter, FiList, FiEye } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiList, FiEye, FiAlertTriangle } from 'react-icons/fi';
 import { useGetAllPayments } from '../../../tanstack/usePayments';
 import Pagination from '../../../components/ui/Pagination';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -50,7 +50,7 @@ const PaymentList = () => {
     hasPrevPage: false,
   };
 
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -211,8 +211,11 @@ const PaymentList = () => {
 
             {isError && !isLoading && (
               <tr>
-                <td colSpan={8} className="table-cell-center">
-                  <div className="alert-error mx-auto max-w-md">{errorMessage}</div>
+                <td colSpan={8} className="table-cell-center py-12">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <FiAlertTriangle className="text-brand-accent" size={48} />
+                    <p className="text-sm font-medium text-gray-700">{errorMessage}</p>
+                  </div>
                 </td>
               </tr>
             )}

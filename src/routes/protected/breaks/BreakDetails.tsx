@@ -3,7 +3,6 @@ import { Link, useParams } from 'react-router-dom';
 import { FiUser, FiMail, FiClock, FiFileText, FiCalendar, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
 import { useGetBreakById } from '../../../tanstack/useBreaks';
 import { formatBreakDateTime, formatBreakTimeRange, formatFullDateTime, getStaffName, getStaffInitials } from '../../../utils/breakUtils';
-import type { IBreak } from '../../../types/api.types';
 
 /**
  * BreakDetails Component
@@ -49,7 +48,7 @@ const BreakDetails = () => {
   }, [breakItem]);
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {

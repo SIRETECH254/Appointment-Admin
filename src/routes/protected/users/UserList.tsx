@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MdAdd } from 'react-icons/md';
-import { FiSearch, FiFilter, FiList, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiList, FiEye, FiEdit2, FiTrash2, FiAlertTriangle } from 'react-icons/fi';
 import { useGetAllUsers, useDeleteUser } from '../../../tanstack/useUsers';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
@@ -159,7 +159,7 @@ const UserList = () => {
   /**
    * Get error message from API response
    */
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   return (
     <div className="space-y-6">
@@ -320,8 +320,11 @@ const UserList = () => {
             {/* Error state */}
             {isError && !isLoading && (
               <tr>
-                <td colSpan={6} className="table-cell-center">
-                  <div className="alert-error mx-auto max-w-md">{errorMessage}</div>
+                <td colSpan={6} className="table-cell-center py-12">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <FiAlertTriangle className="text-brand-accent" size={48} />
+                    <p className="text-sm font-medium text-gray-700">{errorMessage}</p>
+                  </div>
                 </td>
               </tr>
             )}

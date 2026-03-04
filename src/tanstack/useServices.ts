@@ -156,7 +156,7 @@ export const useToggleServiceStatus = () => {
 export const useAssignServicesToStaff = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<UserDetailResponse, Error, { userId: string; data: AssignServicesToStaffPayload }>({
+  return useMutation<any, Error, { userId: string; data: AssignServicesToStaffPayload }>({
     mutationFn: async ({ userId, data }: { userId: string; data: AssignServicesToStaffPayload }) => {
       const response = await serviceAPI.assignServicesToStaff(userId, data);
       return response.data.data;

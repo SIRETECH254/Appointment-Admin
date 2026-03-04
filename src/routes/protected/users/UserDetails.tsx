@@ -4,7 +4,7 @@ import { FiMail, FiPhone, FiShield, FiCheckCircle, FiXCircle, FiCalendar, FiCloc
 import { useGetUserById } from '../../../tanstack/useUsers';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import { formatDateTimeWithTime, getUserInitials } from '../../../utils/userUtils';
-import type { IUser, IRole } from '../../../types/api.types';
+import type { IRole } from '../../../types/api.types';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
@@ -48,7 +48,7 @@ const UserDetails = () => {
   }, [user]);
 
   // Get error message from API response
-  const errorMessage = error?.response?.data?.message ?? 'An error occurred';
+  const errorMessage = (error as any)?.response?.data?.message ?? 'An error occurred';
 
   // Loading state
   if (isLoading) {
@@ -274,7 +274,7 @@ const UserDetails = () => {
             <FiMail className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase text-gray-400 mb-1">Email Verified</p>
-              <StatusBadge status={user.isEmailVerified || user.emailVerified || false} type="verified-status" />
+              <StatusBadge status={user.isEmailVerified || false} type="verified-status" />
             </div>
           </div>
 
@@ -283,7 +283,7 @@ const UserDetails = () => {
             <FiPhone className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase text-gray-400 mb-1">Phone Verified</p>
-              <StatusBadge status={user.isPhoneVerified || user.phoneVerified || false} type="verified-status" />
+              <StatusBadge status={user.isPhoneVerified || false} type="verified-status" />
             </div>
           </div>
         </div>
