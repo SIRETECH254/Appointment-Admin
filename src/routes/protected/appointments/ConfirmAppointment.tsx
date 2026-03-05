@@ -48,8 +48,8 @@ const ConfirmAppointment = () => {
         },
       });
 
-      const paymentId = result.payment?._id || result.paymentId;
-      const checkoutId = result.gateway?.checkoutRequestId;
+      const paymentId = (result as any).payment?._id || (result as any).paymentId;
+      const checkoutId = (result as any).gateway?.checkoutRequestId;
       navigate(`/payments/status?paymentId=${paymentId}${checkoutId ? `&checkoutId=${checkoutId}` : ''}`);
     } catch (error: any) {
       setInlineMessage({ type: 'error', text: error?.response?.data?.message || 'Failed to confirm appointment.' });

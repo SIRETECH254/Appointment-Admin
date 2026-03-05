@@ -25,7 +25,7 @@ import {
   getAppointmentServicesDisplay,
 } from '../../utils/appointmentUtils';
 import { formatDateTime } from '../../utils/userUtils';
-import type { IAppointment, IPayment, IUser } from '../../types/api.types';
+import type { IAppointment, IPayment, IUser, AdminDashboardResponse, ClientDashboardResponse } from '../../types/api.types';
 
 /**
  * Dashboard Component
@@ -142,8 +142,9 @@ const Dashboard = () => {
   /**
    * Render admin dashboard view
    */
-  if (isAdmin && dashboardData?.data) {
-    const { overview, recentActivity } = dashboardData.data;
+  if (isAdmin && dashboardData) {
+    const adminData = dashboardData as AdminDashboardResponse;
+    const { overview, recentActivity } = adminData;
 
 
 
@@ -362,8 +363,9 @@ const Dashboard = () => {
   /**
    * Render client dashboard view
    */
-  if (!isAdmin && dashboardData?.data) {
-    const { overview, recentActivity } = dashboardData.data;
+  if (!isAdmin && dashboardData) {
+    const clientData = dashboardData as ClientDashboardResponse;
+    const { overview, recentActivity } = clientData;
 
     return (
       <div className="">

@@ -146,7 +146,7 @@ const ServiceAdd = () => {
         const result = await createService.mutateAsync(serviceData);
 
         // Extract service ID from response (handle different response shapes)
-        const createdService = (result as any)?.service ?? (result as IService);
+        const createdService = (result as any)?.service ?? (result as unknown as IService);
         const serviceId = createdService?._id || (result as any)?._id;
 
         // Show success message

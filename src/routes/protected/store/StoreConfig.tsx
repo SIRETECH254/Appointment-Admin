@@ -193,7 +193,7 @@ const StoreConfig = () => {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs uppercase text-gray-400 mb-1">Send SMS</p>
                     <div className="mt-1">
-                      <StatusBadge status={storeConfig.notificationSettings.sendSMS} type="service-status" />
+                      <StatusBadge status={storeConfig.notificationSettings.sendSMS ?? false} type="service-status" />
                     </div>
                   </div>
                 </div>
@@ -202,7 +202,7 @@ const StoreConfig = () => {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs uppercase text-gray-400 mb-1">Send Email</p>
                     <div className="mt-1">
-                      <StatusBadge status={storeConfig.notificationSettings.sendEmail} type="service-status" />
+                      <StatusBadge status={storeConfig.notificationSettings.sendEmail ?? false} type="service-status" />
                     </div>
                   </div>
                 </div>
@@ -211,7 +211,7 @@ const StoreConfig = () => {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs uppercase text-gray-400 mb-1">Send Push</p>
                     <div className="mt-1">
-                      <StatusBadge status={storeConfig.notificationSettings.sendPush} type="service-status" />
+                      <StatusBadge status={storeConfig.notificationSettings.sendPush ?? false} type="service-status" />
                     </div>
                   </div>
                 </div>

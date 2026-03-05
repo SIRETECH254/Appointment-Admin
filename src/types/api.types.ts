@@ -834,6 +834,10 @@ export interface INotificationSettings {
   appointmentConfirmation: { enabled: boolean };
   appointmentCancellation: { enabled: boolean };
   paymentConfirmation: { enabled: boolean };
+  sendSMS?: boolean;
+  sendEmail?: boolean;
+  sendPush?: boolean;
+  reminderTimes?: number[];
 }
 
 export interface IStoreConfiguration {
@@ -848,6 +852,7 @@ export interface IStoreConfiguration {
   businessHours: IBusinessHours;
   businessHoursTimezone: string;
   notificationSettings: INotificationSettings;
+  allowWalkIns?: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -61,7 +61,7 @@ const ServicePayment = () => {
         email: method === 'CARD' ? email : undefined,
       });
 
-      const paymentId = result.payment?._id || result.paymentId;
+      const paymentId = result.payment?._id;
       const checkoutId = result.gateway?.checkoutRequestId;
       navigate(`/payments/status?paymentId=${paymentId}${checkoutId ? `&checkoutId=${checkoutId}` : ''}`);
     } catch (error: any) {

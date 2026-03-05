@@ -35,7 +35,7 @@ const ContactReply = () => {
   const replyToContact = useReplyToContactMessage();
 
   // Extract contact from API response
-  const contact = (data as any)?.contact ?? (data as IContact);
+  const contact = (data as any)?.contact ?? (data as unknown as IContact);
 
   // Form state
   const [replyMessage, setReplyMessage] = useState('');

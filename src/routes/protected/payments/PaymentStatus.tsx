@@ -57,8 +57,7 @@ export default function PaymentStatus() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const payment = useMemo(() => {
-    const root = data?.data ?? data;
-    return root?.data?.payment ?? root?.payment ?? root?.data ?? root;
+    return data?.payment;
   }, [data]);
 
   // Use socket status if available, otherwise use payment status
@@ -267,9 +266,9 @@ export default function PaymentStatus() {
             console.log('Fallback: Querying M-Pesa status from Safaricom...');
 
             const res = await refetchMpesaStatus();
-            const responseData = res?.data?.data ?? res?.data ?? res;
+            const responseData = res?.data ?? res;
             // Backend returns { payment: {...}, status: { ok, resultCode, resultDesc, error, details } }
-            const statusData = responseData?.status ?? responseData;
+            const statusData = (responseData as any)?.status ?? responseData;
             // resultCode can be string "0" or number 0, parse it
             const resultCodeStr = statusData?.resultCode ?? statusData?.raw?.ResultCode ?? statusData?.CODE;
             const resultCode = typeof resultCodeStr === 'string' ? parseInt(resultCodeStr, 10) : (resultCodeStr ?? -1);
