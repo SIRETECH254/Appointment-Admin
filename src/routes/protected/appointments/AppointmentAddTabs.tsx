@@ -262,7 +262,13 @@ const AppointmentAddTabs = () => {
         endTime: selectedSlot.endTime,
         notes: notes.trim() || undefined,
       });
-      navigate(`/appointments/${(result as any)._id}`);
+      
+      const appointmentId = (result as any)?.data?.appointment?._id;
+      if (appointmentId) {
+        navigate(`/appointments/${appointmentId}`);
+      } else {
+        navigate('/appointments');
+      }
     } catch (error: any) {
       setErrorMessage(error?.response?.data?.message || 'Failed to create appointment.');
     }
