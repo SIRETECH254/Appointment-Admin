@@ -13,14 +13,14 @@ import {
   HiBriefcase,
   HiClipboardList
 } from 'react-icons/hi';
-import { FiScissors, FiSearch, FiAlertTriangle } from 'react-icons/fi';
+import { FiSearch, FiAlertTriangle } from 'react-icons/fi';
 import { useAdminCreateAppointment } from '../../../tanstack/useAppointments';
 import { useGetAllServices } from '../../../tanstack/useServices';
 import { useGetAllUsers, useGetCustomers } from '../../../tanstack/useUsers';
 import { useGetSlots } from '../../../tanstack/useAvailability';
 import Pagination from '../../../components/ui/Pagination';
 import { formatCurrency } from '../../../utils/paymentUtils';
-import type { IUser, IService, ITimeSlot } from '../../../types/api.types';
+import type { IUser, ITimeSlot } from '../../../types/api.types';
 
 // Define the tabs for the booking flow
 type BookingTab = 'customer' | 'staff' | 'services' | 'slots' | 'summary';
