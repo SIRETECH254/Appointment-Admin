@@ -1,21 +1,36 @@
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { useCreateAppointment } from '../../../tanstack/useAppointments';
+import { 
+  HiCheck, 
+  HiCheckCircle, 
+  HiCalendar, 
+  HiClock, 
+  HiUser, 
+  HiOutlineUser, 
+  HiPencil, 
+  HiCurrencyDollar,
+  HiBriefcase,
+  HiClipboardList
+} from 'react-icons/hi';
+import { FiScissors, FiSearch, FiAlertTriangle } from 'react-icons/fi';
+import { useAdminCreateAppointment } from '../../../tanstack/useAppointments';
 import { useGetAllServices } from '../../../tanstack/useServices';
-import { useGetAllUsers } from '../../../tanstack/useUsers';
+import { useGetAllUsers, useGetCustomers } from '../../../tanstack/useUsers';
 import { useGetSlots } from '../../../tanstack/useAvailability';
+import Pagination from '../../../components/ui/Pagination';
 import { formatCurrency } from '../../../utils/paymentUtils';
 import type { IUser, IService, ITimeSlot } from '../../../types/api.types';
 
 // Define the tabs for the booking flow
-type BookingTab = 'staff' | 'services' | 'slots' | 'summary';
+type BookingTab = 'customer' | 'staff' | 'services' | 'slots' | 'summary';
 
 const TABS: { key: BookingTab; label: string; step: number }[] = [
-  { key: 'staff', label: 'Staff', step: 1 },
-  { key: 'services', label: 'Services', step: 2 },
-  { key: 'slots', label: 'Slots', step: 3 },
-  { key: 'summary', label: 'Summary', step: 4 },
+  { key: 'customer', label: 'Customer', step: 1 },
+  { key: 'staff', label: 'Staff', step: 2 },
+  { key: 'services', label: 'Services', step: 3 },
+  { key: 'slots', label: 'Slots', step: 4 },
+  { key: 'summary', label: 'Summary', step: 5 },
 ];
 
 /**
@@ -25,10 +40,14 @@ const TABS: { key: BookingTab; label: string; step: number }[] = [
  */
 const AppointmentAddTabs = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<BookingTab>('staff');
+  const [activeTab, setActiveTab] = useState<BookingTab>('customer');
   const [errorMessage, setErrorMessage] = useState<string>('');
   
   // Selection State
+  const [selectedCustomer, setSelectedCustomer] = useState<IUser | null>(null);
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
+  const [debouncedCustomerSearch, setDebouncedCustomerSearch] = useState('');
+  const [customerPage, setCustomerPage] = useState(1);
   const [selectedStaff, setSelectedStaff] = useState<IUser | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -36,24 +55,48 @@ const AppointmentAddTabs = () => {
   const [notes, setNotes] = useState('');
   const [shouldFetchSlots, setShouldFetchSlots] = useState(false);
 
-  // Queries
-  const { data: allStaffData, isLoading: isLoadingStaff } = useGetAllUsers({ role: 'staff', status: 'active' });
-  const allStaff: IUser[] = useMemo(() => {
-    if (!allStaffData) return [];
-    if (Array.isArray(allStaffData)) {
-      return allStaffData;
+  // Debounce customer search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedCustomerSearch(customerSearchTerm);
+      setCustomerPage(1); // Reset to page 1 on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [customerSearchTerm]);
+
+  // Customer Query Params
+  const customerParams = useMemo(() => {
+    const params: any = {
+      page: customerPage,
+      limit: 5,
+    };
+    if (debouncedCustomerSearch.trim()) {
+      params.search = debouncedCustomerSearch.trim();
     }
-    return (allStaffData as any).users || [];
-  }, [allStaffData]);
+    return params;
+  }, [debouncedCustomerSearch, customerPage]);
+
+  // Queries
+  const { data: customerData, isLoading: isLoadingCustomers, isError: isErrorCustomers, error: customerError } = useGetCustomers(customerParams);
+  
+  const customers = customerData?.customers ?? customerData?.users ?? [];
+
+  const customerPagination = customerData?.pagination ?? {
+    currentPage: 1,
+    totalPages: 1,
+    totalUsers: 0,
+    totalCustomers: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
+  };
+
+  const totalCustomerItems = customerPagination.totalCustomers ?? customerPagination.totalUsers ?? 0;
+
+  const { data: allStaffData, isLoading: isLoadingStaff } = useGetAllUsers({ role: 'staff', status: 'active' });
+  const allStaff = allStaffData?.users ?? [];
 
   const { data: allServicesData, isLoading: isLoadingServices } = useGetAllServices({ status: 'active' });
-  const allServices: IService[] = useMemo(() => {
-    if (!allServicesData) return [];
-    if (Array.isArray(allServicesData)) {
-      return allServicesData;
-    }
-    return (allServicesData as any).services || [];
-  }, [allServicesData]);
+  const allServices = allServicesData?.services ?? [];
 
   // Slots Query - only runs when manually triggered via button
   const slotsParams = useMemo(() => {
@@ -68,10 +111,10 @@ const AppointmentAddTabs = () => {
   const { data: slotsData, isLoading: isLoadingSlots, refetch: refetchSlots } = useGetSlots(slotsParams, {
     enabled: shouldFetchSlots && !!slotsParams,
   });
-  const slots: ITimeSlot[] = (slotsData as any)?.slots || [];
+  const slots = slotsData?.slots ?? [];
 
   // Mutation
-  const createMutation = useCreateAppointment();
+  const createMutation = useAdminCreateAppointment();
 
   // Get current step number
   const currentStep = useMemo(() => {
@@ -82,6 +125,10 @@ const AppointmentAddTabs = () => {
    * Validate current tab and return error message if invalid
    */
   const validateCurrentTab = useCallback((): string | null => {
+    if (activeTab === 'customer' && !selectedCustomer) {
+      return 'Please select a customer.';
+    }
+
     if (activeTab === 'staff' && !selectedStaff) {
       return 'Please select a staff member.';
     }
@@ -115,7 +162,7 @@ const AppointmentAddTabs = () => {
     }
     
     return null;
-  }, [activeTab, selectedStaff, selectedServices, selectedDate, shouldFetchSlots, selectedSlot]);
+  }, [activeTab, selectedCustomer, selectedStaff, selectedServices, selectedDate, shouldFetchSlots, selectedSlot]);
 
   /**
    * Validate tab navigation (for step indicator clicks - doesn't show errors)
@@ -124,20 +171,24 @@ const AppointmentAddTabs = () => {
     // Don't set error messages here - only prevent navigation
     // Errors should only show when clicking "Next" button
     
-    if (targetTab === 'services' && !selectedStaff) {
+    if (targetTab === 'staff' && !selectedCustomer) {
+      return false;
+    }
+
+    if (targetTab === 'services' && (!selectedCustomer || !selectedStaff)) {
       return false;
     }
     
-    if (targetTab === 'slots' && (!selectedStaff || selectedServices.length === 0)) {
+    if (targetTab === 'slots' && (!selectedCustomer || !selectedStaff || selectedServices.length === 0)) {
       return false;
     }
     
-    if (targetTab === 'summary' && (!selectedStaff || selectedServices.length === 0 || !selectedSlot)) {
+    if (targetTab === 'summary' && (!selectedCustomer || !selectedStaff || selectedServices.length === 0 || !selectedSlot)) {
       return false;
     }
     
     return true;
-  }, [selectedStaff, selectedServices, selectedSlot]);
+  }, [selectedCustomer, selectedStaff, selectedServices, selectedSlot]);
 
   /**
    * Handle tab change with validation (for step indicator clicks)
@@ -158,7 +209,9 @@ const AppointmentAddTabs = () => {
   useEffect(() => {
     // Only clear error if there's an error message and a valid selection is made
     if (errorMessage) {
-      if (activeTab === 'staff' && selectedStaff) {
+      if (activeTab === 'customer' && selectedCustomer) {
+        setErrorMessage('');
+      } else if (activeTab === 'staff' && selectedStaff) {
         setErrorMessage('');
       } else if (activeTab === 'services' && selectedServices.length > 0) {
         setErrorMessage('');
@@ -166,10 +219,18 @@ const AppointmentAddTabs = () => {
         setErrorMessage('');
       }
     }
-  }, [activeTab, selectedStaff, selectedServices, selectedSlot, errorMessage]);
+  }, [activeTab, selectedCustomer, selectedStaff, selectedServices, selectedSlot, errorMessage]);
 
   /**
-   * Tab 1: Handle Staff Selection
+   * Tab 1: Handle Customer Selection
+   */
+  const handleCustomerSelect = useCallback((customer: IUser) => {
+    setSelectedCustomer(customer);
+    setErrorMessage('');
+  }, []);
+
+  /**
+   * Tab 2: Handle Staff Selection
    * Automatically selects all services offered by the selected staff.
    */
   const handleStaffSelect = useCallback((staff: IUser) => {
@@ -249,13 +310,14 @@ const AppointmentAddTabs = () => {
    * Final Submission
    */
   const handleBooking = async () => {
-    if (!selectedStaff || selectedServices.length === 0 || !selectedSlot) {
+    if (!selectedCustomer || !selectedStaff || selectedServices.length === 0 || !selectedSlot) {
       setErrorMessage('Please complete all steps before booking.');
       return;
     }
 
     try {
       const result = await createMutation.mutateAsync({
+        userId: selectedCustomer._id,
         staffId: selectedStaff._id,
         services: selectedServices,
         startTime: selectedSlot.startTime,
@@ -317,9 +379,7 @@ const AppointmentAddTabs = () => {
                           : 'bg-gray-200'
                     }`}>
                       {isCompleted ? (
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
+                        <HiCheck className="w-5 h-5 text-white" />
                       ) : (
                         <span className={`text-base font-bold ${
                           isActive ? 'text-white' : 'text-gray-500'
@@ -402,7 +462,117 @@ const AppointmentAddTabs = () => {
         </div>
 
         <div className="p-6">
-          {/* Tab 1: Staff Selection */}
+          {/* Tab 1: Customer Selection */}
+          {activeTab === 'customer' && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Select Customer</h2>
+              
+              <div className="mb-6">
+                <div className="relative">
+                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={20} />
+                  <input
+                    type="text"
+                    value={customerSearchTerm}
+                    onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                    placeholder="Search by name, email or phone..."
+                    className="input-search"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {isLoadingCustomers ? (
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="w-full flex-row items-center p-4 rounded-2xl bg-white border border-gray-100 shadow-sm animate-pulse flex"
+                    >
+                      <div className="h-12 w-12 rounded-full bg-gray-200" />
+                      <div className="ml-4 flex-1">
+                        <div className="h-5 w-32 rounded bg-gray-200 mb-2" />
+                        <div className="h-4 w-48 rounded bg-gray-200" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : isErrorCustomers ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <FiAlertTriangle className="text-brand-accent" size={48} />
+                  <p className="text-sm font-medium text-gray-700">
+                    {(customerError as any)?.response?.data?.message || 'Failed to fetch customers'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {customers.length > 0 ? (
+                    <>
+                      {customers.map((customer) => (
+                        <button
+                          key={customer._id}
+                          onClick={() => handleCustomerSelect(customer)}
+                          type="button"
+                          className={`w-full flex-row items-center p-4 rounded-2xl bg-white border ${
+                            selectedCustomer?._id === customer._id 
+                              ? 'border-brand-primary ring-2 ring-brand-primary' 
+                              : 'border-gray-100 hover:border-gray-200'
+                          } shadow-sm transition-all hover:shadow-md flex text-left`}
+                        >
+                          <div className="h-12 w-12 rounded-full bg-gray-200 overflow-hidden items-center justify-center flex flex-shrink-0">
+                            {customer.avatar ? (
+                              <img src={customer.avatar} alt={`${customer.firstName} ${customer.lastName}`} className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-gray-500 font-medium text-lg">
+                                {customer.firstName?.charAt(0)}{customer.lastName?.charAt(0)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="ml-4 flex-1">
+                            <p className="text-base font-bold text-gray-900">{customer.firstName} {customer.lastName}</p>
+                            <p className="text-sm text-gray-500">{customer.email}</p>
+                            {customer.phone && <p className="text-xs text-gray-400 mt-0.5">{customer.phone}</p>}
+                          </div>
+                          {selectedCustomer?._id === customer._id && (
+                            <div className="ml-4">
+                              <div className="h-6 w-6 rounded-full bg-brand-primary flex items-center justify-center">
+                                <HiCheck className="w-4 h-4 text-white" />
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+
+                      {/* Pagination for customer selection */}
+                      {customerPagination.totalPages > 1 && (
+                        <div className="mt-4">
+                          <Pagination
+                            currentPage={customerPagination.currentPage}
+                            totalPages={customerPagination.totalPages}
+                            totalItems={totalCustomerItems}
+                            currentPageCount={customers.length}
+                            onPageChange={setCustomerPage}
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    debouncedCustomerSearch && (
+                      <div className="text-center py-8 text-gray-500">
+                        No customers found matching "{debouncedCustomerSearch}"
+                      </div>
+                    )
+                  )}
+                  {!debouncedCustomerSearch && customers.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      Start typing to search for a customer
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Staff Selection */}
           {activeTab === 'staff' && (
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Select Professional</h2>
@@ -457,9 +627,7 @@ const AppointmentAddTabs = () => {
                           )}
                         </div>
                         {selectedStaff?._id === staff._id && (
-                          <svg className="w-6 h-6 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
+                          <HiCheckCircle className="w-6 h-6 text-brand-primary" />
                         )}
                       </button>
                     );
@@ -605,9 +773,7 @@ const AppointmentAddTabs = () => {
                         /* Show empty state only if no message was provided */
                         !(slotsData as any)?.message && (
                           <div className="items-center py-10 flex flex-col">
-                            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                            <HiCalendar className="w-12 h-12 text-gray-400" />
                             <p className="mt-2 text-gray-400">No available slots for this date</p>
                           </div>
                         )
@@ -624,13 +790,45 @@ const AppointmentAddTabs = () => {
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Review Appointment</h2>
               
+              {/* Customer Card */}
+              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mb-4">
+                <div className="flex-row items-center justify-between mb-3 flex">
+                  <div className="flex-row items-center flex">
+                    <HiOutlineUser className="w-5 h-5 text-brand-primary" />
+                    <span className="text-base font-bold text-gray-900 ml-2">Customer</span>
+                  </div>
+                  <button
+                    onClick={() => handleTabChange('customer')}
+                    type="button"
+                    className="p-2"
+                  >
+                    <HiPencil className="w-5 h-5 text-brand-primary" />
+                  </button>
+                </div>
+                <div className="flex-row items-center flex">
+                  <div className="h-12 w-12 rounded-full bg-gray-200 overflow-hidden items-center justify-center flex">
+                    {selectedCustomer?.avatar ? (
+                      <img src={selectedCustomer.avatar} alt={`${selectedCustomer.firstName} ${selectedCustomer.lastName}`} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-gray-500 font-medium">
+                        {selectedCustomer?.firstName?.charAt(0)}{selectedCustomer?.lastName?.charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-base font-bold text-gray-900">
+                      {selectedCustomer?.firstName} {selectedCustomer?.lastName}
+                    </p>
+                    <p className="text-sm text-gray-500">{selectedCustomer?.email}</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Staff Card */}
               <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mb-4">
                 <div className="flex-row items-center justify-between mb-3 flex">
                   <div className="flex-row items-center flex">
-                    <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
+                    <HiUser className="w-5 h-5 text-brand-primary" />
                     <span className="text-base font-bold text-gray-900 ml-2">Staff</span>
                   </div>
                   <button
@@ -638,9 +836,7 @@ const AppointmentAddTabs = () => {
                     type="button"
                     className="p-2"
                   >
-                    <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
+                    <HiPencil className="w-5 h-5 text-brand-primary" />
                   </button>
                 </div>
                 <div className="flex-row items-center flex">
@@ -658,10 +854,7 @@ const AppointmentAddTabs = () => {
                       {selectedStaff?.firstName} {selectedStaff?.lastName}
                     </p>
                     <div className="flex-row items-center mt-1 flex">
-                      <svg className="w-3.5 h-3.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-                        <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
-                      </svg>
+                      <HiBriefcase className="w-3.5 h-3.5 text-gray-400" />
                       <span className="text-xs text-gray-500 ml-1">
                         {selectedStaff?.roles?.[0]?.displayName || selectedStaff?.roles?.[0]?.name || 'Staff'}
                       </span>
@@ -674,9 +867,7 @@ const AppointmentAddTabs = () => {
               <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mb-4">
                 <div className="flex-row items-center justify-between mb-3 flex">
                   <div className="flex-row items-center flex">
-                    <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M7.707 3.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 5.586V2a1 1 0 10-2 0v3.586L7.707 3.293zM9 9a1 1 0 012 0v7a1 1 0 11-2 0V9z" />
-                    </svg>
+                    <HiClipboardList className="w-5 h-5 text-brand-primary" />
                     <span className="text-base font-bold text-gray-900 ml-2">Services</span>
                   </div>
                   <button
@@ -684,9 +875,7 @@ const AppointmentAddTabs = () => {
                     type="button"
                     className="p-2"
                   >
-                    <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
+                    <HiPencil className="w-5 h-5 text-brand-primary" />
                   </button>
                 </div>
                 <div className="flex-1">
@@ -694,9 +883,7 @@ const AppointmentAddTabs = () => {
                     .filter(s => selectedServices.includes(s._id))
                     .map((service, index) => (
                       <div key={service._id} className="flex-row items-center mb-2 flex">
-                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
+                        <HiCheckCircle className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-gray-600 ml-2 flex-1">
                           {index + 1}. {service.name} - {formatCurrency(service.fullPrice)}
                         </span>
@@ -710,9 +897,7 @@ const AppointmentAddTabs = () => {
                 <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mb-4">
                   <div className="flex-row items-center justify-between mb-3 flex">
                     <div className="flex-row items-center flex">
-                      <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                      </svg>
+                      <HiClock className="w-5 h-5 text-brand-primary" />
                       <span className="text-base font-bold text-gray-900 ml-2">Date & Time</span>
                     </div>
                     <button
@@ -720,32 +905,24 @@ const AppointmentAddTabs = () => {
                       type="button"
                       className="p-2"
                     >
-                      <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
+                      <HiPencil className="w-5 h-5 text-brand-primary" />
                     </button>
                   </div>
                   <div className="flex-1">
                     <div className="flex-row items-center mb-2 flex">
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                      </svg>
+                      <HiCalendar className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-600 ml-2">
                         Date: {format(selectedDate, 'MMMM d, yyyy')}
                       </span>
                     </div>
                     <div className="flex-row items-center mb-2 flex">
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                      </svg>
+                      <HiClock className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-600 ml-2">
                         Start: {format(new Date(selectedSlot.startTime), 'p')}
                       </span>
                     </div>
                     <div className="flex-row items-center flex">
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                      </svg>
+                      <HiClock className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-600 ml-2">
                         End: {format(new Date(selectedSlot.endTime), 'p')}
                       </span>
@@ -757,27 +934,19 @@ const AppointmentAddTabs = () => {
               {/* Price Summary Card */}
               <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mb-6">
                 <div className="flex-row items-center mb-3 flex">
-                  <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                  </svg>
+                  <HiCurrencyDollar className="w-5 h-5 text-brand-primary" />
                   <span className="text-base font-bold text-gray-900 ml-2">Price Summary</span>
                 </div>
                 <div className="flex-row items-center justify-between mb-2 flex">
                   <div className="flex-row items-center flex">
-                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                    </svg>
+                    <HiClock className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-gray-600 ml-2">Total Duration:</span>
                   </div>
                   <span className="text-sm font-bold text-gray-900">{totals.duration} mins</span>
                 </div>
                 <div className="flex-row items-center justify-between flex">
                   <div className="flex-row items-center flex">
-                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                    </svg>
+                    <HiCurrencyDollar className="w-4 h-4 text-gray-400" />
                     <span className="text-base font-bold text-gray-900 ml-2">Total Price:</span>
                   </div>
                   <span className="text-base font-bold text-brand-primary">{formatCurrency(totals.price)}</span>
@@ -813,14 +982,16 @@ const AppointmentAddTabs = () => {
 
         {/* Navigation Footer */}
         <div className="p-4 bg-white border-t border-gray-100 flex-row gap-4 flex">
-          {activeTab !== 'staff' && (
+          {activeTab !== 'customer' && (
             <button
               onClick={() => {
                 // Clear error when going back to previous tab
                 setErrorMessage('');
                 
                 // Navigate to previous tab
-                if (activeTab === 'services') {
+                if (activeTab === 'staff') {
+                  setActiveTab('customer');
+                } else if (activeTab === 'services') {
                   setActiveTab('staff');
                 } else if (activeTab === 'slots') {
                   setActiveTab('services');
@@ -848,7 +1019,9 @@ const AppointmentAddTabs = () => {
               setErrorMessage('');
               
               // Proceed to next tab
-              if (activeTab === 'staff') {
+              if (activeTab === 'customer') {
+                setActiveTab('staff');
+              } else if (activeTab === 'staff') {
                 setActiveTab('services');
               } else if (activeTab === 'services') {
                 setActiveTab('slots');

@@ -4,6 +4,7 @@ import type {
   CancelAppointmentPayload,
   ConfirmAppointmentPayload,
   CreateAppointmentPayload,
+  AdminCreateAppointmentPayload,
   GetAppointmentsParams,
   GetMyAppointmentsParams,
   RescheduleAppointmentPayload,
@@ -69,6 +70,27 @@ export const useCreateAppointment = () => {
     },
     onError: (error: any) => {
       console.error('Create appointment error:', error);
+      const errorMessage = error.response?.data?.message;
+      console.error('Error:', errorMessage);
+    },
+  });
+};
+
+// Admin create appointment
+export const useAdminCreateAppointment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<AppointmentDetailResponse, Error, AdminCreateAppointmentPayload>({
+    mutationFn: async (appointmentData: AdminCreateAppointmentPayload) => {
+      const response = await appointmentAPI.adminCreate(appointmentData);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      console.log('Appointment created successfully by admin');
+    },
+    onError: (error: any) => {
+      console.error('Admin create appointment error:', error);
       const errorMessage = error.response?.data?.message;
       console.error('Error:', errorMessage);
     },

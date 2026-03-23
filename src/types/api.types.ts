@@ -29,7 +29,8 @@ export interface AppointmentsPagination extends BasePagination {
 }
 
 export interface UsersPagination extends BasePagination {
-  totalUsers: number;
+  totalUsers?: number;
+  totalCustomers?: number;
 }
 
 export interface ServicesPagination extends BasePagination {
@@ -213,7 +214,8 @@ export interface GetUsersParams extends PaginationParams {
 
 // User Response Types
 export interface UsersListResponse {
-  users: IUser[];
+  users?: IUser[];
+  customers?: IUser[];
   pagination: UsersPagination;
 }
 
@@ -373,6 +375,10 @@ export interface CreateAppointmentPayload {
   startTime: string; // ISO 8601 format
   endTime: string; // ISO 8601 format
   notes?: string;
+}
+
+export interface AdminCreateAppointmentPayload extends CreateAppointmentPayload {
+  userId?: string;
 }
 
 export interface ConfirmAppointmentPayload {

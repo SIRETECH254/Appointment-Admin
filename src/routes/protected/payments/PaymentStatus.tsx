@@ -345,7 +345,7 @@ export default function PaymentStatus() {
 
   return (
     <div className="space-y-6">
-      <div className="px-6 py-6 gap-6">
+      <div className="px-6 py-6 space-y-6">
         <div className="gap-3">
           <div className="flex-row items-center justify-between flex-wrap gap-3">
             <div>
@@ -371,12 +371,12 @@ export default function PaymentStatus() {
             {!isCompleted && !isFailed ? (
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-brand-primary"></div>
             ) : isCompleted ? (
-              <div className="text-6xl text-green-600">✓</div>
+              <div className="text-6xl text-green-600 text-center">✓</div>
             ) : (
-              <div className="text-6xl text-red-600">✗</div>
+              <div className="text-6xl text-red-600 text-center">✗</div>
             )}
             <div className="items-center gap-2">
-              <h2 className="text-2xl font-semibold text-gray-900">
+              <h2 className="text-2xl font-semibold text-gray-900 text-center">
                 {isCompleted
                   ? 'Payment Completed'
                   : isFailed

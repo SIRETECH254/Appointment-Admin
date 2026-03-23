@@ -28,6 +28,7 @@ import type {
   GetServicesParams,
   // Appointment types
   CreateAppointmentPayload,
+  AdminCreateAppointmentPayload,
   ConfirmAppointmentPayload,
   RescheduleAppointmentPayload,
   CancelAppointmentPayload,
@@ -186,6 +187,8 @@ export const serviceAPI = {
 // ============================================
 export const appointmentAPI = {
   create: (appointmentData: CreateAppointmentPayload) => api.post('/api/appointments', appointmentData),
+
+  adminCreate: (appointmentData: AdminCreateAppointmentPayload) => api.post('/api/appointments/admin/create', appointmentData),
 
   confirm: (appointmentId: string, paymentData: ConfirmAppointmentPayload) => api.post(`/api/appointments/${appointmentId}/confirm`, paymentData),
 
