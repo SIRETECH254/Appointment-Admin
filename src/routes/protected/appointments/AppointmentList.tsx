@@ -220,8 +220,7 @@ const AppointmentList = () => {
           {/* Table header */}
           <thead className="table-header">
             <tr>
-              <th className="table-header-cell">Customer</th>
-              <th className="table-header-cell">Staff</th>
+              <th className="table-header-cell">Appointment Number</th>
               <th className="table-header-cell">Date/Time</th>
               <th className="table-header-cell">Status</th>
               <th className="table-header-cell">Amount</th>
@@ -238,9 +237,6 @@ const AppointmentList = () => {
                   <tr key={`skeleton-${index}`}>
                     <td className="table-cell">
                       <div className="h-4 w-32 animate-pulse rounded bg-gray-300" />
-                    </td>
-                    <td className="table-cell">
-                      <div className="h-4 w-24 animate-pulse rounded bg-gray-300" />
                     </td>
                     <td className="table-cell">
                       <div className="h-4 w-36 animate-pulse rounded bg-gray-300" />
@@ -264,7 +260,7 @@ const AppointmentList = () => {
             {/* Error state */}
             {isError && !isLoading && (
               <tr>
-                <td colSpan={6} className="table-cell-center py-12">
+                <td colSpan={5} className="table-cell-center py-12">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <FiAlertTriangle className="text-brand-accent" size={48} />
                     <p className="text-sm font-medium text-gray-700">{errorMessage}</p>
@@ -276,7 +272,7 @@ const AppointmentList = () => {
             {/* Empty state */}
             {!isLoading && !isError && appointments.length === 0 && (
               <tr>
-                <td colSpan={6} className="table-cell-center">
+                <td colSpan={5} className="table-cell-center">
                   <p className="text-gray-500">No appointments found.</p>
                   {debouncedSearch || filterStatus !== 'all' || filterStaffId !== 'all' ? (
                     <p className="mt-2 text-sm text-gray-400">
@@ -295,16 +291,11 @@ const AppointmentList = () => {
 
                 return (
                   <tr key={appointment._id} className="table-row">
-                    {/* Customer */}
+                    {/* Appointment Number */}
                     <td className="table-cell">
                       <div className="font-medium text-gray-900 whitespace-nowrap">
-                        {getAppointmentCustomerName(appointment)}
+                        {appointment?.appointmentNumber}
                       </div>
-                    </td>
-
-                    {/* Staff */}
-                    <td className="table-cell-text">
-                      {getAppointmentStaffName(appointment)}
                     </td>
 
                     {/* Date/Time */}

@@ -225,7 +225,7 @@ const AppointmentDetails = () => {
             )}
           <div>
               <h1 className="text-xl font-semibold text-gray-900">
-                Appointment #{appointment._id.slice(0, 8)}
+                Appointment #{appointment?.appointmentNumber}
               </h1>
               <p className="text-sm text-gray-500 mt-1">{staffName}</p>
               <div className="mt-3">

@@ -352,6 +352,7 @@ export interface IAppointmentService {
 
 export interface IAppointment {
   _id: string;
+  appointmentNumber?: string;
   customerId: string | IUser;
   staffId: string | IUser;
   services: string[] | IAppointmentService[]; // Array of service IDs or populated service objects
