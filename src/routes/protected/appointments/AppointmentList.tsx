@@ -6,7 +6,7 @@ import { useGetAllAppointments } from '../../../tanstack/useAppointments';
 import { useGetAllUsers } from '../../../tanstack/useUsers';
 import Pagination from '../../../components/ui/Pagination';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { formatAppointmentDateTime, getAppointmentCustomerName, getAppointmentStaffName } from '../../../utils/appointmentUtils';
+import { formatAppointmentDateTime } from '../../../utils/appointmentUtils';
 import { formatCurrency } from '../../../utils/paymentUtils';
 import type { IAppointment } from '../../../types/api.types';
 
