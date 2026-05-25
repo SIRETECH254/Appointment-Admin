@@ -428,6 +428,8 @@ export interface ITimeSlot {
   startTime: string;
   endTime: string;
   available: boolean;
+  type?: 'available' | 'break';
+  reason?: string;
 }
 
 export interface GetSlotsParams {

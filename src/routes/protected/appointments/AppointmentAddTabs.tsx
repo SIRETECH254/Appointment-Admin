@@ -750,24 +750,32 @@ const AppointmentAddTabs = () => {
                       {/* Show slots if available */}
                       {slots.length > 0 ? (
                         <div className="flex flex-wrap gap-3">
-                          {slots.map((slot, index) => (
-                            <button
-                              key={index}
-                              onClick={() => setSelectedSlot(slot)}
-                              type="button"
-                              className={`px-4 py-3 rounded-xl border ${
-                                selectedSlot?.startTime === slot.startTime 
-                                  ? 'bg-brand-primary/10 border-brand-primary' 
-                                  : 'bg-white border-gray-200 hover:bg-gray-50'
-                              }`}
-                            >
-                              <span className={`font-bold ${
-                                selectedSlot?.startTime === slot.startTime ? 'text-gray-800' : 'text-gray-700'
-                              }`}>
-                                {format(new Date(slot.startTime), 'p')}
-                              </span>
-                            </button>
-                          ))}
+                          {slots.map((slot, index) => {
+                            const isBreak = slot.type === 'break';
+                            return (
+                              <button
+                                key={index}
+                                onClick={() => !isBreak && setSelectedSlot(slot)}
+                                disabled={isBreak}
+                                type="button"
+                                className={`px-4 py-3 rounded-xl border ${
+                                  isBreak
+                                    ? 'bg-gray-100 border-gray-200 cursor-not-allowed text-gray-400'
+                                    : selectedSlot?.startTime === slot.startTime 
+                                      ? 'bg-brand-primary/10 border-brand-primary' 
+                                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                                }`}
+                              >
+                                <span className={`font-bold ${
+                                  isBreak 
+                                    ? 'text-gray-400' 
+                                    : selectedSlot?.startTime === slot.startTime ? 'text-gray-800' : 'text-gray-700'
+                                }`}>
+                                  {isBreak ? 'Break' : format(new Date(slot.startTime), 'p')}
+                                </span>
+                              </button>
+                            );
+                          })}
                         </div>
                       ) : (
                         /* Show empty state only if no message was provided */

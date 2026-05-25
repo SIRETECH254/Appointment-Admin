@@ -74,20 +74,26 @@ const DateSlotSelectionTab: React.FC<DateSlotSelectionTabProps> = ({
         <div className="md:col-span-2">
           <label className="label">Select Time Slot *</label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-200 rounded p-2">
-            {availableSlots.map((slot: ITimeSlot, index: number) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setSelectedSlot(slot)}
-                className={`p-2 rounded border text-sm transition-colors ${
-                  selectedSlot?.startTime === slot.startTime
-                    ? 'bg-brand-primary text-white border-brand-primary'
-                    : 'bg-white hover:bg-gray-50 border-gray-300'
-                }`}
-              >
-                {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-              </button>
-            ))}
+            {availableSlots.map((slot: ITimeSlot, index: number) => {
+              const isBreak = slot.type === 'break';
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => !isBreak && setSelectedSlot(slot)}
+                  disabled={isBreak}
+                  className={`p-2 rounded border text-sm transition-colors ${
+                    isBreak
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                      : selectedSlot?.startTime === slot.startTime
+                        ? 'bg-brand-primary text-white border-brand-primary'
+                        : 'bg-white hover:bg-gray-50 border-gray-300'
+                  }`}
+                >
+                  {isBreak ? 'Break' : `${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
